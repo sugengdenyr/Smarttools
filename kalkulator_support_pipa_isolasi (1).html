@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Support Pipa & Isolasi - Rekomendasi BPB</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js for 3D Pipe & Support Frame Visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            .print-text {
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <!-- Header Banner -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 shadow-inner">
+                    <i data-lucide="wrench" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-white leading-tight flex items-center gap-2">
+                        Kalkulator Support Pipa & Isolasi
+                    </h1>
+                    <p class="text-xs text-slate-400">Estimasi Kebutuhan Profil Steel Support (Siku & UNP), Spasial Hanger & Rekomendasi BPB</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 font-mono flex items-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-400"></i> Standar Pemasangan Support
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Input Panel -->
+        <section class="lg:col-span-5 flex flex-col gap-5 no-print">
+            
+            <!-- Card 1: Input Parameter Pipa & Support -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4"></i> 1. Form Input Pipa & Support
+                    </h2>
+                    <span class="text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                        Auto Support Standard
+                    </span>
+                </div>
+
+                <!-- Pipe Material Selector -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Jenis Pipa & Panjang Per Batang</label>
+                    <select id="selectPipeMaterial" onchange="onPipeMaterialChange()" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="galvanis" selected>Pipa Galvanis (6.0 Meter / Batang)</option>
+                        <option value="blacksteel">Pipa Black Steel (6.0 Meter / Batang)</option>
+                        <option value="stainless">Pipa Stainless Steel (6.0 Meter / Batang)</option>
+                        <option value="ppr">Pipa PPR (4.0 Meter / Batang)</option>
+                        <option value="pvc">Pipa PVC (4.0 Meter / Batang)</option>
+                        <option value="custom">Custom Panjang (User Input)</option>
+                    </select>
+                </div>
+
+                <!-- Pipe Class / Schedule Selection -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Kelas / Schedule Ketebalan Pipa</label>
+                    <select id="selectPipeSchedule" onchange="onPipeScheduleChange()" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <!-- Options populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Pipe Size Selection & Dynamic OD -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran Pipa (NPS)</label>
+                        <select id="selectPipeSize" onchange="onPipeSizeChange()" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                            <!-- Populated in JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Diameter Luar / OD (mm)</label>
+                        <input type="number" id="inputCustomOD" value="60.3" min="1" step="0.1" oninput="calculateLivePreview()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Joint Length & Quantity Inputs -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang / Batang (m)</label>
+                        <input type="number" id="inputLengthPerJoint" value="6.0" min="0.5" step="0.5" oninput="calculateLivePreview()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Batang (Qty)</label>
+                        <input type="number" id="inputJointCount" value="1" min="1" step="1" oninput="calculateLivePreview()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Insulation Toggle & Thickness -->
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-cyan-400 flex items-center gap-1.5">
+                            <i data-lucide="shield" class="w-3.5 h-3.5"></i> Pemasangan Isolasi Pipa
+                        </label>
+                        <select id="selectInsulationStatus" onchange="onInsulationStatusChange()"
+                            class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
+                            <option value="no">Tanpa Isolasi</option>
+                            <option value="yes">Dengan Isolasi</option>
+                        </select>
+                    </div>
+
+                    <div id="containerInsulationThickness" class="hidden">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Isolasi (mm)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="inputInsulationThickness" value="25" min="1" step="1" oninput="calculateLivePreview()"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                            <span class="text-xs text-slate-400 font-mono">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Rule Recommendation Banner -->
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="flex justify-between items-center text-blue-400 font-bold border-b border-slate-800/80 pb-1.5">
+                    <span class="flex items-center gap-1"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Logika Otomatis Support & Aksesori:</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                    <div>
+                        <span class="text-slate-400 block">Profil Support:</span>
+                        <span id="previewSupportType" class="text-amber-400 font-bold">UNP 50mm</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Jarak Spasi:</span>
+                        <span id="previewSupportSpacing" class="text-emerald-400 font-bold">3.0 Meter</span>
+                    </div>
+                    <div class="col-span-2 border-t border-slate-800/60 pt-1.5 flex justify-between">
+                        <span class="text-slate-400">Komponen Aksesori:</span>
+                        <span id="previewFastenerType" class="text-cyan-300 font-bold">U-Bolt 2" c/w 2 Ring & 2 Mur</span>
+                    </div>
+                    <div class="col-span-2 border-t border-slate-800/60 pt-1 flex justify-between">
+                        <span class="text-slate-400">Panjang Frame / Support:</span>
+                        <span id="previewSupportLengthPerPcs" class="text-amber-300 font-bold">4.11 Mtr / bh</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Button -->
+            <button onclick="addItemToTable()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/30">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambahkan Ke Daftar Entry Pipa
+            </button>
+        </div>
+
+    </section>
+
+    <!-- Right Output Panel -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+
+        <!-- KPI Results Overview Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 no-print">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Item Pipa</span>
+                <div class="my-1">
+                    <span id="kpiTotalItemsCount" class="text-xl font-black text-blue-400 font-mono">0</span>
+                    <span class="text-[10px] text-slate-400 block">Jalur Pipa Terdaftar</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Support Frame</span>
+                <div class="my-1">
+                    <span id="kpiTotalSupportQty" class="text-xl font-black text-amber-400 font-mono">0</span>
+                    <span class="text-[10px] text-slate-400 block">Unit Frame Gantung</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Panjang Profile</span>
+                <div class="my-1">
+                    <span id="kpiTotalProfileMeters" class="text-xl font-black text-emerald-400 font-mono">0.0</span>
+                    <span class="text-[10px] text-slate-400 block">Meter Profil Steel</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order Batang Steel</span>
+                <div class="my-1">
+                    <span id="kpiTotalProfileBars" class="text-xl font-black text-cyan-400 font-mono">0</span>
+                    <span class="text-[10px] text-slate-400 block">Batang (@ 6.0 Meter)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Interactive Visualizer Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center no-print">
+            <div class="w-full flex items-center justify-between mb-2 border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                    <i data-lucide="box" class="w-4 h-4 text-blue-400"></i> Visualisasi 3D Support Gantung Type U & Komponen Aksesori
+                </h3>
+                <span class="text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-mono">
+                    Putar 360° (Mouse / Touch)
+                </span>
+            </div>
+
+            <!-- 3D Container -->
+            <div class="relative w-full h-64 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing shadow-inner" id="container3d">
+                <canvas id="canvas3d" class="w-full h-full block"></canvas>
+                <div class="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] text-slate-300 font-mono shadow">
+                    💡 Visualisasi Presisi Sesuai OD Pipa, Isolasi & Aksesori (U-Bolt / Hardblock)
+                </div>
+            </div>
+
+            <!-- Color Legends -->
+            <div class="flex flex-wrap justify-center gap-4 text-[11px] mt-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-slate-400 border border-slate-200"></span> 
+                    <span class="text-slate-200 font-medium">Pipa Inti</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-600 border border-cyan-300"></span> Isolasi Pipa
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-amber-500 border border-amber-300"></span> Steel Support Frame
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-emerald-300"></span> U-Bolt / Hardblock
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Entry Table (Daftar Pipa Terdaftar) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3 no-print">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                    <i data-lucide="list-checks" class="w-4 h-4 text-emerald-400"></i> Daftar Data Entry Pipa & Hasil Support
+                </h3>
+                <span class="text-[10px] text-slate-400">Opsi Hapus untuk Merevisi Data</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-semibold uppercase text-[10px]">
+                            <th class="py-2.5 px-3">No</th>
+                            <th class="py-2.5 px-3">Spesifikasi Pipa</th>
+                            <th class="py-2.5 px-3 text-center">Isolasi</th>
+                            <th class="py-2.5 px-3">Profil & Spasi</th>
+                            <th class="py-2.5 px-3">Aksesori Support</th>
+                            <th class="py-2.5 px-3 text-right">Support (Qty)</th>
+                            <th class="py-2.5 px-3 text-right">Panjang/Bh</th>
+                            <th class="py-2.5 px-3 text-right font-bold text-amber-400">Total Steel</th>
+                            <th class="py-2.5 px-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableDataEntryBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                        <tr>
+                            <td colspan="9" class="py-6 text-center text-slate-500 font-sans italic text-xs">
+                                Belum ada data pipa ditambahkan. Isi form di sebelah kiri dan klik "Tambahkan Ke Daftar Entry Pipa".
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rekomendasi BPB (Bon Permintaan Barang) Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-400"></i>
+                        <h3 class="text-sm sm:text-base font-bold text-white print-text">
+                            Summary Kebutuhan Support & Aksesori (Bon Permintaan Barang)
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-400 print-text">
+                        Akumulasi Rekomendasi Profil Steel Support & Komponen Aksesori (U-Bolt c/w Ring & Mur / Hardblock) untuk Diorder
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="copyBPBToClipboard()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin BPB
+                    </button>
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Bon BPB
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Summary Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-semibold uppercase">
+                            <th class="py-2.5 px-3">No</th>
+                            <th class="py-2.5 px-3">Deskripsi Material / Aksesori Support</th>
+                            <th class="py-2.5 px-3 text-center">Peruntukan Pipa</th>
+                            <th class="py-2.5 px-3 text-right">Kebutuhan Qty</th>
+                            <th class="py-2.5 px-3 text-right">Meter Bersih</th>
+                            <th class="py-2.5 px-3 text-right font-bold text-emerald-400">Rekomendasi Order BPB</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBpbSummaryBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                        <tr>
+                            <td colspan="6" class="py-6 text-center text-slate-500 font-sans italic text-xs">
+                                Summary order akan muncul otomatis setelah Anda memasukkan data entri pipa.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Notification Alert -->
+            <div id="bpbCopyMessage" class="hidden p-2.5 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-emerald-300 text-center font-sans no-print">
+                ✓ Rekomendasi Bon Permintaan Barang (BPB) Support & Aksesori Pipa berhasil disalin ke clipboard!
+            </div>
+
+            <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
+                <span>* Formulasi Panjang 1 Support Gantung = Kaki Kiri (2m) + Kaki Kanan (2m) + Lebar Bawah (OD + Isolasi x 2).</span>
+                <span>* Pembulatan order profil steel per batang 6.0 meter.</span>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-slate-950 border-t border-slate-900 py-4 px-6 text-center text-xs text-slate-500 mt-auto no-print">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+        <span>Kalkulator Estimasi Support Pipa & Isolasi Interaktif</span>
+        <span class="font-medium text-slate-400">© 2026 Sugeng Deny Ramdani - Modul Sistem Instalasi Pipa</span>
+    </div>
+</footer>
+
+<!-- Logic JavaScript -->
+<script>
+    const PIPE_SIZES = [
+        { name: '1/2"', inch: 0.5 },
+        { name: '3/4"', inch: 0.75 },
+        { name: '1"', inch: 1.0 },
+        { name: '1 1/4"', inch: 1.25 },
+        { name: '1 1/2"', inch: 1.5 },
+        { name: '2"', inch: 2.0 },
+        { name: '2 1/2"', inch: 2.5 },
+        { name: '3"', inch: 3.0 },
+        { name: '4"', inch: 4.0 },
+        { name: '6"', inch: 6.0 },
+        { name: '8"', inch: 8.0 },
+        { name: '10"', inch: 10.0 }
+    ];
+
+    const PIPE_OD_MATRIX = {
+        '1/2"': 21.3,
+        '3/4"': 26.7,
+        '1"': 33.4,
+        '1 1/4"': 42.2,
+        '1 1/2"': 48.3,
+        '2"': 60.3,
+        '2 1/2"': 73.0,
+        '3"': 88.9,
+        '4"': 114.3,
+        '6"': 168.3,
+        '8"': 219.1,
+        '10"': 273.1
+    };
+
+    const SCHEDULE_MAP = {
+        galvanis: ['Class Medium', 'Class Light', 'Class Heavy'],
+        blacksteel: ['Sch 40', 'Sch 20', 'Sch 10', 'Sch 80'],
+        stainless: ['Sch 10', 'Sch 40', 'Sch 80'],
+        ppr: ['PN 16', 'PN 10', 'PN 20'],
+        pvc: ['Kelas AW', 'Kelas D'],
+        custom: ['Standard']
+    };
+
+    const MATERIAL_NAMES = {
+        galvanis: 'Pipa Galvanis',
+        blacksteel: 'Pipa Black Steel',
+        stainless: 'Pipa Stainless Steel',
+        ppr: 'Pipa PPR',
+        pvc: 'Pipa PVC',
+        custom: 'Pipa Custom'
+    };
+
+    let registeredItems = [];
+
+    /**
+     * Rule 1: Support Material Profile based on Pipe Size
+     * - pipa kurang 2" -> Siku 40x40mm
+     * - pipa 2" s/d 2,5" -> UNP 50mm
+     * - Pipa 3" s/d 4" -> UNP 80mm
+     * - Pipa 6" -> UNP 100mm
+     * - Pipa 8" s/d 10" -> UNP 150mm
+     */
+    function getSupportProfileInfo(inchSize) {
+        if (inchSize < 2.0) {
+            return { name: "Siku 40x40 mm", baseWidthM: 0.04, code: "SIKU_40" };
+        } else if (inchSize <= 2.5) {
+            return { name: "UNP 50 mm", baseWidthM: 0.05, code: "UNP_50" };
+        } else if (inchSize <= 4.0) {
+            return { name: "UNP 80 mm", baseWidthM: 0.08, code: "UNP_80" };
+        } else if (inchSize <= 6.0) {
+            return { name: "UNP 100 mm", baseWidthM: 0.10, code: "UNP_100" };
+        } else {
+            return { name: "UNP 150 mm", baseWidthM: 0.15, code: "UNP_150" };
+        }
+    }
+
+    /**
+     * Rule 2: Support Spacing based on Pipe Size
+     * - 1,5 meter jika 0,5"
+     * - 2 meter jika 1" s/d 1,5"
+     * - 3 meter jika lebih dari 2" s/d 6"
+     * - 6 meter jika 8" s/d 10"
+     */
+    function getSupportSpacingMeters(inchSize) {
+        if (inchSize <= 0.75) {
+            return 1.5;
+        } else if (inchSize <= 1.5) {
+            return 2.0;
+        } else if (inchSize <= 6.0) {
+            return 3.0;
+        } else {
+            return 6.0;
+        }
+    }
+
+    /**
+     * Rule 3: Fasteners (U-Bolt vs Hardblock)
+     * - Jika tanpa isolasi -> U-Bolt c/w 2 Ring & 2 Mur
+     * - Jika dengan isolasi -> Hardblock Pipe Support
+     */
+    function getFastenerInfo(sizeName, isInsulated, isoThickness) {
+        if (isInsulated) {
+            return {
+                type: 'hardblock',
+                code: `HARDBLOCK_${sizeName.replace(/\s+/g, '')}`,
+                name: `Hardblock Pipe Support ${sizeName} (Tebal Isolasi ${isoThickness}mm)`,
+                unit: 'Pcs'
+            };
+        } else {
+            return {
+                type: 'ubolt',
+                code: `UBOLT_${sizeName.replace(/\s+/g, '')}`,
+                name: `U-Bolt ${sizeName} c/w 2 Ring & 2 Mur`,
+                unit: 'Set'
+            };
+        }
+    }
+
+    function populateSizeDropdown() {
+        const select = document.getElementById('selectPipeSize');
+        const previousIdx = select.selectedIndex >= 0 ? select.selectedIndex : 5;
+
+        select.innerHTML = '';
+        PIPE_SIZES.forEach((p, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            const od = PIPE_OD_MATRIX[p.name] || 60.3;
+            opt.textContent = `${p.name} (OD: ${od} mm)`;
+            select.appendChild(opt);
+        });
+        select.selectedIndex = Math.min(previousIdx, PIPE_SIZES.length - 1);
+    }
+
+    function populateScheduleDropdown() {
+        const mat = document.getElementById('selectPipeMaterial').value;
+        const schedSelect = document.getElementById('selectPipeSchedule');
+        schedSelect.innerHTML = '';
+
+        const options = SCHEDULE_MAP[mat] || ['Class Medium'];
+        options.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            schedSelect.appendChild(opt);
+        });
+    }
+
+    function onPipeMaterialChange() {
+        const mat = document.getElementById('selectPipeMaterial').value;
+        const lengthInput = document.getElementById('inputLengthPerJoint');
+
+        populateScheduleDropdown();
+        populateSizeDropdown();
+
+        if (mat === 'ppr' || mat === 'pvc') {
+            lengthInput.value = 4.0;
+            lengthInput.readOnly = true;
+        } else if (mat === 'galvanis' || mat === 'blacksteel' || mat === 'stainless') {
+            lengthInput.value = 6.0;
+            lengthInput.readOnly = true;
+        } else {
+            lengthInput.readOnly = false;
+        }
+
+        syncPipeODFromSelection();
+        calculateLivePreview();
+    }
+
+    function onPipeScheduleChange() {
+        calculateLivePreview();
+    }
+
+    function onPipeSizeChange() {
+        syncPipeODFromSelection();
+        calculateLivePreview();
+    }
+
+    function syncPipeODFromSelection() {
+        const idx = parseInt(document.getElementById('selectPipeSize').value);
+        const selectedPipe = PIPE_SIZES[idx] || {};
+        if (selectedPipe.name && PIPE_OD_MATRIX[selectedPipe.name]) {
+            document.getElementById('inputCustomOD').value = PIPE_OD_MATRIX[selectedPipe.name];
+        }
+    }
+
+    function onInsulationStatusChange() {
+        const status = document.getElementById('selectInsulationStatus').value;
+        const container = document.getElementById('containerInsulationThickness');
+        if (status === 'yes') {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+        calculateLivePreview();
+    }
+
+    function getCalculatedCurrentInput() {
+        const matKey = document.getElementById('selectPipeMaterial').value;
+        const matName = MATERIAL_NAMES[matKey] || 'Pipa';
+        const schedule = document.getElementById('selectPipeSchedule').value || 'Class Medium';
+
+        const sizeIdx = parseInt(document.getElementById('selectPipeSize').value);
+        const sizeObj = PIPE_SIZES[sizeIdx] || { name: '2"', inch: 2.0 };
+        
+        const od_mm = parseFloat(document.getElementById('inputCustomOD').value) || 60.3;
+        const jointLen = parseFloat(document.getElementById('inputLengthPerJoint').value) || 6.0;
+        const jointQty = parseInt(document.getElementById('inputJointCount').value) || 1;
+        const totalPipeLengthM = jointLen * jointQty;
+
+        const isInsulated = document.getElementById('selectInsulationStatus').value === 'yes';
+        const isoThickness_mm = isInsulated ? (parseFloat(document.getElementById('inputInsulationThickness').value) || 0) : 0;
+
+        // Support Rules
+        const profileInfo = getSupportProfileInfo(sizeObj.inch);
+        const spacingM = getSupportSpacingMeters(sizeObj.inch);
+        const fastenerInfo = getFastenerInfo(sizeObj.name, isInsulated, isoThickness_mm);
+
+        // Support Quantity = Total Pipe Length / Support Spacing
+        const supportQty = Math.ceil(totalPipeLengthM / spacingM);
+        const fastenerQty = supportQty; // 1 support = 1 Ubolt set or 1 Hardblock pcs
+
+        // Width & Height Calculations for Frame
+        const od_meter = od_mm / 1000.0;
+        const isoAdd_meter = (isoThickness_mm * 2) / 1000.0;
+        const bottomWidthM = profileInfo.baseWidthM + od_meter + isoAdd_meter;
+
+        // Support Gantung U-type: Leg1 (2m) + Leg2 (2m) + Bottom
+        const lengthPerSupportM = 2.0 + 2.0 + bottomWidthM;
+        const totalProfileLengthM = supportQty * lengthPerSupportM;
+
+        return {
+            matName,
+            schedule,
+            sizeName: sizeObj.name,
+            inchSize: sizeObj.inch,
+            od_mm,
+            jointLen,
+            jointQty,
+            totalPipeLengthM,
+            isInsulated,
+            isoThickness_mm,
+            profileInfo,
+            spacingM,
+            fastenerInfo,
+            supportQty,
+            fastenerQty,
+            bottomWidthM,
+            lengthPerSupportM,
+            totalProfileLengthM
+        };
+    }
+
+    function calculateLivePreview() {
+        const data = getCalculatedCurrentInput();
+
+        document.getElementById('previewSupportType').textContent = data.profileInfo.name;
+        document.getElementById('previewSupportSpacing').textContent = `${data.spacingM} Meter`;
+        document.getElementById('previewFastenerType').textContent = `${data.fastenerInfo.name}`;
+        document.getElementById('previewSupportLengthPerPcs').textContent = `${data.lengthPerSupportM.toFixed(3)} Mtr / bh`;
+
+        update3DModel(data);
+    }
+
+    function addItemToTable() {
+        const item = getCalculatedCurrentInput();
+        registeredItems.push(item);
+
+        renderTable();
+        renderBpbSummary();
+        updateKPIs();
+        
+        lucide.createIcons();
+    }
+
+    function deleteItem(index) {
+        registeredItems.splice(index, 1);
+        renderTable();
+        renderBpbSummary();
+        updateKPIs();
+        lucide.createIcons();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableDataEntryBody');
+        if (registeredItems.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="py-6 text-center text-slate-500 font-sans italic text-xs">
+                        Belum ada data pipa ditambahkan. Isi form di sebelah kiri dan klik "Tambahkan Ke Daftar Entry Pipa".
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = registeredItems.map((item, idx) => `
+            <tr class="hover:bg-slate-800/40 text-xs transition-colors">
+                <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
+                <td class="py-2.5 px-3">
+                    <div class="font-bold text-slate-100">${item.matName} ${item.sizeName} (${item.schedule})</div>
+                    <div class="text-[10px] text-slate-400 font-sans">${item.jointQty} btg @ ${item.jointLen}m = ${item.totalPipeLengthM}m</div>
+                </td>
+                <td class="py-2.5 px-3 text-center">
+                    ${item.isInsulated ? `<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full text-[10px] font-sans">${item.isoThickness_mm} mm</span>` : '<span class="text-slate-500 font-sans">Tanpa Isolasi</span>'}
+                </td>
+                <td class="py-2.5 px-3">
+                    <div class="font-bold text-amber-300">${item.profileInfo.name}</div>
+                    <div class="text-[10px] text-emerald-400 font-sans">Spasi: @ ${item.spacingM} m</div>
+                </td>
+                <td class="py-2.5 px-3 font-sans text-cyan-300 font-medium">
+                    ${item.fastenerInfo.name}
+                </td>
+                <td class="py-2.5 px-3 text-right font-bold text-white">${item.supportQty} bh</td>
+                <td class="py-2.5 px-3 text-right text-slate-300">${item.lengthPerSupportM.toFixed(3)} m</td>
+                <td class="py-2.5 px-3 text-right font-bold text-amber-400">${item.totalProfileLengthM.toFixed(2)} m</td>
+                <td class="py-2.5 px-3 text-center">
+                    <button onclick="deleteItem(${idx})" class="p-1 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-colors" title="Hapus Data">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderBpbSummary() {
+        const tbody = document.getElementById('tableBpbSummaryBody');
+        if (registeredItems.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-6 text-center text-slate-500 font-sans italic text-xs">
+                        Summary order akan muncul otomatis setelah Anda memasukkan data entri pipa.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const profileSummaryMap = {};
+        const fastenerSummaryMap = {};
+
+        registeredItems.forEach(item => {
+            // Group Steel Profiles
+            const pCode = item.profileInfo.code;
+            if (!profileSummaryMap[pCode]) {
+                profileSummaryMap[pCode] = {
+                    name: item.profileInfo.name,
+                    pipeUses: [],
+                    totalSupportQty: 0,
+                    totalMeters: 0,
+                    isProfile: true
+                };
+            }
+            profileSummaryMap[pCode].pipeUses.push(`${item.matName} ${item.sizeName}`);
+            profileSummaryMap[pCode].totalSupportQty += item.supportQty;
+            profileSummaryMap[pCode].totalMeters += item.totalProfileLengthM;
+
+            // Group Fasteners / Hardblocks
+            const fCode = item.fastenerInfo.code;
+            if (!fastenerSummaryMap[fCode]) {
+                fastenerSummaryMap[fCode] = {
+                    name: item.fastenerInfo.name,
+                    unit: item.fastenerInfo.unit,
+                    pipeUses: [],
+                    totalQty: 0,
+                    isProfile: false
+                };
+            }
+            fastenerSummaryMap[fCode].pipeUses.push(`${item.matName} ${item.sizeName}`);
+            fastenerSummaryMap[fCode].totalQty += item.fastenerQty;
+        });
+
+        let rowIdx = 1;
+        let rowsHtml = '';
+
+        // Render Steel Profiles Section Header
+        rowsHtml += `
+            <tr class="bg-slate-950/80 font-bold text-amber-400 text-[10px] tracking-wider uppercase border-t border-b border-slate-800">
+                <td colspan="6" class="py-1.5 px-3 font-sans">A. Kebutuhan Profil Steel Support (Panjang 6m / Batang)</td>
+            </tr>
+        `;
+
+        for (const key in profileSummaryMap) {
+            const summary = profileSummaryMap[key];
+            const totalBars = Math.ceil(summary.totalMeters / 6.0);
+            const uniquePipes = [...new Set(summary.pipeUses)].join(', ');
+
+            rowsHtml += `
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${rowIdx++}</td>
+                    <td class="py-2.5 px-3 font-sans font-bold text-amber-300">${summary.name}</td>
+                    <td class="py-2.5 px-3 font-sans text-slate-300 text-[11px]">${uniquePipes}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-white">${summary.totalSupportQty} Frame</td>
+                    <td class="py-2.5 px-3 text-right text-emerald-400 font-bold">${summary.totalMeters.toFixed(2)} m</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-cyan-300 text-sm">${totalBars} Batang</td>
+                </tr>
+            `;
+        }
+
+        // Render Fasteners Section Header
+        rowsHtml += `
+            <tr class="bg-slate-950/80 font-bold text-cyan-400 text-[10px] tracking-wider uppercase border-t border-b border-slate-800">
+                <td colspan="6" class="py-1.5 px-3 font-sans">B. Kebutuhan Komponen Aksesori (U-Bolt / Hardblock)</td>
+            </tr>
+        `;
+
+        for (const key in fastenerSummaryMap) {
+            const summary = fastenerSummaryMap[key];
+            const uniquePipes = [...new Set(summary.pipeUses)].join(', ');
+
+            rowsHtml += `
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${rowIdx++}</td>
+                    <td class="py-2.5 px-3 font-sans font-bold text-cyan-300">${summary.name}</td>
+                    <td class="py-2.5 px-3 font-sans text-slate-300 text-[11px]">${uniquePipes}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-white">${summary.totalQty} ${summary.unit}</td>
+                    <td class="py-2.5 px-3 text-right text-slate-500 font-sans">-</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400 text-sm">${summary.totalQty} ${summary.unit}</td>
+                </tr>
+            `;
+        }
+
+        tbody.innerHTML = rowsHtml;
+    }
+
+    function updateKPIs() {
+        const totalItems = registeredItems.length;
+        let totalSupport = 0;
+        let totalProfileMeters = 0;
+
+        registeredItems.forEach(item => {
+            totalSupport += item.supportQty;
+            totalProfileMeters += item.totalProfileLengthM;
+        });
+
+        const totalProfileBars = Math.ceil(totalProfileMeters / 6.0);
+
+        document.getElementById('kpiTotalItemsCount').textContent = totalItems;
+        document.getElementById('kpiTotalSupportQty').textContent = totalSupport;
+        document.getElementById('kpiTotalProfileMeters').textContent = totalProfileMeters.toFixed(1);
+        document.getElementById('kpiTotalProfileBars').textContent = totalProfileBars;
+    }
+
+    let scene, camera, renderer;
+    let supportGroup;
+    let isMouseDown = false;
+    let mouseX = 0, mouseY = 0;
+    let targetRotationX = 0.2, targetRotationY = -0.4;
+
+    function init3DScene() {
+        const container = document.getElementById('container3d');
+        const canvas = document.getElementById('canvas3d');
+        if (!container || !canvas) return;
+
+        const w = container.clientWidth || 500;
+        const h = container.clientHeight || 250;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0f172a);
+
+        camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+        camera.position.set(0, 0.8, 6.5);
+
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(w, h, false);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambientLight);
+
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight1.position.set(6, 10, 8);
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.8);
+        dirLight2.position.set(-6, -5, -5);
+        scene.add(dirLight2);
+
+        supportGroup = new THREE.Group();
+        scene.add(supportGroup);
+
+        container.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => isMouseDown = false);
+        container.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            targetRotationY += (e.clientX - mouseX) * 0.01;
+            targetRotationX += (e.clientY - mouseY) * 0.01;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isMouseDown = true;
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            }
+        });
+        container.addEventListener('touchend', () => isMouseDown = false);
+        container.addEventListener('touchmove', (e) => {
+            if (!isMouseDown || e.touches.length !== 1) return;
+            targetRotationY += (e.touches[0].clientX - mouseX) * 0.01;
+            targetRotationX += (e.clientY - mouseY) * 0.01;
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('resize', syncCanvasSize);
+        animate3D();
+    }
+
+    function syncCanvasSize() {
+        const container = document.getElementById('container3d');
+        if (!container || !renderer || !camera) return;
+        const w = container.clientWidth || 500;
+        const h = container.clientHeight || 250;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+    }
+
+    function update3DModel(item) {
+        if (!supportGroup) return;
+
+        // Clear previous meshes
+        while (supportGroup.children.length > 0) {
+            const child = supportGroup.children[0];
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                else child.material.dispose();
+            }
+            supportGroup.remove(child);
+        }
+
+        // Precise Scale Factor: 1 unit in 3D = 100mm (0.1m)
+        const scaleFactor = 0.008; 
+
+        const pipeRadius = (item.od_mm / 2) * scaleFactor;
+        const isoThickness = item.isoThickness_mm * scaleFactor;
+        const totalRadius = pipeRadius + isoThickness;
+
+        const pipeLength = 6.0;
+
+        // 1. Core Pipe Geometry
+        const pipeGeo = new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeLength, 32);
+        const pipeMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.2 });
+        const pipeMesh = new THREE.Mesh(pipeGeo, pipeMat);
+        pipeMesh.rotation.z = Math.PI / 2;
+        supportGroup.add(pipeMesh);
+
+        // 2. Insulation Cylinder (if applicable)
+        if (item.isInsulated && item.isoThickness_mm > 0) {
+            const isoGeo = new THREE.CylinderGeometry(totalRadius, totalRadius, pipeLength - 0.1, 32);
+            const isoMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.7, transparent: true, opacity: 0.8 });
+            const isoMesh = new THREE.Mesh(isoGeo, isoMat);
+            isoMesh.rotation.z = Math.PI / 2;
+            supportGroup.add(isoMesh);
+        }
+
+        // 3. Bottom Steel Profile Channel (Siku / UNP)
+        const profileDepth = Math.max(0.08, item.profileInfo.baseWidthM * 1.5);
+        const frameWidth = totalRadius * 2 + 0.25;
+        const legHeight = 2.4; 
+
+        const steelMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.3 });
+
+        // Bottom Channel Bar
+        const bottomBarGeo = new THREE.BoxGeometry(profileDepth, profileDepth, frameWidth);
+        const bottomBarMesh = new THREE.Mesh(bottomBarGeo, steelMat);
+        bottomBarMesh.position.set(0, -totalRadius - (profileDepth / 2), 0);
+        supportGroup.add(bottomBarMesh);
+
+        // Hanger Legs (Threaded Rod / Steel Legs)
+        const rodRadius = 0.035;
+        const rodGeo = new THREE.CylinderGeometry(rodRadius, rodRadius, legHeight, 16);
+        
+        const leftRod = new THREE.Mesh(rodGeo, steelMat);
+        leftRod.position.set(0, -totalRadius + (legHeight / 2), -frameWidth / 2 + rodRadius);
+        supportGroup.add(leftRod);
+
+        const rightRod = new THREE.Mesh(rodGeo, steelMat);
+        rightRod.position.set(0, -totalRadius + (legHeight / 2), frameWidth / 2 - rodRadius);
+        supportGroup.add(rightRod);
+
+        // 4. Fastener Component Rendering: U-Bolt or Hardblock
+        if (item.isInsulated) {
+            // Hardblock Wood/PU Block Visual
+            const hbWidth = profileDepth * 1.2;
+            const hbHeight = totalRadius * 2;
+            const hbDepth = totalRadius * 2 + 0.05;
+
+            const hbGeo = new THREE.BoxGeometry(hbWidth, hbHeight, hbDepth);
+            const hbMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5 }); // Emerald Green
+            const hbMesh = new THREE.Mesh(hbGeo, hbMat);
+            hbMesh.position.set(0, 0, 0);
+            supportGroup.add(hbMesh);
+        } else {
+            // U-Bolt Visual Mesh (U-Arc torus + threaded legs + hex nuts & rings)
+            const uboltThickness = Math.max(0.02, pipeRadius * 0.12);
+            const uboltRadius = pipeRadius + uboltThickness;
+
+            // Semi-Torus for U-Bolt arc
+            const uArcGeo = new THREE.TorusGeometry(uboltRadius, uboltThickness, 12, 24, Math.PI);
+            const uboltMat = new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.9, roughness: 0.1 });
+            const uArcMesh = new THREE.Mesh(uArcGeo, uboltMat);
+            uArcMesh.rotation.y = Math.PI / 2;
+            uArcMesh.rotation.x = Math.PI / 2;
+            uArcMesh.position.set(0, 0, 0);
+            supportGroup.add(uArcMesh);
+
+            // U-Bolt Straight Legs down through steel frame
+            const legLen = pipeRadius + profileDepth + 0.15;
+            const uLegGeo = new THREE.CylinderGeometry(uboltThickness, uboltThickness, legLen, 12);
+
+            const leg1 = new THREE.Mesh(uLegGeo, uboltMat);
+            leg1.position.set(0, -legLen / 2, -uboltRadius);
+            supportGroup.add(leg1);
+
+            const leg2 = new THREE.Mesh(uLegGeo, uboltMat);
+            leg2.position.set(0, -legLen / 2, uboltRadius);
+            supportGroup.add(leg2);
+
+            // Hex Nuts & Washer Rings underneath the support bar
+            const nutGeo = new THREE.CylinderGeometry(uboltThickness * 1.8, uboltThickness * 1.8, 0.04, 6);
+            const nutMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 });
+
+            const nut1 = new THREE.Mesh(nutGeo, nutMat);
+            nut1.position.set(0, -totalRadius - profileDepth - 0.03, -uboltRadius);
+            supportGroup.add(nut1);
+
+            const nut2 = new THREE.Mesh(nutGeo, nutMat);
+            nut2.position.set(0, -totalRadius - profileDepth - 0.03, uboltRadius);
+            supportGroup.add(nut2);
+        }
+    }
+
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        if (supportGroup) {
+            if (!isMouseDown) {
+                targetRotationY += 0.003;
+            }
+            supportGroup.rotation.x += (targetRotationX - supportGroup.rotation.x) * 0.1;
+            supportGroup.rotation.y += (targetRotationY - supportGroup.rotation.y) * 0.1;
+        }
+        if (renderer && scene && camera) {
+            renderer.render(scene, camera);
+        }
+    }
+
+    function copyBPBToClipboard() {
+        const table = document.getElementById('tableBpbSummaryBody');
+        let text = "BON PERMINTAAN BARANG (BPB) REKOMENDASI\n";
+        text += "KEBUTUHAN SUPPORT PIPA, PROFIL STEEL & AKSESORI\n";
+        text += "Hak Cipta: Sugeng Deny Ramdani 2026\n";
+        text += "===============================================\n\n";
+
+        const rows = table.querySelectorAll('tr');
+        rows.forEach((r) => {
+            const cols = r.querySelectorAll('td');
+            if (cols.length === 1) {
+                text += `\n${cols[0].innerText}\n-----------------------------------------------\n`;
+            } else if (cols.length >= 6) {
+                text += `${cols[0].innerText}. ${cols[1].innerText}\n`;
+                text += `   Peruntukan   : ${cols[2].innerText}\n`;
+                text += `   Total Qty    : ${cols[3].innerText}\n`;
+                if (cols[4].innerText !== '-') text += `   Meter Bersih : ${cols[4].innerText}\n`;
+                text += `   ORDER BPB    : ${cols[5].innerText}\n\n`;
+            }
+        });
+
+        document.execCommand('copy');
+        const msg = document.getElementById('bpbCopyMessage');
+        msg.classList.remove('hidden');
+        setTimeout(() => msg.classList.add('hidden'), 3500);
+    }
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', () => {
+        init3DScene();
+        onPipeMaterialChange();
+        syncCanvasSize();
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

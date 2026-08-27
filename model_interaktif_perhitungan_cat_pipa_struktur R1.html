@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Interaktif Perhitungan Cat Pipa & Struktur</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* PRINT STYLES FOR CRISP PDF / PRINTING */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-header {
+                display: block !important;
+            }
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                padding: 12px !important;
+                margin-bottom: 20px !important;
+                page-break-inside: avoid;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #000000 !important;
+            }
+            th, td {
+                border: 1px solid #94a3b8 !important;
+                color: #000000 !important;
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+            }
+            th {
+                background-color: #f1f5f9 !important;
+            }
+            .text-white, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400 {
+                color: #000000 !important;
+            }
+            .text-blue-400, .text-emerald-400, .text-cyan-400, .text-amber-300 {
+                color: #0f172a !important;
+                font-weight: bold !important;
+            }
+            body.print-bpb-only-mode #materialListSection {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header for Print mode -->
+    <div class="hidden print-header p-4 border-b border-slate-300 mb-4">
+        <h1 class="text-xl font-bold text-black">Laporan Rekomendasi Perhitungan Cat & Material</h1>
+        <p class="text-xs text-slate-600">Model Interaktif Estimasi Cat Pipa & Struktur Konstruksi • Sugeng Deny Ramdani 2026</p>
+    </div>
+
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400">
+                    <i data-lucide="paint-bucket" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Model Interaktif Perhitungan Cat Pipa & Struktur</h1>
+                    <p class="text-xs text-slate-400">Kalkulator Luas Permukaan, Kebutuhan Cat, Thinner 50% + Spare & Bon Permintaan Barang (BPB)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Awal
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT SIDEBAR: Global Settings & Material Entry Form -->
+        <section class="lg:col-span-5 flex flex-col gap-5 no-print">
+
+            <!-- Card 1: Packaging & Spare Sliders -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Pengaturan Rasio Thinner & Kemasan</span>
+                </h2>
+
+                <!-- Tool Method & Base Thinner Ratio -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
+                            <i data-lucide="wrench" class="w-3.5 h-3.5"></i> Metode Aplikasi / Takaran Campuran
+                        </label>
+                        <span id="badgeThinnerRatio" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                            50% (0.5 x Cat)
+                        </span>
+                    </div>
+                    <select id="selectThinnerRatio" onchange="onThinnerRatioChange()" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium">
+                        <option value="0.50" selected>Standar Revisi - 50% Thinner (1 Cat : 0.5 Thinner)</option>
+                        <option value="0.15">Kuas / Roller (15% Thinner - 10-20%)</option>
+                        <option value="0.35">Spray Gun (35% Thinner - 30-40%)</option>
+                        <option value="0.20">Kustom - 20% Thinner</option>
+                        <option value="1.00">Rasio Lama 1:1 (100% Thinner)</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400">Persentase thinner utama yang dicampurkan langsung ke dalam cat untuk pengenceran aplikasi.</p>
+                </div>
+
+                <!-- Packaging Selection -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Kemasan Cat (BPB)</label>
+                        <select id="selectPackaging" onchange="calculateSummary()" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition font-medium">
+                            <option value="pail20kg">1 Pail @ 20 Kg</option>
+                            <option value="can5kg">1 Kaleng @ 5 Kg</option>
+                            <option value="can1kg">1 Kaleng @ 1 Kg</option>
+                            <option value="pail20lt">1 Pail @ 20 Lt</option>
+                            <option value="can5lt">1 Kaleng @ 5 Lt</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Kemasan Thinner (BPB)</label>
+                        <select id="selectThinnerPkg" onchange="calculateSummary()" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition font-medium">
+                            <option value="can5lt">1 Kaleng @ 5 Lt</option>
+                            <option value="can1lt">1 Kaleng @ 1 Lt</option>
+                            <option value="pail20lt">1 Pail @ 20 Lt</option>
+                            <option value="pail20kg">1 Pail @ 20 Kg</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Spare Paint Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-300">Spare Cat (Loss & Cadangan)</label>
+                        <span id="labelSparePaintVal" class="text-xs text-emerald-400 font-mono font-bold">20%</span>
+                    </div>
+                    <input type="range" id="sliderSparePaint" min="0" max="50" value="20" step="5" oninput="updateSliders()"
+                        class="w-full accent-emerald-500 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <p class="text-[10px] text-slate-400 mt-1">Estimasi tambahan cadangan cat untuk sisa wadah & ceceran.</p>
+                </div>
+
+                <!-- Spare Thinner Slider (NEW REVISION) -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-300 flex items-center gap-1">
+                            <span>Spare Thinner (Cuci Kuas / Tumpah / Sisa)</span>
+                        </label>
+                        <span id="labelSpareThinnerVal" class="text-xs text-cyan-400 font-mono font-bold">20%</span>
+                    </div>
+                    <input type="range" id="sliderSpareThinner" min="0" max="50" value="20" step="5" oninput="updateSliders()"
+                        class="w-full accent-cyan-500 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <div class="mt-1.5 p-2 bg-slate-950/80 rounded-lg border border-cyan-500/20 text-[11px] text-cyan-200">
+                        <strong>Formula Thinner:</strong> 1 Cat + <span id="formulaMixThinner">0.5</span> Thinner (Campuran) + <span id="formulaSpareThinner">0.2</span> Thinner (Spare Cuci/Sisa)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Form Input Material & Paint Type Item -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Form Entry Material & Jenis Cat
+                </h2>
+
+                <!-- Material Type -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">1. Jenis Material / Profil</label>
+                    <select id="selectMaterialType" onchange="onMaterialTypeChange()" 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="pipe">Pipa Galvanis / Baja (Piping)</option>
+                        <option value="unp">Besi UNP (Channel Steel)</option>
+                        <option value="siku">Besi Siku (Angle Bar L)</option>
+                        <option value="custom">Luas Permukaan Kustom (m²)</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Form Fields based on Material Type -->
+                <div id="fieldsContainer" class="space-y-3">
+                    <!-- Dynamic Controls inserted by JS -->
+                </div>
+
+                <!-- Paint Specification FOR THIS SPECIFIC ITEM -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                            <i data-lucide="palette" class="w-3.5 h-3.5"></i> 2. Spesifikasi Cat Untuk Item Ini
+                        </label>
+                        <span id="layerBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            Min. 2 Layer (4 m²/kg)
+                        </span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tipe Cat</label>
+                        <select id="selectPaintType" onchange="onPaintTypeChange()" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                            <option value="finish">Cat Finish (Top Coat) - Min. 2 Layer (4 m²/kg)</option>
+                            <option value="zinchromate">Cat Dasar / Zinchromate (Primer) - Min. 1 Layer (8 m²/kg)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Merk Cat</label>
+                            <select id="selectBrand" onchange="onBrandChange()" 
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                                <option value="ftalit">Ftalit (Kansai)</option>
+                                <option value="jotun">Jotun</option>
+                                <option value="nippon">Nippon Paint</option>
+                                <option value="custom">Merk Lain</option>
+                            </select>
+                        </div>
+
+                        <div id="wrapperCatalogCode">
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Kode & Warna</label>
+                            <select id="selectColorCode" 
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="wrapperCustomCode" class="grid grid-cols-2 gap-2 hidden">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Kode Cat</label>
+                            <input type="text" id="inputCustomCode" value="ND-01" 
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Warna</label>
+                            <input type="text" id="inputCustomColor" value="Custom Color" 
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1 text-xs text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button onclick="addMaterialItem()" 
+                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-blue-600/20 mt-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambahkan ke Daftar Material
+                </button>
+            </div>
+
+        </section>
+
+        <!-- RIGHT PANEL: Live Entry Tables, Summary & BPB Recommendation -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- Section 1: Daftar Material Entry -->
+            <div id="materialListSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col justify-between print-card">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-4 h-4 text-blue-400 no-print"></i> Daftar Material Entry
+                        </h3>
+                        <span id="badgeItemCount" class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 no-print">
+                            0 Item
+                        </span>
+                    </div>
+
+                    <!-- Material Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                    <th class="py-2 px-2 text-center">No</th>
+                                    <th class="py-2 px-2">Material / Deskripsi</th>
+                                    <th class="py-2 px-2">Spesifikasi</th>
+                                    <th class="py-2 px-2 text-center">Jumlah</th>
+                                    <th class="py-2 px-2 text-center">Panjang</th>
+                                    <th class="py-2 px-2 text-right">Luas (m²)</th>
+                                    <th class="py-2 px-2">Type & Warna Cat</th>
+                                    <th class="py-2 px-2 text-center no-print">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialTableBody" class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Total Area Card -->
+                <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center bg-slate-950/80 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                        <i data-lucide="maximize-2" class="w-4 h-4 text-emerald-400 no-print"></i> Total Luas Permukaan Di-cat
+                    </span>
+                    <span id="totalAreaVal" class="text-xl font-black text-emerald-400 font-mono">0.00 m²</span>
+                </div>
+            </div>
+
+            <!-- Section 2: Rekomendasi Bon Permintaan Barang (BPB) -->
+            <div id="bpbSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-5 h-5 text-blue-400 no-print"></i> Rekomendasi Bon Permintaan Barang (BPB)
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Rincian kebutuhan netto, spare cadangan, thinner campuran & spare cuci, serta pembulatan kemasan BPB</p>
+                    </div>
+                </div>
+
+                <!-- Final BPB Recommendation Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                <th class="py-2.5 px-3">Item Material</th>
+                                <th class="py-2.5 px-3">Merk / Warna</th>
+                                <th class="py-2.5 px-3 text-right">Netto</th>
+                                <th class="py-2.5 px-3 text-right">Gross Cat (+Spare)</th>
+                                <th class="py-2.5 px-3 text-right">Detail Thinner</th>
+                                <th class="py-2.5 px-3 text-right text-blue-400">Rekomendasi BPB</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bpbTableBody" class="divide-y divide-slate-800 text-slate-200 font-mono">
+                            <!-- Dynamically updated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Formula Explanation / Plain text notes -->
+                <div class="mt-4 p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-2 no-print">
+                    <div class="font-bold text-cyan-400 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4"></i> Standar Perhitungan Cat & Thinner Revisi:
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+                        <div>• <strong>Cat Finish:</strong> Min. 2 layer, daya sebar ~4 m²/kg.</div>
+                        <div>• <strong>Cat Zinchromate:</strong> Min. 1 layer, daya sebar ~8 m²/kg.</div>
+                        <div>• <strong>Thinner Campuran Aplikasi:</strong> <span id="noteMixRatioText">50% (0.5 liter per kg/liter cat)</span>.</div>
+                        <div>• <strong>Thinner Spare (Cuci/Sisa):</strong> <span id="noteSpareRatioText">20% tambahan untuk pembersihan kuas/roll & tumpah</span>.</div>
+                    </div>
+                    <div class="pt-1 text-[10px] text-slate-400 border-t border-slate-800/80">
+                        * Contoh dengan Cat Gross 10 Kg, Mix 50%, dan Spare 20%: Total Thinner = (10 × 0.5) + (10 × 0.2) = 7.0 Liter Thinner.
+                    </div>
+                </div>
+
+                <!-- Action Print Buttons -->
+                <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-800 no-print">
+                    <button onclick="printBPBOnly()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition border border-slate-700">
+                        <i data-lucide="printer" class="w-4 h-4 text-blue-400"></i> Cetak Rekomendasi BPB Saja
+                    </button>
+                    <button onclick="printFullReport()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition shadow-lg shadow-blue-600/20">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Laporan Keseluruhan
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
+        Sugeng Deny Ramdani 2026 • Model Interaktif Perhitungan Cat Pipa & Struktur
+    </footer>
+
+    <script>
+        // Database Outer Diameter Pipa (in mm)
+        const PIPE_OD_DB = [
+            { name: '1/2"', od: 21.3 },
+            { name: '3/4"', od: 26.7 },
+            { name: '1"', od: 33.4 },
+            { name: '1 1/4"', od: 42.2 },
+            { name: '1 1/2"', od: 48.3 },
+            { name: '2"', od: 60.3 },
+            { name: '2 1/2"', od: 73.0 },
+            { name: '3"', od: 88.9 },
+            { name: '3 1/2"', od: 101.6 },
+            { name: '4"', od: 114.3 },
+            { name: '5"', od: 141.3 },
+            { name: '6"', od: 168.3 },
+            { name: '8"', od: 219.1 },
+            { name: '10"', od: 273.0 },
+            { name: '12"', od: 323.8 },
+            { name: '14"', od: 355.6 },
+            { name: '16"', od: 406.4 },
+            { name: '18"', od: 457.2 },
+            { name: '20"', od: 508.0 },
+            { name: '24"', od: 609.6 }
+        ];
+
+        // Database UNP Channel Steel (Perimeter in meters per meter length)
+        const UNP_DB = [
+            { name: 'UNP 50 x 38 x 5 mm', perimeter: 0.24 },
+            { name: 'UNP 65 x 42 x 5.5 mm', perimeter: 0.28 },
+            { name: 'UNP 80 x 45 x 6 mm', perimeter: 0.33 },
+            { name: 'UNP 100 x 50 x 5 mm', perimeter: 0.38 },
+            { name: 'UNP 120 x 55 x 7 mm', perimeter: 0.44 },
+            { name: 'UNP 140 x 60 x 7 mm', perimeter: 0.50 },
+            { name: 'UNP 150 x 65 x 7.5 mm', perimeter: 0.54 },
+            { name: 'UNP 180 x 70 x 8 mm', perimeter: 0.62 },
+            { name: 'UNP 200 x 75 x 8.5 mm', perimeter: 0.68 },
+            { name: 'UNP 250 x 90 x 9 mm', perimeter: 0.82 },
+            { name: 'UNP 300 x 90 x 10 mm', perimeter: 0.94 }
+        ];
+
+        // Database Besi Siku / Angle Bar L (Perimeter in meters per meter length)
+        const SIKU_DB = [
+            { name: 'Siku L 30 x 30 x 3 mm', perimeter: 0.12 },
+            { name: 'Siku L 40 x 40 x 4 mm', perimeter: 0.16 },
+            { name: 'Siku L 50 x 50 x 5 mm', perimeter: 0.20 },
+            { name: 'Siku L 60 x 60 x 6 mm', perimeter: 0.24 },
+            { name: 'Siku L 70 x 70 x 7 mm', perimeter: 0.28 },
+            { name: 'Siku L 75 x 75 x 8 mm', perimeter: 0.30 },
+            { name: 'Siku L 90 x 90 x 9 mm', perimeter: 0.36 },
+            { name: 'Siku L 100 x 100 x 10 mm', perimeter: 0.40 },
+            { name: 'Siku L 120 x 120 x 12 mm', perimeter: 0.48 },
+            { name: 'Siku L 150 x 150 x 15 mm', perimeter: 0.60 }
+        ];
+
+        // Catalog Colors Ftalit Kansai Paint
+        const FTALIT_CATALOG = {
+            finish: [
+                { code: '115-153', name: 'River Blue' },
+                { code: '115-134', name: 'Signal Red' },
+                { code: '115-143', name: 'Permanent Red' },
+                { code: '115-208', name: 'Kansai Red' },
+                { code: '115-125', name: 'Grass Green' },
+                { code: '115-129', name: 'Middle Green' },
+                { code: '115-135', name: 'Sea Blue' },
+                { code: '115-178', name: 'Royal Blue' },
+                { code: '115-102', name: 'White' },
+                { code: '115-310', name: 'Black' },
+                { code: '115-731', name: 'Super White' },
+                { code: '115-998', name: 'Silver' },
+                { code: '115-312', name: 'Bright Yellow' },
+                { code: '115-119', name: 'Cream' },
+                { code: '115-140', name: 'Dove Grey' },
+                { code: '115-128', name: 'Light Grey' },
+                { code: '115-609', name: 'Iron Grey' },
+                { code: '115-275', name: 'Black SG' },
+                { code: '115-268', name: 'White SG' },
+                { code: '115-544', name: 'Black Doff' },
+                { code: '115-559', name: 'White Doff' }
+            ],
+            zinchromate: [
+                { code: '141-113', name: 'Green (Zinc Chromate Primer)' },
+                { code: '141-108', name: 'Grey (Zinc Chromate Primer)' },
+                { code: '141-257', name: 'Green (Anti-Rust Zinc Chromate)' },
+                { code: '141-258', name: 'Grey (Anti-Rust Zinc Chromate)' },
+                { code: '141-155', name: 'Light Grey (Zinc Phosphate)' },
+                { code: '102-008', name: 'Red Oxide Primer' },
+                { code: '141-313', name: 'Green (Metal Primer Z-100)' },
+                { code: '141-308', name: 'Light Grey (Metal Primer Z-100)' },
+                { code: '142-106', name: 'Undercoat Grey' }
+            ]
+        };
+
+        // Material List State
+        let materialList = [
+            { 
+                id: 1, 
+                typeName: 'Pipa Galvanis', 
+                spec: 'Pipa 6" (OD: 168.3 mm)', 
+                qty: 20, 
+                length: 6000, 
+                area: 63.45,
+                paintType: 'finish',
+                brand: 'Ftalit (Kansai)',
+                colorCode: '115-153 River Blue'
+            },
+            { 
+                id: 2, 
+                typeName: 'Pipa Galvanis', 
+                spec: 'Pipa 2" (OD: 60.3 mm)', 
+                qty: 30, 
+                length: 6000, 
+                area: 34.10,
+                paintType: 'finish',
+                brand: 'Ftalit (Kansai)',
+                colorCode: '115-153 River Blue'
+            },
+            { 
+                id: 3, 
+                typeName: 'Besi UNP', 
+                spec: 'UNP 100 x 50 x 5 mm', 
+                qty: 14, 
+                length: 6000, 
+                area: 31.92,
+                paintType: 'zinchromate',
+                brand: 'Ftalit (Kansai)',
+                colorCode: '141-113 Green (Zinc Chromate Primer)'
+            }
+        ];
+
+        // Packaging Definitions
+        const PACKAGING_SPECS = {
+            pail20kg: { label: 'Pail @ 20 Kg', size: 20, unit: 'Kg' },
+            can5kg: { label: 'Kaleng @ 5 Kg', size: 5, unit: 'Kg' },
+            can1kg: { label: 'Kaleng @ 1 Kg', size: 1, unit: 'Kg' },
+            pail20lt: { label: 'Pail @ 20 Lt', size: 20, unit: 'Lt' },
+            can5lt: { label: 'Kaleng @ 5 Lt', size: 5, unit: 'Lt' },
+            can1lt: { label: 'Kaleng @ 1 Lt', size: 1, unit: 'Lt' }
+        };
+
+        // Event Handler: Paint Type change in form
+        function onPaintTypeChange() {
+            const pType = document.getElementById('selectPaintType').value;
+            const layerBadge = document.getElementById('layerBadge');
+            
+            if (pType === 'finish') {
+                layerBadge.textContent = "Min. 2 Layer (4 m²/kg)";
+                layerBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20";
+            } else {
+                layerBadge.textContent = "Min. 1 Layer (8 m²/kg)";
+                layerBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            }
+
+            populateColorCodes();
+        }
+
+        // Event Handler: Brand Change in form
+        function onBrandChange() {
+            const brand = document.getElementById('selectBrand').value;
+            const wrapperCatalog = document.getElementById('wrapperCatalogCode');
+            const wrapperCustom = document.getElementById('wrapperCustomCode');
+
+            if (brand === 'ftalit') {
+                wrapperCatalog.classList.remove('hidden');
+                wrapperCustom.classList.add('hidden');
+                populateColorCodes();
+            } else {
+                wrapperCatalog.classList.add('hidden');
+                wrapperCustom.classList.remove('hidden');
+            }
+        }
+
+        // Populate Ftalit Color Dropdown in form
+        function populateColorCodes() {
+            const pType = document.getElementById('selectPaintType').value;
+            const select = document.getElementById('selectColorCode');
+            select.innerHTML = '';
+
+            const list = FTALIT_CATALOG[pType] || FTALIT_CATALOG.finish;
+            list.forEach((item) => {
+                const opt = document.createElement('option');
+                opt.value = `${item.code} ${item.name}`;
+                opt.textContent = `${item.code} - ${item.name}`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Update Sliders Text & Dynamic Formula Readout
+        function updateSliders() {
+            const sparePaint = document.getElementById('sliderSparePaint').value;
+            const spareThinner = document.getElementById('sliderSpareThinner').value;
+            const thinnerMixRatio = parseFloat(document.getElementById('selectThinnerRatio').value) || 0.5;
+
+            document.getElementById('labelSparePaintVal').textContent = `${sparePaint}%`;
+            document.getElementById('labelSpareThinnerVal').textContent = `${spareThinner}%`;
+
+            document.getElementById('formulaMixThinner').textContent = thinnerMixRatio.toFixed(1);
+            document.getElementById('formulaSpareThinner').textContent = (spareThinner / 100).toFixed(2);
+
+            document.getElementById('noteMixRatioText').textContent = `${(thinnerMixRatio * 100).toFixed(0)}% (${thinnerMixRatio.toFixed(2)} liter per unit cat)`;
+            document.getElementById('noteSpareRatioText').textContent = `${spareThinner}% tambahan cadangan (cuci kuas/roll/tumpah)`;
+
+            calculateSummary();
+        }
+
+        // Event Handler: Thinner Ratio Selection Changed
+        function onThinnerRatioChange() {
+            const ratioVal = parseFloat(document.getElementById('selectThinnerRatio').value);
+            const ratioPct = (ratioVal * 100).toFixed(0);
+            document.getElementById('badgeThinnerRatio').textContent = `${ratioPct}% (${ratioVal} x Cat)`;
+            updateSliders();
+        }
+
+        // Event Handler: Material Type in Form
+        function onMaterialTypeChange() {
+            const matType = document.getElementById('selectMaterialType').value;
+            const container = document.getElementById('fieldsContainer');
+            container.innerHTML = '';
+
+            if (matType === 'pipe') {
+                let optionsHtml = PIPE_OD_DB.map((p, idx) => `<option value="${idx}">Pipa ${p.name} (OD: ${p.od} mm)</option>`).join('');
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran Pipa (NPS)</label>
+                        <select id="inputPipeSize" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah (Batang)</label>
+                            <input type="number" id="inputQty" value="20" min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Panjang/Btg (mm)</label>
+                            <input type="number" id="inputLength" value="6000" min="100" step="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                    </div>
+                `;
+            } else if (matType === 'unp') {
+                let optionsHtml = UNP_DB.map((u, idx) => `<option value="${idx}">${u.name}</option>`).join('');
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Dimensi Profil UNP</label>
+                        <select id="inputUNPSize" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah (Batang)</label>
+                            <input type="number" id="inputQty" value="14" min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Panjang/Btg (mm)</label>
+                            <input type="number" id="inputLength" value="6000" min="100" step="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                    </div>
+                `;
+            } else if (matType === 'siku') {
+                let optionsHtml = SIKU_DB.map((s, idx) => `<option value="${idx}">${s.name}</option>`).join('');
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Dimensi Besi Siku L</label>
+                        <select id="inputSikuSize" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah (Batang)</label>
+                            <input type="number" id="inputQty" value="10" min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Panjang/Btg (mm)</label>
+                            <input type="number" id="inputLength" value="6000" min="100" step="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        </div>
+                    </div>
+                `;
+            } else if (matType === 'custom') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Deskripsi Item / Plate / Structure</label>
+                        <input type="text" id="inputCustomDesc" value="Support Frame / Plat Besi" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Luas Permukaan Total (m²)</label>
+                        <input type="number" id="inputCustomArea" value="15.0" min="0.1" step="0.1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                    </div>
+                `;
+            }
+        }
+
+        // Add Material Item to Table State
+        function addMaterialItem() {
+            const matType = document.getElementById('selectMaterialType').value;
+            let typeName = "";
+            let spec = "";
+            let qty = 1;
+            let lengthMm = 0;
+            let areaSqM = 0;
+
+            if (matType === 'pipe') {
+                const pipeIdx = document.getElementById('inputPipeSize').value;
+                const pipeObj = PIPE_OD_DB[pipeIdx];
+                qty = parseInt(document.getElementById('inputQty').value) || 1;
+                lengthMm = parseFloat(document.getElementById('inputLength').value) || 6000;
+
+                typeName = "Pipa Galvanis";
+                spec = `Pipa ${pipeObj.name} (OD: ${pipeObj.od} mm)`;
+
+                const odMeter = pipeObj.od / 1000;
+                const lengthMeter = lengthMm / 1000;
+                areaSqM = Math.PI * odMeter * lengthMeter * qty;
+
+            } else if (matType === 'unp') {
+                const unpIdx = document.getElementById('inputUNPSize').value;
+                const unpObj = UNP_DB[unpIdx];
+                qty = parseInt(document.getElementById('inputQty').value) || 1;
+                lengthMm = parseFloat(document.getElementById('inputLength').value) || 6000;
+
+                typeName = "Besi UNP";
+                spec = unpObj.name;
+
+                const lengthMeter = lengthMm / 1000;
+                areaSqM = unpObj.perimeter * lengthMeter * qty;
+
+            } else if (matType === 'siku') {
+                const sikuIdx = document.getElementById('inputSikuSize').value;
+                const sikuObj = SIKU_DB[sikuIdx];
+                qty = parseInt(document.getElementById('inputQty').value) || 1;
+                lengthMm = parseFloat(document.getElementById('inputLength').value) || 6000;
+
+                typeName = "Besi Siku L";
+                spec = sikuObj.name;
+
+                const lengthMeter = lengthMm / 1000;
+                areaSqM = sikuObj.perimeter * lengthMeter * qty;
+
+            } else if (matType === 'custom') {
+                typeName = "Struktur / Plat";
+                spec = document.getElementById('inputCustomDesc').value || "Support Material";
+                qty = 1;
+                lengthMm = 0;
+                areaSqM = parseFloat(document.getElementById('inputCustomArea').value) || 0;
+            }
+
+            // Extract paint options
+            const pType = document.getElementById('selectPaintType').value;
+            const brandVal = document.getElementById('selectBrand').value;
+            let brandName = "Ftalit (Kansai)";
+            let colorCodeName = "";
+
+            if (brandVal === 'ftalit') {
+                colorCodeName = document.getElementById('selectColorCode').value;
+            } else {
+                brandName = brandVal.toUpperCase();
+                const code = document.getElementById('inputCustomCode').value;
+                const name = document.getElementById('inputCustomColor').value;
+                colorCodeName = `${code} ${name}`;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                typeName: typeName,
+                spec: spec,
+                qty: qty,
+                length: lengthMm,
+                area: areaSqM,
+                paintType: pType,
+                brand: brandName,
+                colorCode: colorCodeName
+            };
+
+            materialList.push(newItem);
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        // Delete item from table
+        function deleteMaterialItem(id) {
+            materialList = materialList.filter(item => item.id !== id);
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        // Render Table Rows
+        function renderMaterialTable() {
+            const tbody = document.getElementById('materialTableBody');
+            tbody.innerHTML = '';
+
+            let totalArea = 0;
+
+            materialList.forEach((item, index) => {
+                totalArea += item.area;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+                
+                const pTypeBadge = (item.paintType === 'finish') 
+                    ? '<span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">Finish</span>'
+                    : '<span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">Primer</span>';
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-2 text-slate-400 text-center">${index + 1}</td>
+                    <td class="py-2.5 px-2 font-medium text-white">${item.typeName}</td>
+                    <td class="py-2.5 px-2 text-slate-300">${item.spec}</td>
+                    <td class="py-2.5 px-2 text-center text-cyan-300">${item.qty > 0 ? item.qty + ' btg' : '-'}</td>
+                    <td class="py-2.5 px-2 text-center text-slate-400">${item.length > 0 ? item.length + ' mm' : '-'}</td>
+                    <td class="py-2.5 px-2 text-right font-bold text-emerald-400">${item.area.toFixed(2)} m²</td>
+                    <td class="py-2.5 px-2 text-xs">
+                        <div>${pTypeBadge} <span class="text-white font-medium">${item.brand}</span></div>
+                        <div class="text-[11px] text-slate-400 font-mono">${item.colorCode}</div>
+                    </td>
+                    <td class="py-2.5 px-2 text-center no-print">
+                        <button onclick="deleteMaterialItem(${item.id})" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition" title="Hapus Item">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('totalAreaVal').textContent = `${totalArea.toFixed(2)} m²`;
+            document.getElementById('badgeItemCount').textContent = `${materialList.length} Item`;
+            lucide.createIcons();
+        }
+
+        // Group Paint Items & Calculate BPB Recommendation Table
+        function calculateSummary() {
+            const tbody = document.getElementById('bpbTableBody');
+            tbody.innerHTML = '';
+
+            const sparePaintPct = parseFloat(document.getElementById('sliderSparePaint').value) || 0;
+            const spareThinnerPct = parseFloat(document.getElementById('sliderSpareThinner').value) || 0;
+            const thinnerMixRatio = parseFloat(document.getElementById('selectThinnerRatio').value) || 0.5;
+
+            const paintPkgKey = document.getElementById('selectPackaging').value;
+            const paintPkgSpec = PACKAGING_SPECS[paintPkgKey];
+
+            const thinnerPkgKey = document.getElementById('selectThinnerPkg').value;
+            const thinnerPkgSpec = PACKAGING_SPECS[thinnerPkgKey];
+
+            // GROUPING: Group items by (paintType + brand + colorCode)
+            const groups = {};
+            let totalGrossPaintAcrossAll = 0;
+
+            materialList.forEach(item => {
+                const groupKey = `${item.paintType}___${item.brand}___${item.colorCode}`;
+                if (!groups[groupKey]) {
+                    groups[groupKey] = {
+                        paintType: item.paintType,
+                        brand: item.brand,
+                        colorCode: item.colorCode,
+                        totalArea: 0
+                    };
+                }
+                groups[groupKey].totalArea += item.area;
+            });
+
+            // Render Rows for Each Grouped Paint
+            Object.values(groups).forEach(grp => {
+                const coverageRate = (grp.paintType === 'finish') ? 4.0 : 8.0;
+                const netPaintKg = grp.totalArea / coverageRate;
+                const grossPaintKg = netPaintKg * (1 + (sparePaintPct / 100));
+
+                totalGrossPaintAcrossAll += grossPaintKg;
+
+                const paintBpbQty = Math.ceil(grossPaintKg / paintPkgSpec.size);
+                const pTypeLabel = (grp.paintType === 'finish') ? 'Cat Finish (Top Coat)' : 'Cat Zinchromate / Primer';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-semibold text-blue-400">
+                        ${pTypeLabel}
+                        <div class="text-[10px] text-slate-400 font-normal">Luas: ${grp.totalArea.toFixed(2)} m²</div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="text-white font-medium">${grp.brand}</div>
+                        <div class="text-[10px] text-slate-400">${grp.colorCode}</div>
+                    </td>
+                    <td class="py-3 px-3 text-right text-slate-300">${netPaintKg.toFixed(1)} Kg</td>
+                    <td class="py-3 px-3 text-right text-amber-300 font-bold">${grossPaintKg.toFixed(1)} Kg</td>
+                    <td class="py-3 px-3 text-right text-slate-400 text-[11px]">
+                        <div>Mix (${(thinnerMixRatio * 100).toFixed(0)}%): ${(grossPaintKg * thinnerMixRatio).toFixed(1)} Lt</div>
+                    </td>
+                    <td class="py-3 px-3 text-right font-black text-emerald-400 text-sm">
+                        ${paintBpbQty > 0 ? paintBpbQty + ' ' + paintPkgSpec.label : '0 ' + paintPkgSpec.label}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            /* 
+              REVISED THINNER CALCULATION FORMULA:
+              1 Cat + (thinnerMixRatio x Cat) + (spareThinnerPct x Cat)
+              - Mix Thinner (Application) = totalGrossPaintAcrossAll * thinnerMixRatio (e.g. 0.5 = 50%)
+              - Spare Thinner (Cleaning/Spills) = totalGrossPaintAcrossAll * (spareThinnerPct / 100) (e.g. 0.2 = 20%)
+              - Total Thinner Volume = Mix Thinner + Spare Thinner
+            */
+            const mixThinnerLt = totalGrossPaintAcrossAll * thinnerMixRatio;
+            const spareThinnerLt = totalGrossPaintAcrossAll * (spareThinnerPct / 100);
+            const totalThinnerLt = mixThinnerLt + spareThinnerLt;
+            const thinnerBpbQty = Math.ceil(totalThinnerLt / thinnerPkgSpec.size);
+
+            // Row for Thinner ND High Gloss
+            const trThinner = document.createElement('tr');
+            trThinner.className = "hover:bg-slate-800/40 transition bg-slate-950/60 border-t-2 border-slate-700/80";
+            trThinner.innerHTML = `
+                <td class="py-3 px-3 font-semibold text-cyan-400">
+                    Thinner ND High Gloss
+                    <div class="text-[10px] text-slate-400 font-normal">Pembersih Kuas & Campuran</div>
+                </td>
+                <td class="py-3 px-3">
+                    <div class="text-white font-medium">Fan Brand / ND</div>
+                    <div class="text-[10px] text-cyan-300">Rasio 1 : ${thinnerMixRatio} + ${spareThinnerPct}% Spare</div>
+                </td>
+                <td class="py-3 px-3 text-right text-slate-400">-</td>
+                <td class="py-3 px-3 text-right text-cyan-300 font-bold">${mixThinnerLt.toFixed(1)} Lt <span class="text-[10px] text-slate-400">(Mix)</span></td>
+                <td class="py-3 px-3 text-right text-amber-300 font-bold">
+                    <div>+${spareThinnerLt.toFixed(1)} Lt <span class="text-[10px] text-slate-400">(Spare)</span></div>
+                    <div class="text-[10px] text-cyan-300">Total: ${totalThinnerLt.toFixed(1)} Lt</div>
+                </td>
+                <td class="py-3 px-3 text-right font-black text-cyan-400 text-sm">
+                    ${thinnerBpbQty > 0 ? thinnerBpbQty + ' ' + thinnerPkgSpec.label : '0 ' + thinnerPkgSpec.label}
+                </td>
+            `;
+            tbody.appendChild(trThinner);
+
+            lucide.createIcons();
+        }
+
+        // Reset Application State
+        function resetAllData() {
+            materialList = [];
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        // Print Handler 1: BPB Only
+        function printBPBOnly() {
+            document.body.classList.add('print-bpb-only-mode');
+            window.print();
+            document.body.classList.remove('print-bpb-only-mode');
+        }
+
+        // Print Handler 2: Full Report (BPB + Material Entries)
+        function printFullReport() {
+            document.body.classList.remove('print-bpb-only-mode');
+            window.print();
+        }
+
+        // DOM Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            onMaterialTypeChange();
+            onPaintTypeChange();
+            onThinnerRatioChange();
+            renderMaterialTable();
+            calculateSummary();
+        });
+    </script>
+</body>
+</html>

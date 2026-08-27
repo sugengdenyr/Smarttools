@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Isolasi Pipa Lembaran, Alumunium Sheet & Stapping - BPB</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js for 3D Pipe & Stapping Visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            .print-text {
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <!-- Header Banner -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 shadow-inner">
+                    <i data-lucide="calculator" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-white leading-tight flex items-center gap-2">
+                        Kalkulator Isolasi Pipa Lembaran, Alumunium Sheet & Stapping
+                    </h1>
+                    <p class="text-xs text-slate-400">Estimasi Kebutuhan Isolasi, Metal Jacketing & Skrup Stapping BPB (Spesifikasi SPINDO)</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Input Panel -->
+        <section class="lg:col-span-5 flex flex-col gap-5 no-print">
+            
+            <!-- Card 1: Main Pipe Parameters -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i data-lucide="disc" class="w-4 h-4"></i> 1. Parameter Utama Pipa
+                    </h2>
+                    <span class="text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                        Spesifikasi SPINDO
+                    </span>
+                </div>
+
+                <!-- Pipe Material Selector -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Jenis Pipa & Panjang Standar Per Batang</label>
+                    <select id="selectPipeMaterial" onchange="onPipeMaterialChange()" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="galvanis" selected>Pipa Galvanis (6.0 Meter / Batang)</option>
+                        <option value="blacksteel">Pipa Black Steel (6.0 Meter / Batang)</option>
+                        <option value="stainless">Pipa Stainless Steel (6.0 Meter / Batang)</option>
+                        <option value="ppr">Pipa PPR (4.0 Meter / Batang)</option>
+                        <option value="pvc">Pipa PVC (4.0 Meter / Batang)</option>
+                        <option value="custom">Custom Panjang (User Input)</option>
+                    </select>
+                </div>
+
+                <!-- Pipe Class / Schedule Selection -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Kelas / Schedule Ketebalan Pipa (Akurat SPINDO)</label>
+                    <select id="selectPipeSchedule" onchange="onPipeScheduleChange()" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <!-- Options populated dynamically based on material -->
+                    </select>
+                </div>
+
+                <!-- Pipe Size Selection & Dynamic OD -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran Pipa (NPS)</label>
+                        <select id="selectPipeSize" onchange="onPipeSizeChange()" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                            <!-- Populated in JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Diameter Luar / OD (mm)</label>
+                        <input type="number" id="inputCustomOD" value="168.3" min="1" step="0.1" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Joint Length & Quantity Inputs -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang / Batang (m)</label>
+                        <input type="number" id="inputLengthPerJoint" value="6.0" min="0.5" step="0.5" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Batang (Qty)</label>
+                        <input type="number" id="inputJointCount" value="20" min="1" step="1" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Fixed Phi Note -->
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-400 font-sans">Konstanta Keliling:</span>
+                    <span class="font-mono text-emerald-400 font-bold">Phi (π) = 3.14 (Fixed Excel)</span>
+                </div>
+
+                <!-- Waste / Spare Factor -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-300">Spare / Waste Material (%)</label>
+                        <span id="labelSpareMultiplier" class="text-xs font-mono text-amber-400">Faktor: 1.10 (10%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="inputSparePercent" value="10" min="0" max="100" step="1" oninput="calculateAll()"
+                            class="w-24 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                        <input type="range" id="sliderSpare" min="0" max="50" value="10" oninput="syncSpareSlider()"
+                            class="flex-1 accent-blue-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Insulation Specs -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> 2. Spesifikasi Isolasi Lembaran
+                    </h3>
+                    <span class="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full">
+                        Isolasi Lembaran
+                    </span>
+                </div>
+
+                <!-- Insulation Brand Input -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Merk Isolasi (Manual Input)</label>
+                    <input type="text" id="inputIsoBrand" value="Armaflex" oninput="calculateAll()" placeholder="Contoh: Armaflex, Superlon, Insulflex, K-Flex"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <!-- Sheet Dimensions -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang (m)</label>
+                        <input type="number" id="inputNbrSheetLength" value="1.0" min="0.1" step="0.1" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Lebar (m)</label>
+                        <input type="number" id="inputNbrSheetWidth" value="3.0" min="0.1" step="0.1" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal (mm)</label>
+                        <select id="selectNbrThickness" onchange="calculateAll()" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                            <option value="6">6 mm</option>
+                            <option value="9">9 mm</option>
+                            <option value="13">13 mm</option>
+                            <option value="19">19 mm</option>
+                            <option value="25">25 mm</option>
+                            <option value="32">32 mm</option>
+                            <option value="38" selected>38 mm</option>
+                            <option value="50">50 mm</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Alumunium Sheet & Stapping Specs (Clean & Corrected) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="shield" class="w-4 h-4"></i> 3. Alumunium Sheet & Stapping
+                    </h3>
+                    <span class="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                        Jacketing Metal
+                    </span>
+                </div>
+
+                <!-- Metal Sheet Dimensions -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang Roll (m)</label>
+                        <select id="selectJacketSheetLength" onchange="calculateAll()" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">
+                            <option value="25" selected>25 Meter / Roll</option>
+                            <option value="50">50 Meter / Roll</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Sheet (m)</label>
+                        <input type="number" id="inputJacketSheetWidth" value="1.0" readonly
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 font-mono focus:outline-none cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Metal (mm)</label>
+                        <input type="number" id="inputJacketThickness" value="0.5" min="0.1" step="0.1" oninput="calculateAll()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Stapping Screw Config -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Stapping (Pcs / Meter Pipa)</label>
+                    <input type="number" id="inputStappingPerMeter" value="10" min="1" step="1" oninput="calculateAll()"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">
+                    <p class="text-[11px] text-slate-400 italic mt-1.5">
+                        * Stapping: Skrup pengunci jacketing (~1cm) yang dipasang memanjang di sepanjang sambungan melingkar/horizontal. Jika jarak antar skrup 100mm (10cm), terdapat 10 pcs/m.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Output Panel -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- KPI Results Overview Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 no-print">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Panjang Pipa</span>
+                    <div class="my-1">
+                        <span id="kpiTotalLength" class="text-xl font-black text-blue-400 font-mono">120.0</span>
+                        <span class="text-[10px] text-slate-400 block">Meter (20 btg @ 6m)</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luas Penampang Pipa</span>
+                    <div class="my-1">
+                        <span id="kpiPipeArea" class="text-xl font-black text-emerald-400 font-mono">63.41</span>
+                        <span class="text-[10px] text-slate-400 block">m² (Keliling × Panjang)</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Isolasi (+Spare)</span>
+                    <div class="my-1">
+                        <span id="kpiNbrTotalSheets" class="text-xl font-black text-cyan-400 font-mono">23.25</span>
+                        <span class="text-[10px] text-slate-400 block">Lembar (BPB: 24 lbr)</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stapping</span>
+                    <div class="my-1">
+                        <span id="kpiTotalStapping" class="text-xl font-black text-amber-400 font-mono">1200</span>
+                        <span class="text-[10px] text-slate-400 block">Pcs (10 bh / Meter)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Calculation Breakdown Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 no-print">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i> Rincian Perhitungan Isolasi Pipa Lembaran (Excel Match)
+                    </h3>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        Formulasi Presisi SPINDO
+                    </span>
+                </div>
+
+                <div class="space-y-2.5 text-xs text-slate-300 font-mono">
+                    <!-- Step 1: Pipe Length & Circumference -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
+                        <div class="text-blue-400 font-bold flex justify-between">
+                            <span>• Total Panjang & Keliling Pipa</span>
+                            <span id="calcPipeLengthDisp" class="text-white">120 Meter | 0.528 m</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Total Panjang Pipa = <span class="text-white font-mono" id="dispStepLengthPerJoint">6</span> m × <span class="text-white font-mono" id="dispStepJointCount">20</span> btg = <span class="text-emerald-400 font-bold font-mono" id="dispStepTotalLength">120</span> Meter
+                        </p>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Keliling Pipa = Phi (π) × Dia. Pipa OD = <span class="text-white font-mono">3.14</span> × <span class="text-white font-mono" id="dispStepDiaPipa">168.3</span> mm = <span class="text-cyan-400 font-bold font-mono" id="dispStepKelilingMm">528.46</span> mm = <span class="text-cyan-400 font-bold font-mono" id="dispStepKelilingM">0.528</span> Meter
+                        </p>
+                    </div>
+
+                    <!-- Step 2: Surface Area -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
+                        <div class="text-emerald-400 font-bold flex justify-between">
+                            <span>• Luas Penampang Pipa (Keliling × Panjang)</span>
+                            <span id="dispStepPipeAreaHeader" class="text-white">63.41 m²</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Luas Penampang Pipa = <span class="text-white font-mono" id="dispStepKelilingM2">0.528</span> m × <span class="text-white font-mono" id="dispStepTotalLength2">120</span> m = <span class="text-emerald-400 font-bold font-mono" id="dispStepPipeArea">63.41</span> m²
+                        </p>
+                    </div>
+
+                    <!-- Step 3: Insulation Requirement & Spare -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
+                        <div class="text-cyan-400 font-bold flex justify-between">
+                            <span>• Kebutuhan Isolasi Lembaran (<span id="dispStepIsoBrandName">Armaflex</span>) & Spare</span>
+                            <span id="dispStepFinalSheetHeader" class="text-white">23.25 Lembar</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Luas 1 Lembar Isolasi = <span class="text-white font-mono" id="dispStepNbrLen">1</span> m × <span class="text-white font-mono" id="dispStepNbrWid">3</span> m = <span class="text-white font-mono" id="dispStepNbrSheetArea">3</span> m²
+                        </p>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Penampang / Luas Isolasi = <span class="text-white font-mono" id="dispStepPipeArea3">63.41</span> m² / <span class="text-white font-mono" id="dispStepNbrSheetArea2">3</span> m² = <span class="text-amber-400 font-bold font-mono" id="dispStepRawSheets">21.14</span> Lembar
+                        </p>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Isolasi Dibutuhkan (+ Spare <span id="dispStepSparePct">10</span>%) = <span class="text-white font-mono" id="dispStepRawSheets2">21.14</span> × <span class="text-white font-mono" id="dispStepSpareFact">1.1</span> = <span class="text-emerald-400 font-bold font-mono text-sm" id="dispStepFinalSheets">23.25</span> Lembar
+                        </p>
+                    </div>
+
+                    <!-- Step 4: Stapping Calculation -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
+                        <div class="text-amber-400 font-bold flex justify-between">
+                            <span>• Perhitungan Stapping (Skrup Pengunci Jacketing Memanjang)</span>
+                            <span id="dispStepStappingTotalHeader" class="text-white">1200 Pcs</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-sans">
+                            Jumlah Stapping = Total Panjang Pipa (<span class="text-white font-mono" id="dispStepTotalLengthStapping">120</span> m) × <span class="text-white font-mono" id="dispStepStappingRate">10</span> pcs/m = <span class="text-amber-400 font-bold font-mono" id="dispStepStappingResult">1200</span> Pcs
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Interactive Visualizer Section -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center no-print">
+                <div class="w-full flex items-center justify-between mb-2 border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="box" class="w-4 h-4 text-blue-400"></i> Visualisasi 3D Pipa, Isolasi, Alumunium Sheet & Skrup Stapping
+                    </h3>
+                    <span class="text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-mono">
+                        Putar 360° (Mouse / Touch)
+                    </span>
+                </div>
+
+                <!-- High-Visibility 3D Container -->
+                <div class="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing shadow-inner" id="container3d">
+                    <canvas id="canvas3d" class="w-full h-full block"></canvas>
+                    <div class="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] text-slate-300 font-mono shadow">
+                        💡 Putar dengan drag mouse / sentuhan jari
+                    </div>
+                </div>
+
+                <!-- Color Legends -->
+                <div class="flex flex-wrap justify-center gap-4 text-[11px] mt-3">
+                    <div class="flex items-center gap-1.5">
+                        <span id="legendPipeColor" class="w-3.5 h-3.5 rounded-full bg-slate-400 border border-slate-200"></span> 
+                        <span id="legendPipeLabel" class="text-slate-200 font-medium">Pipa Inti</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-stone-900 border border-stone-600"></span> Isolasi Busa (Hitam Pekat)
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-400"></span> Alumunium Sheet
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-amber-400 border border-amber-200"></span> Skrup Stapping
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rekomendasi BPB (Bon Permintaan Barang) Section -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="text-sm sm:text-base font-bold text-white print-text">
+                                Rekomendasi BPB (Bon Permintaan Barang)
+                            </h3>
+                        </div>
+                        <p class="text-xs text-slate-400 print-text">
+                            Daftar rincian material untuk pengajuan Bon Permintaan Barang (BPB) proyek
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 no-print">
+                        <button onclick="copyBPBToClipboard()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin BPB
+                        </button>
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak / PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-semibold uppercase">
+                                <th class="py-2.5 px-3">No</th>
+                                <th class="py-2.5 px-3">Nama Material</th>
+                                <th class="py-2.5 px-3">Spesifikasi Detail</th>
+                                <th class="py-2.5 px-3 text-right">Vol. Bersih</th>
+                                <th class="py-2.5 px-3 text-right">Vol. Excel (+Spare)</th>
+                                <th class="py-2.5 px-3 text-center">Satuan</th>
+                                <th class="py-2.5 px-3 text-right font-bold text-emerald-400">Order BPB</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBpbBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <!-- Dynamic Content populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Copy Confirmation Alert -->
+                <div id="bpbCopyMessage" class="hidden p-2.5 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-emerald-300 text-center font-sans no-print">
+                    ✓ Rekomendasi Bon Permintaan Barang (BPB) berhasil disalin ke clipboard!
+                </div>
+
+                <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
+                    <span>* Order BPB direkomendasikan dengan pembulatan ke atas untuk menjamin ketersediaan fisik di lapangan.</span>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer (Single Clean Copyright) -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-4 px-6 text-center text-xs text-slate-500 mt-auto no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>Kalkulator Estimasi Isolasi Pipa Lembaran, Alumunium Sheet & Stapping</span>
+            <span class="font-medium text-slate-400">© Sugeng Deny Ramdani - 2026</span>
+        </div>
+    </footer>
+
+    <!-- Logic JavaScript -->
+    <script>
+        // Standard Pipe Size Reference Database (NPS)
+        const PIPE_SIZES_LIST = [
+            { name: '1/2"', inch: 0.5 },
+            { name: '3/4"', inch: 0.75 },
+            { name: '1"', inch: 1.0 },
+            { name: '1 1/4"', inch: 1.25 },
+            { name: '1 1/2"', inch: 1.5 },
+            { name: '2"', inch: 2.0 },
+            { name: '2 1/2"', inch: 2.5 },
+            { name: '3"', inch: 3.0 },
+            { name: '4"', inch: 4.0 },
+            { name: '5"', inch: 5.0 },
+            { name: '6"', inch: 6.0 },
+            { name: '8"', inch: 8.0 },
+            { name: '10"', inch: 10.0 },
+            { name: '12"', inch: 12.0 },
+            { name: '14"', inch: 14.0 },
+            { name: '16"', inch: 16.0 },
+            { name: '18"', inch: 18.0 },
+            { name: '20"', inch: 20.0 },
+            { name: '24"', inch: 24.0 },
+            { name: 'Custom (User Input)', inch: 0 }
+        ];
+
+        // SPINDO & Standard Pipe OD Matrix
+        const SPINDO_OD_MATRIX = {
+            '1/2"': {
+                'Class Light': 21.4, 'Class Medium': 21.3, 'Class Heavy': 21.3,
+                'Sch 10': 21.3, 'Sch 20': 21.3, 'Sch 40': 21.3, 'Sch 80': 21.3,
+                'PN 10': 20.0, 'PN 16': 20.0, 'PN 20': 20.0,
+                'Kelas AW': 22.0, 'Kelas D': 22.0, 'VP / Class 13': 22.0
+            },
+            '3/4"': {
+                'Class Light': 26.8, 'Class Medium': 26.9, 'Class Heavy': 26.8,
+                'Sch 10': 26.7, 'Sch 20': 26.7, 'Sch 40': 26.7, 'Sch 80': 26.7,
+                'PN 10': 25.0, 'PN 16': 25.0, 'PN 20': 25.0,
+                'Kelas AW': 26.0, 'Kelas D': 26.0, 'VP / Class 13': 26.0
+            },
+            '1"': {
+                'Class Light': 33.6, 'Class Medium': 33.7, 'Class Heavy': 33.8,
+                'Sch 10': 33.4, 'Sch 20': 33.4, 'Sch 40': 33.4, 'Sch 80': 33.4,
+                'PN 10': 32.0, 'PN 16': 32.0, 'PN 20': 32.0,
+                'Kelas AW': 32.0, 'Kelas D': 32.0, 'VP / Class 13': 32.0
+            },
+            '1 1/4"': {
+                'Class Light': 42.3, 'Class Medium': 42.4, 'Class Heavy': 42.5,
+                'Sch 10': 42.2, 'Sch 20': 42.2, 'Sch 40': 42.2, 'Sch 80': 42.2,
+                'PN 10': 40.0, 'PN 16': 40.0, 'PN 20': 40.0,
+                'Kelas AW': 38.0, 'Kelas D': 38.0, 'VP / Class 13': 38.0
+            },
+            '1 1/2"': {
+                'Class Light': 48.2, 'Class Medium': 48.3, 'Class Heavy': 48.4,
+                'Sch 10': 48.3, 'Sch 20': 48.3, 'Sch 40': 48.3, 'Sch 80': 48.3,
+                'PN 10': 50.0, 'PN 16': 50.0, 'PN 20': 50.0,
+                'Kelas AW': 48.0, 'Kelas D': 48.0, 'VP / Class 13': 48.0
+            },
+            '2"': {
+                'Class Light': 60.2, 'Class Medium': 60.3, 'Class Heavy': 60.3,
+                'Sch 10': 60.3, 'Sch 20': 60.3, 'Sch 40': 60.3, 'Sch 80': 60.3,
+                'PN 10': 63.0, 'PN 16': 63.0, 'PN 20': 63.0,
+                'Kelas AW': 60.0, 'Kelas D': 60.0, 'VP / Class 13': 60.0
+            },
+            '2 1/2"': {
+                'Class Light': 76.0, 'Class Medium': 76.1, 'Class Heavy': 76.0,
+                'Sch 10': 73.0, 'Sch 20': 73.0, 'Sch 40': 73.0, 'Sch 80': 73.0,
+                'PN 10': 75.0, 'PN 16': 75.0, 'PN 20': 75.0,
+                'Kelas AW': 76.0, 'Kelas D': 76.0, 'VP / Class 13': 76.0
+            },
+            '3"': {
+                'Class Light': 88.8, 'Class Medium': 88.9, 'Class Heavy': 88.8,
+                'Sch 10': 88.9, 'Sch 20': 88.9, 'Sch 40': 88.9, 'Sch 80': 88.9,
+                'PN 10': 90.0, 'PN 16': 90.0, 'PN 20': 90.0,
+                'Kelas AW': 89.0, 'Kelas D': 89.0, 'VP / Class 13': 89.0
+            },
+            '4"': {
+                'Class Light': 114.1, 'Class Medium': 114.3, 'Class Heavy': 114.1,
+                'Sch 10': 114.3, 'Sch 20': 114.3, 'Sch 40': 114.3, 'Sch 80': 114.3,
+                'PN 10': 110.0, 'PN 16': 110.0, 'PN 20': 110.0,
+                'Kelas AW': 114.0, 'Kelas D': 114.0, 'VP / Class 13': 114.0
+            },
+            '5"': {
+                'Class Light': 139.7, 'Class Medium': 139.7, 'Class Heavy': 139.7,
+                'Sch 10': 141.3, 'Sch 20': 141.3, 'Sch 40': 141.3, 'Sch 80': 141.3,
+                'PN 10': 140.0, 'PN 16': 140.0, 'PN 20': 140.0,
+                'Kelas AW': 140.0, 'Kelas D': 140.0, 'VP / Class 13': 140.0
+            },
+            '6"': {
+                'Class Light': 165.1, 'Class Medium': 165.1, 'Class Heavy': 168.3,
+                'Sch 10': 168.3, 'Sch 20': 168.3, 'Sch 40': 168.3, 'Sch 80': 168.3,
+                'PN 10': 160.0, 'PN 16': 160.0, 'PN 20': 160.0,
+                'Kelas AW': 165.0, 'Kelas D': 165.0, 'VP / Class 13': 165.0
+            },
+            '8"': {
+                'Class Light': 219.1, 'Class Medium': 219.1, 'Class Heavy': 219.1,
+                'Sch 10': 219.1, 'Sch 20': 219.1, 'Sch 40': 219.1, 'Sch 80': 219.1,
+                'PN 10': 225.0, 'PN 16': 225.0, 'PN 20': 225.0,
+                'Kelas AW': 216.0, 'Kelas D': 216.0, 'VP / Class 13': 216.0
+            },
+            '10"': {
+                'Class Light': 273.0, 'Class Medium': 273.0, 'Class Heavy': 273.0,
+                'Sch 10': 273.1, 'Sch 20': 273.1, 'Sch 40': 273.1, 'Sch 80': 273.1,
+                'PN 10': 280.0, 'PN 16': 280.0, 'PN 20': 280.0,
+                'Kelas AW': 267.0, 'Kelas D': 267.0, 'VP / Class 13': 267.0
+            },
+            '12"': {
+                'Class Light': 323.8, 'Class Medium': 323.8, 'Class Heavy': 323.8,
+                'Sch 10': 323.9, 'Sch 20': 323.9, 'Sch 40': 323.9, 'Sch 80': 323.9,
+                'PN 10': 315.0, 'PN 16': 315.0, 'PN 20': 315.0,
+                'Kelas AW': 318.0, 'Kelas D': 318.0, 'VP / Class 13': 318.0
+            },
+            '14"': {
+                'Class Light': 355.6, 'Class Medium': 355.6, 'Class Heavy': 355.6,
+                'Sch 10': 355.6, 'Sch 20': 355.6, 'Sch 40': 355.6, 'Sch 80': 355.6
+            },
+            '16"': {
+                'Class Light': 406.4, 'Class Medium': 406.4, 'Class Heavy': 406.4,
+                'Sch 10': 406.4, 'Sch 20': 406.4, 'Sch 40': 406.4, 'Sch 80': 406.4
+            },
+            '18"': {
+                'Class Light': 457.0, 'Class Medium': 457.0, 'Class Heavy': 457.0,
+                'Sch 10': 457.2, 'Sch 20': 457.2, 'Sch 40': 457.2, 'Sch 80': 457.2
+            },
+            '20"': {
+                'Class Light': 508.0, 'Class Medium': 508.0, 'Class Heavy': 508.0,
+                'Sch 10': 508.0, 'Sch 20': 508.0, 'Sch 40': 508.0, 'Sch 80': 508.0
+            },
+            '24"': {
+                'Class Light': 610.0, 'Class Medium': 610.0, 'Class Heavy': 610.0,
+                'Sch 10': 609.6, 'Sch 20': 609.6, 'Sch 40': 609.6, 'Sch 80': 609.6
+            }
+        };
+
+        // Pipe Schedule Options
+        const SCHEDULE_MAP = {
+            galvanis: ['Class Medium', 'Class Light', 'Class Heavy', 'Sch 40'],
+            blacksteel: ['Sch 40', 'Sch 20', 'Sch 80', 'Sch 10', 'Class Medium', 'Class Heavy'],
+            stainless: ['Sch 10', 'Sch 40', 'Sch 80'],
+            ppr: ['PN 16', 'PN 10', 'PN 20'],
+            pvc: ['Kelas AW', 'Kelas D', 'VP / Class 13'],
+            custom: ['Standard', 'Custom Thickness']
+        };
+
+        const MATERIAL_DISPLAY_NAMES = {
+            galvanis: 'Pipa Galvanis',
+            blacksteel: 'Pipa Black Steel',
+            stainless: 'Pipa Stainless Steel',
+            ppr: 'Pipa PPR',
+            pvc: 'Pipa PVC',
+            custom: 'Pipa Custom'
+        };
+
+        function getODForSizeAndSchedule(sizeName, scheduleName) {
+            if (SPINDO_OD_MATRIX[sizeName] && SPINDO_OD_MATRIX[sizeName][scheduleName]) {
+                return SPINDO_OD_MATRIX[sizeName][scheduleName];
+            }
+            const fallbackMap = {
+                '1/2"': 21.3, '3/4"': 26.7, '1"': 33.4, '1 1/4"': 42.2, '1 1/2"': 48.3,
+                '2"': 60.3, '2 1/2"': 73.0, '3"': 88.9, '4"': 114.3, '5"': 141.3,
+                '6"': 168.3, '8"': 219.1, '10"': 273.1, '12"': 323.9, '14"': 355.6,
+                '16"': 406.4, '18"': 457.2, '20"': 508.0, '24"': 609.6
+            };
+            return fallbackMap[sizeName] || 168.3;
+        }
+
+        function populateSizeDropdown() {
+            const select = document.getElementById('selectPipeSize');
+            const currentSched = document.getElementById('selectPipeSchedule').value || 'Class Medium';
+            const previousIdx = select.selectedIndex >= 0 ? select.selectedIndex : 10; // Default 6"
+
+            select.innerHTML = '';
+            PIPE_SIZES_LIST.forEach((p, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                if (p.inch > 0) {
+                    const od = getODForSizeAndSchedule(p.name, currentSched);
+                    opt.textContent = `${p.name} (OD: ${od.toFixed(1)} mm)`;
+                } else {
+                    opt.textContent = p.name;
+                }
+                select.appendChild(opt);
+            });
+            select.selectedIndex = Math.min(previousIdx, PIPE_SIZES_LIST.length - 1);
+        }
+
+        function populateScheduleDropdown() {
+            const mat = document.getElementById('selectPipeMaterial').value;
+            const schedSelect = document.getElementById('selectPipeSchedule');
+            schedSelect.innerHTML = '';
+
+            const options = SCHEDULE_MAP[mat] || ['Class Medium'];
+            options.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                schedSelect.appendChild(opt);
+            });
+        }
+
+        function onPipeMaterialChange() {
+            const mat = document.getElementById('selectPipeMaterial').value;
+            const lengthInput = document.getElementById('inputLengthPerJoint');
+
+            populateScheduleDropdown();
+            populateSizeDropdown();
+
+            if (mat === 'ppr' || mat === 'pvc') {
+                lengthInput.value = 4.0;
+                lengthInput.readOnly = true;
+            } else if (mat === 'galvanis' || mat === 'blacksteel' || mat === 'stainless') {
+                lengthInput.value = 6.0;
+                lengthInput.readOnly = true;
+            } else {
+                lengthInput.readOnly = false;
+            }
+
+            syncPipeODFromSelection();
+            calculateAll();
+        }
+
+        function onPipeScheduleChange() {
+            populateSizeDropdown();
+            syncPipeODFromSelection();
+            calculateAll();
+        }
+
+        function onPipeSizeChange() {
+            syncPipeODFromSelection();
+            calculateAll();
+        }
+
+        function syncPipeODFromSelection() {
+            const idx = parseInt(document.getElementById('selectPipeSize').value);
+            const selectedPipe = PIPE_SIZES_LIST[idx] || {};
+            const currentSched = document.getElementById('selectPipeSchedule').value || 'Class Medium';
+
+            if (selectedPipe.inch > 0) {
+                const exactOD = getODForSizeAndSchedule(selectedPipe.name, currentSched);
+                document.getElementById('inputCustomOD').value = exactOD;
+            }
+        }
+
+        function syncSpareSlider() {
+            const val = document.getElementById('sliderSpare').value;
+            document.getElementById('inputSparePercent').value = val;
+            calculateAll();
+        }
+
+        function calculateAll() {
+            // Inputs
+            const pipeMaterialKey = document.getElementById('selectPipeMaterial').value;
+            const pipeMaterialName = MATERIAL_DISPLAY_NAMES[pipeMaterialKey] || 'Pipa';
+            const pipeSchedule = document.getElementById('selectPipeSchedule').value || 'Class Medium';
+
+            const pipeSizeIdx = parseInt(document.getElementById('selectPipeSize').value);
+            const pipeSizeObj = PIPE_SIZES_LIST[pipeSizeIdx] || {};
+            const pipeSizeName = pipeSizeObj.name ? pipeSizeObj.name : '';
+
+            const jointLen = parseFloat(document.getElementById('inputLengthPerJoint').value) || 0;
+            const jointCount = parseFloat(document.getElementById('inputJointCount').value) || 0;
+            const totalPipeLengthM = jointLen * jointCount;
+
+            const pipeDia_mm = parseFloat(document.getElementById('inputCustomOD').value) || 0;
+            const phi = 3.14;
+
+            const sparePercent = parseFloat(document.getElementById('inputSparePercent').value) || 0;
+            document.getElementById('sliderSpare').value = sparePercent;
+            const spareMultiplier = 1.0 + (sparePercent / 100.0);
+            document.getElementById('labelSpareMultiplier').textContent = `Faktor: ${spareMultiplier.toFixed(2)} (${sparePercent}%)`;
+
+            // Insulation Parameters
+            const isoBrand = document.getElementById('inputIsoBrand').value.trim() || 'Armaflex';
+            const tIso_mm = parseFloat(document.getElementById('selectNbrThickness').value) || 0;
+            const nbrLen_m = parseFloat(document.getElementById('inputNbrSheetLength').value) || 1.0;
+            const nbrWid_m = parseFloat(document.getElementById('inputNbrSheetWidth').value) || 1.0;
+            const nbrSheetArea_m2 = nbrLen_m * nbrWid_m;
+
+            // Excel Pipe Circumference Logic
+            const keliling_mm = phi * pipeDia_mm;
+            const keliling_m = keliling_mm / 1000.0;
+
+            // Surface Area (Keliling x Panjang Pipa)
+            const pipeArea_m2 = keliling_m * totalPipeLengthM;
+
+            // Insulation Requirement
+            const nbrRawSheets = nbrSheetArea_m2 > 0 ? (pipeArea_m2 / nbrSheetArea_m2) : 0;
+            const nbrFinalSheetsExact = nbrRawSheets * spareMultiplier;
+            const nbrBpbOrderSheets = Math.ceil(nbrFinalSheetsExact);
+
+            // Alumunium Sheet & Stapping Calculations
+            const jktLen_m = parseFloat(document.getElementById('selectJacketSheetLength').value) || 25;
+            const jktWid_m = parseFloat(document.getElementById('inputJacketSheetWidth').value) || 1.0;
+            const jktThick_mm = parseFloat(document.getElementById('inputJacketThickness').value) || 0.5;
+
+            const stappingRate = parseFloat(document.getElementById('inputStappingPerMeter').value) || 10;
+            const totalStappingPcs = Math.ceil(totalPipeLengthM * stappingRate);
+            const totalStappingBpbPcs = Math.ceil(totalStappingPcs * spareMultiplier);
+
+            const jktSheetArea_m2 = jktLen_m * jktWid_m;
+            const jktOuterDia_mm = pipeDia_mm + (2 * tIso_mm) + (2 * jktThick_mm);
+            const jktKeliling_mm = phi * jktOuterDia_mm;
+            const jktKeliling_m = jktKeliling_mm / 1000.0;
+
+            const jktRawArea_m2 = jktKeliling_m * totalPipeLengthM;
+            const jktTotalArea_m2 = jktRawArea_m2 * spareMultiplier;
+            const jktExactSheets = jktSheetArea_m2 > 0 ? (jktTotalArea_m2 / jktSheetArea_m2) : 0;
+            const jktBpbOrderSheets = Math.ceil(jktExactSheets);
+
+            // Update KPI Dashboard
+            document.getElementById('kpiTotalLength').textContent = totalPipeLengthM.toFixed(1);
+            document.getElementById('kpiPipeArea').textContent = pipeArea_m2.toFixed(2);
+            document.getElementById('kpiNbrTotalSheets').textContent = nbrFinalSheetsExact.toFixed(2);
+            document.getElementById('kpiTotalStapping').textContent = totalStappingPcs;
+
+            // Update Step Breakdown
+            document.getElementById('calcPipeLengthDisp').textContent = `${totalPipeLengthM.toFixed(0)} Meter | ${keliling_m.toFixed(3)} m`;
+            document.getElementById('dispStepLengthPerJoint').textContent = jointLen;
+            document.getElementById('dispStepJointCount').textContent = jointCount;
+            document.getElementById('dispStepTotalLength').textContent = totalPipeLengthM.toFixed(0);
+
+            document.getElementById('dispStepDiaPipa').textContent = pipeDia_mm.toFixed(1);
+            document.getElementById('dispStepKelilingMm').textContent = keliling_mm.toFixed(2);
+            document.getElementById('dispStepKelilingM').textContent = keliling_m.toFixed(3);
+
+            document.getElementById('dispStepPipeAreaHeader').textContent = `${pipeArea_m2.toFixed(2)} m²`;
+            document.getElementById('dispStepKelilingM2').textContent = keliling_m.toFixed(3);
+            document.getElementById('dispStepTotalLength2').textContent = totalPipeLengthM.toFixed(0);
+            document.getElementById('dispStepPipeArea').textContent = pipeArea_m2.toFixed(2);
+
+            document.getElementById('dispStepIsoBrandName').textContent = isoBrand;
+            document.getElementById('dispStepFinalSheetHeader').textContent = `${nbrFinalSheetsExact.toFixed(2)} Lembar`;
+            document.getElementById('dispStepNbrLen').textContent = nbrLen_m;
+            document.getElementById('dispStepNbrWid').textContent = nbrWid_m;
+            document.getElementById('dispStepNbrSheetArea').textContent = nbrSheetArea_m2.toFixed(1);
+
+            document.getElementById('dispStepPipeArea3').textContent = pipeArea_m2.toFixed(2);
+            document.getElementById('dispStepNbrSheetArea2').textContent = nbrSheetArea_m2.toFixed(1);
+            document.getElementById('dispStepRawSheets').textContent = nbrRawSheets.toFixed(2);
+
+            document.getElementById('dispStepSparePct').textContent = sparePercent;
+            document.getElementById('dispStepRawSheets2').textContent = nbrRawSheets.toFixed(2);
+            document.getElementById('dispStepSpareFact').textContent = spareMultiplier.toFixed(2);
+            document.getElementById('dispStepFinalSheets').textContent = nbrFinalSheetsExact.toFixed(2);
+
+            document.getElementById('dispStepStappingTotalHeader').textContent = `${totalStappingPcs} Pcs`;
+            document.getElementById('dispStepTotalLengthStapping').textContent = totalPipeLengthM.toFixed(0);
+            document.getElementById('dispStepStappingRate').textContent = stappingRate;
+            document.getElementById('dispStepStappingResult').textContent = totalStappingPcs;
+
+            // BPB Full Pipe Name
+            const fullNamePipeBPB = `${pipeMaterialName} ${pipeSchedule} ${pipeSizeName}`.trim();
+
+            // Update BPB Table
+            updateBpbTable({
+                pipeFullName: fullNamePipeBPB,
+                pipeSchedule: pipeSchedule,
+                pipeDia: pipeDia_mm,
+                jointCount: jointCount,
+                jointLen: jointLen,
+                totalLen: totalPipeLengthM,
+                isoBrand: isoBrand,
+                tIso: tIso_mm,
+                nbrSheetDim: `${nbrLen_m}m × ${nbrWid_m}m`,
+                nbrRawSheets: nbrRawSheets,
+                nbrExactSheets: nbrFinalSheetsExact,
+                nbrBpbSheets: nbrBpbOrderSheets,
+                jktSheetDim: `Roll ${jktLen_m}m × ${jktWid_m}m • t=${jktThick_mm}mm`,
+                jktRawSheets: jktExactSheets / spareMultiplier,
+                jktExactSheets: jktExactSheets,
+                jktBpbSheets: jktBpbOrderSheets,
+                stappingRate: stappingRate,
+                stappingRawPcs: totalStappingPcs,
+                stappingBpbPcs: totalStappingBpbPcs
+            });
+
+            // Update 3D Pipe Model & Visual Materials
+            update3dModel(pipeMaterialKey, pipeDia_mm, tIso_mm, jktThick_mm, stappingRate);
+        }
+
+        function updateBpbTable(data) {
+            const tbody = document.getElementById('tableBpbBody');
+            tbody.innerHTML = `
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">1</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-slate-100">${data.pipeFullName}</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">Dia. OD ${data.pipeDia.toFixed(1)} mm • ${data.pipeSchedule} • ${data.jointLen}m/btg</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">${data.totalLen.toFixed(1)}</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">${data.totalLen.toFixed(1)}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">Batang</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-white">${data.jointCount} Btg</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">2</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Isolasi Lembaran ${data.isoBrand}</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">${data.isoBrand} t=${data.tIso}mm • Sheet ${data.nbrSheetDim}</td>
+                    <td class="py-2.5 px-3 text-right text-cyan-400">${data.nbrRawSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-cyan-300">${data.nbrExactSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">Lembar</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400">${data.nbrBpbSheets} Lbr</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">3</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-indigo-300">Alumunium Sheet</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">Roll Alumunium ${data.jktSheetDim}</td>
+                    <td class="py-2.5 px-3 text-right text-indigo-400">${data.jktRawSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${data.jktExactSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">Roll</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${data.jktBpbSheets} Roll</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">4</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-amber-300">Stapping</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">Skrup Tapping Pengunci Jacketing (~1cm) • ${data.stappingRate} bh/m</td>
+                    <td class="py-2.5 px-3 text-right text-amber-400">${data.stappingRawPcs}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-amber-300">${data.stappingBpbPcs}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">Pcs</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-amber-400">${data.stappingBpbPcs} Pcs</td>
+                </tr>
+            `;
+        }
+
+        // 3D Scene Variables
+        let scene, camera, renderer;
+        let pipeGroup;
+        let isMouseDown = false;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0.3, targetRotationY = -0.5;
+
+        function init3DScene() {
+            const container = document.getElementById('container3d');
+            const canvas = document.getElementById('canvas3d');
+
+            if (!container || !canvas) return;
+
+            const w = container.clientWidth || container.offsetWidth || 500;
+            const h = container.clientHeight || container.offsetHeight || 280;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1e293b);
+
+            camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+            camera.position.set(0, 3, 11);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(w, h, false);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Ambient & Directional Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+            dirLight1.position.set(8, 14, 10);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x94a3b8, 0.8);
+            dirLight2.position.set(-8, -6, -8);
+            scene.add(dirLight2);
+
+            pipeGroup = new THREE.Group();
+            scene.add(pipeGroup);
+
+            // Drag Mouse / Touch events
+            container.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            window.addEventListener('mouseup', () => isMouseDown = false);
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isMouseDown) return;
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                targetRotationY += deltaX * 0.01;
+                targetRotationX += deltaY * 0.01;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // Touch support for mobile
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isMouseDown = true;
+                    mouseX = e.touches[0].clientX;
+                    mouseY = e.touches[0].clientY;
+                }
+            });
+            container.addEventListener('touchend', () => isMouseDown = false);
+            container.addEventListener('touchmove', (e) => {
+                if (!isMouseDown || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - mouseX;
+                const deltaY = e.touches[0].clientY - mouseY;
+                targetRotationY += deltaX * 0.01;
+                targetRotationX += deltaY * 0.01;
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            });
+
+            window.addEventListener('resize', syncCanvasSize);
+
+            animate3D();
+        }
+
+        function syncCanvasSize() {
+            const container = document.getElementById('container3d');
+            if (!container || !renderer || !camera) return;
+            const w = container.clientWidth || container.offsetWidth || 500;
+            const h = container.clientHeight || container.offsetHeight || 280;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h, false);
+        }
+
+        function update3dModel(matKey, pipeDia, tIso, tJacket, stappingRate) {
+            if (!pipeGroup) return;
+
+            // Clear previous meshes
+            while (pipeGroup.children.length > 0) {
+                const child = pipeGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                    else child.material.dispose();
+                }
+                pipeGroup.remove(child);
+            }
+
+            // Normalization Scale
+            const pipeLength = 8.5;
+            const totalOD = pipeDia + 2 * tIso + 2 * tJacket;
+            const maxRadius = 1.9;
+            const scale = maxRadius / (totalOD / 2);
+
+            const rPipe = Math.max(0.45, (pipeDia / 2) * scale);
+            const rIso = Math.max(rPipe + 0.25, ((pipeDia / 2) + tIso) * scale);
+            const rJacket = Math.max(rIso + 0.12, ((pipeDia / 2) + tIso + tJacket) * scale);
+
+            // Material specific core pipe colors & finishes
+            let pipeColor = 0x94a3b8; // Default Galvanized Silver Gray
+            let pipeMetalness = 0.8;
+            let pipeRoughness = 0.3;
+            let pipeLabel = "Pipa Galvanis";
+
+            if (matKey === 'blacksteel') {
+                pipeColor = 0x1e293b; // Dark Black Steel
+                pipeMetalness = 0.6;
+                pipeRoughness = 0.5;
+                pipeLabel = "Pipa Black Steel";
+            } else if (matKey === 'stainless') {
+                pipeColor = 0xf1f5f9; // Polished Stainless Chrome
+                pipeMetalness = 0.98;
+                pipeRoughness = 0.1;
+                pipeLabel = "Pipa Stainless Steel";
+            } else if (matKey === 'ppr') {
+                pipeColor = 0x059669; // Green PPR
+                pipeMetalness = 0.1;
+                pipeRoughness = 0.4;
+                pipeLabel = "Pipa PPR";
+            } else if (matKey === 'pvc') {
+                pipeColor = 0xe2e8f0; // Off-white PVC
+                pipeMetalness = 0.1;
+                pipeRoughness = 0.3;
+                pipeLabel = "Pipa PVC";
+            } else {
+                pipeLabel = "Pipa Inti";
+            }
+
+            // Update Legend Pipe UI Label & Color
+            const legendLabelEl = document.getElementById('legendPipeLabel');
+            const legendColorEl = document.getElementById('legendPipeColor');
+            if (legendLabelEl) legendLabelEl.textContent = pipeLabel;
+            if (legendColorEl) {
+                if (matKey === 'blacksteel') legendColorEl.className = 'w-3.5 h-3.5 rounded-full bg-slate-900 border border-slate-700';
+                else if (matKey === 'stainless') legendColorEl.className = 'w-3.5 h-3.5 rounded-full bg-slate-100 border border-slate-300';
+                else if (matKey === 'ppr') legendColorEl.className = 'w-3.5 h-3.5 rounded-full bg-emerald-600 border border-emerald-400';
+                else if (matKey === 'pvc') legendColorEl.className = 'w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-400';
+                else legendColorEl.className = 'w-3.5 h-3.5 rounded-full bg-slate-400 border border-slate-200';
+            }
+
+            // 1. Inner Core Pipe
+            const pipeGeo = new THREE.CylinderGeometry(rPipe, rPipe, pipeLength, 32);
+            const pipeMat = new THREE.MeshStandardMaterial({ 
+                color: pipeColor, 
+                metalness: pipeMetalness, 
+                roughness: pipeRoughness 
+            });
+            const pipeMesh = new THREE.Mesh(pipeGeo, pipeMat);
+            pipeMesh.rotation.z = Math.PI / 2;
+            pipeGroup.add(pipeMesh);
+
+            // 2. Middle Insulation Layer (Black NBR Foam Rubber #111827)
+            const isoGeo = new THREE.CylinderGeometry(rIso, rIso, pipeLength * 0.75, 32);
+            const isoMat = new THREE.MeshStandardMaterial({ 
+                color: 0x111827, // Black NBR Foam
+                roughness: 0.95,
+                metalness: 0.05 
+            });
+            const isoMesh = new THREE.Mesh(isoGeo, isoMat);
+            isoMesh.rotation.z = Math.PI / 2;
+            isoMesh.position.x = -pipeLength * 0.05;
+            pipeGroup.add(isoMesh);
+
+            // 3. Outer Alumunium Sheet Layer (Shiny Alumunium #e2e8f0)
+            const jktGeo = new THREE.CylinderGeometry(rJacket, rJacket, pipeLength * 0.5, 32);
+            const jktMat = new THREE.MeshStandardMaterial({ 
+                color: 0xe2e8f0, // Shiny Alumunium Metal
+                metalness: 0.9, 
+                roughness: 0.15 
+            });
+            const jktMesh = new THREE.Mesh(jktGeo, jktMat);
+            jktMesh.rotation.z = Math.PI / 2;
+            jktMesh.position.x = -pipeLength * 0.15;
+            pipeGroup.add(jktMesh);
+
+            // 4. Stapping Screws along the longitudinal seam (Gold Hex Bolts)
+            const screwCount = Math.min(24, Math.max(5, Math.round(stappingRate * 0.6)));
+            const screwGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.14, 12);
+            const screwMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.1 });
+
+            const jktStartX = -pipeLength * 0.15 - (pipeLength * 0.25);
+            const jktEndX = -pipeLength * 0.15 + (pipeLength * 0.25);
+            const stepX = (jktEndX - jktStartX) / (screwCount + 1);
+
+            for (let i = 1; i <= screwCount; i++) {
+                const screwMesh = new THREE.Mesh(screwGeo, screwMat);
+                const posX = jktStartX + i * stepX;
+                screwMesh.position.set(posX, rJacket + 0.05, 0);
+                pipeGroup.add(screwMesh);
+            }
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+
+            if (pipeGroup) {
+                if (!isMouseDown) {
+                    targetRotationY += 0.003; // Smooth idle rotation
+                }
+                pipeGroup.rotation.x += (targetRotationX - pipeGroup.rotation.x) * 0.1;
+                pipeGroup.rotation.y += (targetRotationY - pipeGroup.rotation.y) * 0.1;
+            }
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function copyBPBToClipboard() {
+            const table = document.getElementById('tableBpbBody');
+            let text = "BON PERMINTAAN BARANG (BPB) REKOMENDASI\n";
+            text += "ISOLASI PIPA LEMBARAN, ALUMUNIUM SHEET & STAPPING\n";
+            text += "===============================================\n\n";
+
+            const rows = table.querySelectorAll('tr');
+            rows.forEach((r) => {
+                const cols = r.querySelectorAll('td');
+                if (cols.length >= 7) {
+                    text += `${cols[0].innerText}. ${cols[1].innerText}\n`;
+                    text += `   Detail       : ${cols[2].innerText}\n`;
+                    text += `   Vol. Bersih  : ${cols[3].innerText} ${cols[5].innerText}\n`;
+                    text += `   Vol. Excel   : ${cols[4].innerText} ${cols[5].innerText}\n`;
+                    text += `   ORDER BPB    : ${cols[6].innerText}\n\n`;
+                }
+            });
+
+            document.execCommand('copy');
+            const msg = document.getElementById('bpbCopyMessage');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3500);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            init3DScene();
+            onPipeMaterialChange();
+            syncCanvasSize();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychrometric Learning & Design Model</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f1f5f9;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+        input[type=range]:focus { outline: none; }
+
+        /* Animation Canvas Container */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-slate-800/90 border-b border-slate-700/80 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 p-2 rounded-xl border border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Psychrometric Educational Model</h1>
+                    <p class="text-[11px] text-slate-400">Interactive Learning & Design Tool • 101.325 kPa</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="px-3 py-1.5 rounded-lg border border-emerald-700/50 bg-emerald-900/20 flex items-center gap-2 text-xs font-medium text-emerald-400">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Real-time Engine Active
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
+
+        <!-- Baris Atas: Kontrol Input dan Hasil KPI -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Panel Kiri: Input Variabel -->
+            <section class="lg:col-span-4 flex flex-col gap-4">
+                <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-xl flex-1">
+                    <h2 class="text-sm font-bold text-slate-200 border-b border-slate-700/60 pb-3 flex items-center gap-2 mb-4">
+                        <i data-lucide="settings-2" class="w-4 h-4 text-blue-400"></i> Mode Parameter Input
+                    </h2>
+
+                    <!-- Mode Selector -->
+                    <div class="mb-5">
+                        <label class="text-xs font-semibold text-slate-400 block mb-2">Pilih Variabel Diketahui (Independen):</label>
+                        <select id="calcMode" onchange="switchMode()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                            <option value="tdb_rh">Dry Bulb (Tdb) & Relative Humidity (RH)</option>
+                            <option value="tdb_twb">Dry Bulb (Tdb) & Wet Bulb (Twb)</option>
+                            <option value="tdb_tdp">Dry Bulb (Tdb) & Dew Point (Tdp)</option>
+                            <option value="tdb_w">Dry Bulb (Tdb) & Humidity Ratio (W)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Input Utama Selalu Tdb -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <label class="text-xs font-semibold text-slate-300">Dry Bulb Temp. (Tdb)</label>
+                                <span class="text-sm font-mono font-bold text-cyan-400"><span id="valTdb">25.0</span> °C</span>
+                            </div>
+                            <input type="range" id="sliderTdb" min="-10" max="50" step="0.5" value="25" oninput="updateCalculations()">
+                        </div>
+
+                        <!-- Input Dinamis Berdasarkan Mode -->
+                        <div id="inputGroupDynamic">
+                        <div class="flex justify-between items-end mb-2">
+                            <label id="labelDynamic" class="text-xs font-semibold text-slate-300">Relative Humidity (RH)</label>
+                            <span class="text-sm font-mono font-bold text-rose-400"><span id="valDynamic">50.0</span> <span id="unitDynamic">%</span></span>
+                        </div>
+                        <input type="range" id="sliderDynamic" min="0" max="100" step="1" value="50" oninput="updateCalculations()">
+                    </div>
+                </div>
+
+                <!-- NEW: TARGET SETTING UNTUK DESAIN AHU -->
+                <div class="mt-4 pt-5 border-t border-slate-700/60">
+                    <h2 class="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                        <i data-lucide="crosshair" class="w-4 h-4"></i> Target Desain (Set Point Ruangan/AHU)
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <label class="text-xs font-semibold text-slate-300">Target Dry Bulb (Tdb)</label>
+                                <span class="text-sm font-mono font-bold text-emerald-400"><span id="valTargetTdb">24.0</span> °C</span>
+                            </div>
+                            <input type="range" id="sliderTargetTdb" min="15" max="35" step="0.5" value="24" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <label class="text-xs font-semibold text-slate-300">Target Rel. Humidity (RH)</label>
+                                <span class="text-sm font-mono font-bold text-emerald-400"><span id="valTargetRH">50.0</span> %</span>
+                            </div>
+                            <input type="range" id="sliderTargetRH" min="30" max="80" step="1" value="50" oninput="updateCalculations()">
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-[10px] text-slate-500 mt-6 leading-relaxed border-t border-slate-700/50 pt-3">
+                    Model termodinamika akan otomatis menghitung semua properti udara lainnya (Enthalpy, Specific Volume, dll) berdasarkan dua nilai independen yang Anda tentukan di atas.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Panel Kanan: KPI Properties -->
+            <section class="lg:col-span-8">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 h-full">
+                    
+                    <!-- Enthalpy -->
+                    <div class="bg-slate-800 border-l-4 border-l-blue-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Enthalpy (h)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resH" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">kJ/kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Wet Bulb -->
+                    <div class="bg-slate-800 border-l-4 border-l-yellow-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Wet Bulb (Twb)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resTwb" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">°C</span>
+                        </div>
+                    </div>
+
+                    <!-- Dew Point -->
+                    <div class="bg-slate-800 border-l-4 border-l-green-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Dew Point (Tdp)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resTdp" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">°C</span>
+                        </div>
+                    </div>
+
+                    <!-- Humidity Ratio -->
+                    <div class="bg-slate-800 border-l-4 border-l-orange-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Humidity Ratio (W)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resW" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">g/kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Specific Volume -->
+                    <div class="bg-slate-800 border-l-4 border-l-purple-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Spec. Volume (v)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resV" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">m³/kg</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Relative Humidity (RH) -->
+                    <div class="bg-slate-800 border-l-4 border-l-red-500 border border-slate-700/80 rounded-xl p-4 shadow flex flex-col justify-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Rel. Humidity (RH)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resRH" class="text-2xl font-black text-slate-100 font-mono">0.0</span>
+                            <span class="text-xs text-slate-500 font-mono">%</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        <!-- Area Visualisasi Utama (Chart Putih) -->
+        <section class="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col relative border-4 border-slate-300">
+            <div class="bg-slate-100 px-4 py-2 border-b border-slate-300 flex justify-between items-center text-slate-700">
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                    <i data-lucide="line-chart" class="w-5 h-5 text-blue-600"></i> Psychrometric Chart - Mode Pembelajaran
+                </h3>
+                <span class="text-[10px] font-semibold px-2 py-1 bg-white border border-slate-300 rounded shadow-sm text-slate-500">Ikuti garis berwarna untuk membaca nilai</span>
+            </div>
+            
+            <div class="relative w-full h-[450px]" id="chartContainer">
+                <!-- Kanvas Utama -->
+                <canvas id="psychChart" class="absolute top-0 left-0 w-full h-full block cursor-crosshair"></canvas>
+            </div>
+        </section>
+
+        <!-- Area Bawah: Edukasi, Kesimpulan & Animasi -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Kolom Kiri: Analisis HVAC & Animasi Partikel -->
+            <div class="flex flex-col gap-4">
+                
+                <!-- Rekomendasi/Kesimpulan Kotak -->
+                <div class="glass-panel rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="cpu" class="w-24 h-24 text-blue-400"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+                        <i data-lucide="stethoscope" class="w-4 h-4 text-emerald-400"></i> Analisis & Kesimpulan Kondisi Udara
+                    </h3>
+                    
+                    <div id="aiAnalysis" class="space-y-2 text-xs text-slate-300 leading-relaxed z-10 relative">
+                        <!-- Diisi oleh JS -->
+                    </div>
+                </div>
+
+                <!-- Kanvas Animasi Micro-State -->
+                <div class="glass-panel rounded-2xl p-4 shadow-xl flex flex-col h-full">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                            <i data-lucide="microscope" class="w-4 h-4 text-cyan-400"></i> Visualisasi Molekuler (Air Micro-State)
+                        </h3>
+                    </div>
+                    <div class="flex-1 w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-700">
+                        <canvas id="animCanvas" class="w-full h-40 block"></canvas>
+                        <!-- Legenda Animasi -->
+                        <div class="absolute bottom-2 right-2 flex gap-2 text-[9px] font-mono text-slate-400 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-500 inline-block"></span>Udara</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>Uap Air</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kolom Kanan: Tabel Referensi Edukatif -->
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-700/60 pb-3">
+                    <i data-lucide="book-open" class="w-4 h-4 text-amber-400"></i> Tabel Terminologi Psychrometric
+                </h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-700">
+                                <th class="pb-2 font-semibold">Parameter</th>
+                                <th class="pb-2 font-semibold">Garis Bantu</th>
+                                <th class="pb-2 font-semibold">Definisi Singkat</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-500"></span> Dry Bulb (Tdb)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-cyan-400">Vertikal Lurus</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Suhu aktual udara yang diukur oleh termometer standar.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Wet Bulb (Twb)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-yellow-400">Diagonal Kiri Atas</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Suhu terendah yang dapat dicapai akibat penguapan air murni.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Dew Point (Tdp)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-green-400">Horizontal Kiri</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Titik suhu di mana uap air mulai mengembun (kondensasi).</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Humidity Ratio (W)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-orange-400">Horizontal Kanan</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Massa absolut uap air per kilogram udara kering (g/kg).</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> Rel. Humidity (RH)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-red-400">Kurva Melengkung</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Persentase kelembaban dibanding kapasitas maksimalnya.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Enthalpy (h)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-blue-400">Diagonal Lurus</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Total kandungan energi panas (sensibel + laten) pada campuran udara.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-700/30 transition-colors">
+                                <td class="py-2.5 font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Specific Volume (v)</td>
+                                <td class="py-2.5 font-mono text-[10px] text-purple-400">Diagonal Curam</td>
+                                <td class="py-2.5 text-[11px] text-slate-400">Volume fisik udara per satuan massa (kebalikan dari densitas).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full mt-4 pb-6 pt-4 border-t border-slate-800 text-center">
+        <p class="text-xs font-medium text-slate-500 hover:text-slate-400 transition-colors">
+            &copy; Sugeng Deny Ramdani - 2026
+        </p>
+    </footer>
+
+    <script>
+        // --- Konstanta & Limit Grafik ---
+        const Patm = 101.325; // Barometric pressure (kPa)
+        const CHART_T_MIN = -10;
+        const CHART_T_MAX = 55;
+        const CHART_W_MIN = 0;
+        const CHART_W_MAX = 35; // g/kg
+
+        // State Termodinamika Master
+        let state = {
+            Tdb: 25.0,
+            RH: 50.0,
+            W: 0,
+            Twb: 0,
+            Tdp: 0,
+            h: 0,
+            v: 0,
+            Pw: 0
+        };
+
+        // State Target (Set Point AHU)
+        let targetState = {
+            Tdb: 24.0,
+            RH: 50.0,
+            W: 0,
+            Twb: 0,
+            Tdp: 0,
+            h: 0,
+            v: 0,
+            Pw: 0
+        };
+
+        let currentMode = 'tdb_rh';
+        let animationFrameId;
+        let particles = [];
+
+        // --- Fungsi Termodinamika (Berdasarkan ASHRAE Fundamentals) ---
+
+        // 1. Tekanan Uap Jenuh / Saturation Vapor Pressure (kPa)
+        function calcPws(T) {
+            // Magnus-Tetens approximation, akurat untuk rentang HVAC standar
+            if(T < 0) {
+                 return 0.6105 * Math.exp((21.875 * T) / (T + 265.5)); // Ice
+            }
+            return 0.61078 * Math.exp((17.27 * T) / (T + 237.3)); // Water
+        }
+
+        // 2. Humidity Ratio (kg/kg) dari Partial Vapor Pressure (kPa)
+        function calcW_from_Pw(Pw) {
+            return Math.max(0, 0.62198 * (Pw / (Patm - Pw)));
+        }
+
+        // 3. Vapor Pressure (kPa) dari Humidity Ratio (kg/kg)
+        function calcPw_from_W(W_kg) {
+            return (W_kg * Patm) / (0.62198 + W_kg);
+        }
+
+        // 4. Dew Point (°C) dari Vapor Pressure
+        function calcTdp(Pw) {
+            if (Pw <= 0.001) return CHART_T_MIN;
+            const alpha = Math.log(Pw / 0.61078);
+            return (237.3 * alpha) / (17.27 - alpha);
+        }
+
+        // 5. Enthalpy (kJ/kg) dari Tdb dan W (kg/kg)
+        function calcEnthalpy(Tdb, W_kg) {
+            return (1.006 * Tdb) + W_kg * (2501 + 1.86 * Tdb);
+        }
+
+        // 6. Specific Volume (m³/kg) dari Tdb dan W
+        function calcSpecVolume(Tdb, W_kg) {
+            const T_kelvin = Tdb + 273.15;
+            return (0.287042 * T_kelvin * (1 + 1.6078 * W_kg)) / Patm;
+        }
+
+        // 7. Kalkulasi Numerik Wet Bulb (Iterasi Bisection)
+        // Mencari Twb dimana W(Twb) menghasilkan W aktual
+        function calcTwb(Tdb, W_kg) {
+            let low = -20;
+            let high = Tdb;
+            let Twb = Tdb;
+            
+            // Cek jika jenuh
+            let Ws = calcW_from_Pw(calcPws(Tdb));
+            if(W_kg >= Ws) return Tdb;
+
+            // Bisection search
+            for (let i = 0; i < 30; i++) {
+                Twb = (low + high) / 2;
+                let Pws_Twb = calcPws(Twb);
+                let Ws_Twb = calcW_from_Pw(Pws_Twb);
+                
+                // Carrier Equation inversion check
+                let W_calc = ((2501 - 2.326*Twb)*Ws_Twb - 1.006*(Tdb - Twb)) / (2501 + 1.86*Tdb - 4.186*Twb);
+                
+                if (W_calc > W_kg) {
+                    high = Twb;
+                } else {
+                    low = Twb;
+                }
+            }
+            return Twb;
+        }
+
+        // 8. Kalkulasi W (kg/kg) dari Tdb dan Twb
+        function calcW_from_Tdb_Twb(Tdb, Twb) {
+            if(Twb >= Tdb) return calcW_from_Pw(calcPws(Tdb)); // Kondisi maksimal tersaturasi
+            
+            let Pws_Twb = calcPws(Twb);
+            let Ws_Twb = calcW_from_Pw(Pws_Twb);
+            let W = ((2501 - 2.326*Twb)*Ws_Twb - 1.006*(Tdb - Twb)) / (2501 + 1.86*Tdb - 4.186*Twb);
+            return Math.max(0, W);
+        }
+
+        // --- STREAMING_CHUNK:Sistem Mode Input dan Pembaruan Logika ---
+        
+        function switchMode() {
+            currentMode = document.getElementById('calcMode').value;
+            const label = document.getElementById('labelDynamic');
+            const unit = document.getElementById('unitDynamic');
+            const slider = document.getElementById('sliderDynamic');
+
+            if (currentMode === 'tdb_rh') {
+                label.textContent = "Relative Humidity (RH)";
+                unit.textContent = "%";
+                slider.min = 0; slider.max = 100; slider.step = 1;
+                slider.value = state.RH;
+            } else if (currentMode === 'tdb_twb') {
+                label.textContent = "Wet Bulb Temp. (Twb)";
+                unit.textContent = "°C";
+                slider.min = -10; slider.max = 50; slider.step = 0.5;
+                slider.value = Math.min(state.Twb, state.Tdb);
+            } else if (currentMode === 'tdb_tdp') {
+                label.textContent = "Dew Point (Tdp)";
+                unit.textContent = "°C";
+                slider.min = -10; slider.max = 50; slider.step = 0.5;
+                slider.value = Math.min(state.Tdp, state.Tdb);
+            } else if (currentMode === 'tdb_w') {
+                label.textContent = "Humidity Ratio (W)";
+                unit.textContent = "g/kg";
+                slider.min = 0; slider.max = 35; slider.step = 0.5;
+                slider.value = state.W;
+            }
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            // 1. Ambil input independen
+            const inputTdb = parseFloat(document.getElementById('sliderTdb').value);
+            let inputDyn = parseFloat(document.getElementById('sliderDynamic').value);
+            
+            let Tdb = inputTdb;
+            let W_kg = 0;
+            let Pws = calcPws(Tdb);
+            let Ws_kg = calcW_from_Pw(Pws); // Kapasitas max absolut
+
+            // 2. Hitung W_kg berdasarkan mode terpilih
+            if (currentMode === 'tdb_rh') {
+                let RH = inputDyn;
+                let Pw = (RH / 100) * Pws;
+                W_kg = calcW_from_Pw(Pw);
+            } 
+            else if (currentMode === 'tdb_twb') {
+                // Cegah Twb melebihi Tdb secara logika slider
+                let Twb = inputDyn;
+                if(Twb > Tdb) { Twb = Tdb; document.getElementById('sliderDynamic').value = Tdb; }
+                W_kg = calcW_from_Tdb_Twb(Tdb, Twb);
+            }
+            else if (currentMode === 'tdb_tdp') {
+                let Tdp = inputDyn;
+                if(Tdp > Tdb) { Tdp = Tdb; document.getElementById('sliderDynamic').value = Tdb; }
+                let Pw = calcPws(Tdp);
+                W_kg = calcW_from_Pw(Pw);
+            }
+            else if (currentMode === 'tdb_w') {
+                let W_g = inputDyn;
+                W_kg = W_g / 1000;
+                // Cegah supersaturasi paksa
+                if (W_kg > Ws_kg) {
+                    W_kg = Ws_kg;
+                    document.getElementById('sliderDynamic').value = (Ws_kg * 1000).toFixed(1);
+                }
+            }
+
+            // 3. Kalkulasi lengkap state property (Dependent Variables)
+            let Pw = calcPw_from_W(W_kg);
+            let RH = (Pw / Pws) * 100;
+            let Tdp = calcTdp(Pw);
+            let Twb = calcTwb(Tdb, W_kg);
+            let Enthalpy = calcEnthalpy(Tdb, W_kg);
+            let SpecVol = calcSpecVolume(Tdb, W_kg);
+
+            // Update Master State Object
+            state = {
+                Tdb: Tdb,
+                RH: Math.max(0, Math.min(100, RH)),
+                W: W_kg * 1000,
+                Twb: Twb,
+                Tdp: Tdp,
+                h: Enthalpy,
+                v: SpecVol,
+                Pw: Pw
+            };
+
+            // --- Kalkulasi Target State ---
+            const targetTdb = parseFloat(document.getElementById('sliderTargetTdb').value);
+            const targetRH = parseFloat(document.getElementById('sliderTargetRH').value);
+            
+            let tPws = calcPws(targetTdb);
+            let tPw = (targetRH / 100) * tPws;
+            let tW_kg = calcW_from_Pw(tPw);
+            
+            targetState = {
+                Tdb: targetTdb,
+                RH: targetRH,
+                W: tW_kg * 1000,
+                Twb: calcTwb(targetTdb, tW_kg),
+                Tdp: calcTdp(tPw),
+                h: calcEnthalpy(targetTdb, tW_kg),
+                v: calcSpecVolume(targetTdb, tW_kg),
+                Pw: tPw
+            };
+
+            // 4. Perbarui UI Labels
+            document.getElementById('valTdb').textContent = state.Tdb.toFixed(1);
+            
+            if(currentMode === 'tdb_rh') document.getElementById('valDynamic').textContent = state.RH.toFixed(1);
+            if(currentMode === 'tdb_twb') document.getElementById('valDynamic').textContent = state.Twb.toFixed(1);
+            if(currentMode === 'tdb_tdp') document.getElementById('valDynamic').textContent = state.Tdp.toFixed(1);
+            if(currentMode === 'tdb_w') document.getElementById('valDynamic').textContent = state.W.toFixed(1);
+
+            // Perbarui KPI Cards
+            document.getElementById('resH').textContent = state.h.toFixed(1);
+            document.getElementById('resTwb').textContent = state.Twb.toFixed(1);
+            document.getElementById('resTdp').textContent = state.Tdp.toFixed(1);
+            document.getElementById('resW').textContent = state.W.toFixed(2);
+            document.getElementById('resV').textContent = state.v.toFixed(3);
+            document.getElementById('resRH').textContent = state.RH.toFixed(1);
+
+            // Update Target Labels
+            document.getElementById('valTargetTdb').textContent = targetState.Tdb.toFixed(1);
+            document.getElementById('valTargetRH').textContent = targetState.RH.toFixed(1);
+
+            updateAIAnalysis();
+            drawEducationalChart();
+        }
+
+        // --- STREAMING_CHUNK:Sistem Analisis Kondisi & Rekomendasi AI ---
+        function getZoneName(T, RH, W) {
+            // Berdasarkan pemetaan klasifikasi iklim (Reference Gambar)
+            if (T >= 15 && T < 22 && RH >= 30 && RH <= 80) return { name: "Cool (Sejuk)", color: "text-blue-400" };
+            if (T >= 22 && T < 27 && RH >= 30 && RH <= 80) return { name: "Moderate (Nyaman/Sedang)", color: "text-emerald-400" };
+            if (T >= 27 && T < 33 && W >= 4 && W < 12) return { name: "Warm Dry (Hangat Kering)", color: "text-lime-400" };
+            if (T >= 33 && T <= 45 && W >= 4 && W < 12) return { name: "Hot Dry (Panas Kering)", color: "text-yellow-400" };
+            if (T >= 27 && T < 33 && W >= 12 && W <= 22) return { name: "Warm Humid (Hangat Lembap)", color: "text-orange-400" };
+            if (T >= 33 && T <= 45 && W >= 12 && W <= 22) return { name: "Hot Humid (Panas Lembap)", color: "text-red-400" };
+            return { name: "Di Luar Klasifikasi Zona", color: "text-slate-400" };
+        }
+
+        function updateAIAnalysis() {
+            const box = document.getElementById('aiAnalysis');
+            let html = '';
+            
+            // 1. Identifikasi Zona Aktual
+            const currentZone = getZoneName(state.Tdb, state.RH, state.W);
+            html += `<div class="mb-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700 shadow-inner">
+                <div class="text-xs text-slate-400 mb-1">Status Zona Udara Aktual:</div>
+                <div class="text-sm font-bold ${currentZone.color} flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i> ${currentZone.name}
+                </div>
+            </div>`;
+            
+            // 2. Analisis Kebutuhan Desain AHU (Aktual vs Target)
+            const deltaT = targetState.Tdb - state.Tdb;
+            const deltaW = targetState.W - state.W;
+            
+            html += `<h4 class="text-xs font-bold text-slate-300 mt-2 mb-2 flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3 text-blue-400"></i> Analisis Desain Komponen AHU/HVAC</h4>`;
+            html += `<ul class="space-y-2 list-disc pl-4 marker:text-slate-500 text-[11px] lg:text-xs">`;
+
+            // Cek jika sudah tercapai
+            if (Math.abs(deltaT) <= 0.5 && Math.abs(deltaW) <= 0.5) {
+                html += `<li><span class="text-emerald-400 font-semibold">Target Tercapai:</span> Kondisi udara aktual sudah sesuai dengan set point desain. Sistem dalam keadaan *Standby* (Fan Only).</li>`;
+            } else {
+                
+                // Kondisi Kompleks (Dehumidify + Heating)
+                if (deltaT > 0.5 && deltaW < -0.5) {
+                    html += `<li><span class="text-purple-400 font-semibold">Sistem Kompleks (Dehumidify + Reheat):</span> Udara aktual terlalu dingin tapi sangat lembap. Anda membutuhkan <b>Cooling Coil</b> untuk menurunkan suhu menembus titik embun (kondensasi/membuang air), lalu <b>Heating Coil</b> aktif di belakangnya untuk menaikkan kembali suhu udara (Reheat) mencapai ${targetState.Tdb}°C. Alternatif: gunakan <b>Desiccant Wheel</b>.</li>`;
+                } 
+                // Kondisi Normal
+                else {
+                    // Analisis Suhu (Sensible)
+                    if (deltaT < -0.5) {
+                        html += `<li><span class="text-blue-400 font-semibold">Sensible Cooling:</span> Suhu aktual terlalu panas. Dibutuhkan <b>Cooling Coil</b> (Coil Pendingin). <span class="text-slate-300">Jika target tidak tercapai: Perbesar dimensi koil (tambah Row/Fin), naikkan volume Chilled Water (GPM), atau perbesar kapasitas kompresor Chiller.</span></li>`;
+                    } else if (deltaT > 0.5) {
+                        html += `<li><span class="text-red-400 font-semibold">Sensible Heating:</span> Suhu aktual terlalu dingin. Dibutuhkan <b>Heating Coil</b> (Electric Heater / Hot Water Coil). <span class="text-slate-300">Pastikan kapasitas elemen pemanas dalam kW mencukupi.</span></li>`;
+                    }
+
+                    // Analisis Kelembapan (Latent)
+                    if (deltaW < -0.5) {
+                        html += `<li><span class="text-cyan-400 font-semibold">Dehumidifikasi Aktif:</span> Beban laten tinggi (uap air berlebih). Setting suhu air chiller/freon <b>harus di bawah titik embun (${state.Tdp.toFixed(1)}°C)</b> agar uap air mengembun pada koil.</li>`;
+                    } else if (deltaW > 0.5) {
+                        html += `<li><span class="text-amber-400 font-semibold">Humidifikasi Aktif:</span> Udara terlalu kering (berisiko pada kulit/pernapasan). Tambahkan <b>Steam Humidifier</b> (injeksi uap) di saluran ducting AHU.</li>`;
+                    }
+                }
+
+                // Volume Kipas (Distribusi)
+                html += `<li><span class="text-slate-300 font-semibold">Distribusi Udara:</span> Pastikan kapasitas Supply Fan (CFM/CMH) memadai untuk mengangkut beban kalor tersebut ke seluruh area ruangan.</li>`;
+            }
+            html += `</ul>`;
+
+            box.innerHTML = html;
+            if(window.lucide) lucide.createIcons({root: box});
+        }
+
+        // --- STREAMING_CHUNK:Mesin Rendering Grafik Canvas (Latar Putih, Edukatif) ---
+        function drawEducationalChart() {
+            const canvas = document.getElementById('psychChart');
+            const container = document.getElementById('chartContainer');
+            const ctx = canvas.getContext('2d');
+
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const w = rect.width;
+            const h = rect.height;
+
+            // Clear Background to White
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+
+            // Setup Margins
+            const padL = 40;
+            const padR = 40;
+            const padT = 20;
+            const padB = 40;
+
+            const graphW = w - padL - padR;
+            const graphH = h - padT - padB;
+
+            // Mapper Functions (Data ke Pixel)
+            function mapX(T) { return padL + ((T - CHART_T_MIN) / (CHART_T_MAX - CHART_T_MIN)) * graphW; }
+            function mapY(W) { return padT + graphH - ((W - CHART_W_MIN) / (CHART_W_MAX - CHART_W_MIN)) * graphH; }
+
+            // 1. Gambar Grid Dasar (Abu-abu terang)
+            ctx.lineWidth = 1;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            // Garis Tdb (Vertikal)
+            for (let t = CHART_T_MIN; t <= CHART_T_MAX; t += 5) {
+                const px = mapX(t);
+                ctx.strokeStyle = t === 0 ? '#cbd5e1' : '#f1f5f9'; // Garis 0°C sedikit lebih tegas
+                ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + graphH); ctx.stroke();
+                
+                ctx.fillStyle = '#64748b';
+                ctx.font = '11px Inter';
+                if(t % 5 === 0) ctx.fillText(t, px, padT + graphH + 5);
+            }
+
+            // Garis W (Horizontal)
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let w_val = CHART_W_MIN; w_val <= CHART_W_MAX; w_val += 5) {
+                const py = mapY(w_val);
+                ctx.strokeStyle = '#f1f5f9';
+                ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(padL + graphW, py); ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                if(w_val % 5 === 0) ctx.fillText(w_val, w - 10, py);
+            }
+
+            // --- GAMBAR ZONA KLASIFIKASI IKLIM (Comfort & Reference Zones) ---
+            function drawZoneRect(t1, t2, w1, w2, color, label) {
+                const x1 = mapX(t1); const x2 = mapX(t2);
+                const y1 = mapY(w1); const y2 = mapY(w2);
+                ctx.fillStyle = color;
+                ctx.fillRect(x1, y2, x2 - x1, y1 - y2);
+                
+                // Text Label
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, (x1 + x2)/2, (y1 + y2)/2);
+            }
+
+            function drawCurvedZone(t1, t2, rhBottom, rhTop, color, label) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                // Bottom edge (left to right)
+                for(let t=t1; t<=t2; t+=1) {
+                    let w = calcW_from_Pw((rhBottom/100) * calcPws(t)) * 1000;
+                    if(t===t1) ctx.moveTo(mapX(t), mapY(w)); else ctx.lineTo(mapX(t), mapY(w));
+                }
+                // Top edge (right to left)
+                for(let t=t2; t>=t1; t-=1) {
+                    let w = calcW_from_Pw((rhTop/100) * calcPws(t)) * 1000;
+                    ctx.lineTo(mapX(t), mapY(w));
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Text Label
+                let midT = (t1+t2)/2;
+                let midRh = (rhBottom+rhTop)/2;
+                let midW = calcW_from_Pw((midRh/100) * calcPws(midT)) * 1000;
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, mapX(midT), mapY(midW));
+            }
+
+            // Gambar patch zona (berdasarkan gambar referensi user)
+            drawCurvedZone(15, 22, 30, 80, 'rgba(56, 189, 248, 0.25)', 'Cool');         // Biru Muda
+            drawCurvedZone(22, 27, 30, 80, 'rgba(52, 211, 153, 0.25)', 'Moderate');     // Hijau Teal (Nyaman)
+            drawZoneRect(27, 33, 4, 12, 'rgba(163, 230, 53, 0.25)', 'Warm Dry');        // Lime
+            drawZoneRect(33, 45, 4, 12, 'rgba(250, 204, 21, 0.25)', 'Hot Dry');         // Kuning
+            drawZoneRect(27, 33, 12, 22, 'rgba(251, 146, 60, 0.25)', 'Warm Humid');     // Oranye
+            drawZoneRect(33, 45, 12, 22, 'rgba(248, 113, 113, 0.25)', 'Hot Humid');     // Merah
+
+
+            // 2. Gambar Kurva Kelembaban Relatif Dasar (Abu/Biru Pudar)
+            const rh_curves = [20, 40, 60, 80, 100];
+            rh_curves.forEach(rh => {
+                ctx.beginPath();
+                ctx.strokeStyle = rh === 100 ? '#1e293b' : 'rgba(148, 163, 184, 0.4)'; // Saturation = tebal hitam/gelap
+                ctx.lineWidth = rh === 100 ? 2 : 1;
+
+                let isFirst = true;
+                for (let t = CHART_T_MIN; t <= CHART_T_MAX; t += 1) {
+                    const pws = calcPws(t);
+                    const pw = (rh / 100.0) * pws;
+                    const w_val = calcW_from_Pw(pw) * 1000;
+                    if (w_val <= CHART_W_MAX + 1) {
+                        const px = mapX(t);
+                        const py = mapY(w_val);
+                        if (isFirst) { ctx.moveTo(px, py); isFirst = false; } 
+                        else { ctx.lineTo(px, py); }
+                    }
+                }
+                ctx.stroke();
+            });
+
+            // Label Sumbu
+            ctx.fillStyle = '#334155';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 12px Inter';
+            ctx.fillText('Dry Bulb Temperature (°C)', padL + graphW/2, h - 15);
+            
+            ctx.save();
+            ctx.translate(w - 12, padT + graphH/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Humidity Ratio (g/kg)', 0, 0);
+            ctx.restore();
+
+            // --- 3. RENDERING GARIS EDUKATIF BERWARNA (Konsep Visual) ---
+            const stateX = mapX(state.Tdb);
+            const stateY = mapY(state.W);
+            
+            // Konfigurasi style edukatif
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 2.5;
+
+            // A. Garis Dry Bulb (Vertikal Bawah - Cyan)
+            ctx.strokeStyle = '#06b6d4'; // Cyan
+            ctx.beginPath(); ctx.moveTo(stateX, stateY); ctx.lineTo(stateX, padT + graphH); ctx.stroke();
+            
+            // B. Garis Abs Humidity / W (Horizontal Kanan - Orange)
+            ctx.strokeStyle = '#f97316'; // Orange
+            ctx.beginPath(); ctx.moveTo(stateX, stateY); ctx.lineTo(padL + graphW, stateY); ctx.stroke();
+
+            // C. Garis Dew Point (Horizontal Kiri ke Saturation Curve - Green)
+            ctx.strokeStyle = '#22c55e'; // Green
+            const dpX = mapX(state.Tdp);
+            ctx.beginPath(); ctx.moveTo(stateX, stateY); ctx.lineTo(dpX, stateY); ctx.stroke();
+            
+            // Reset dash untuk kurva Solid
+            ctx.setLineDash([]);
+
+            // D. Kurva Relative Humidity Aktif (Melewati titik - Red)
+            ctx.strokeStyle = '#ef4444'; // Red
+            ctx.beginPath();
+            let isFirstRH = true;
+            for (let t = state.Tdp; t <= CHART_T_MAX; t += 1) {
+                const pws = calcPws(t);
+                const pw = (state.RH / 100.0) * pws;
+                const w_val = calcW_from_Pw(pw) * 1000;
+                if (w_val <= CHART_W_MAX) {
+                    const px = mapX(t);
+                    const py = mapY(w_val);
+                    if (isFirstRH) { ctx.moveTo(px, py); isFirstRH = false; } 
+                    else { ctx.lineTo(px, py); }
+                }
+            }
+            ctx.stroke();
+
+            // E. Garis Wet Bulb (Diagonal naik kiri - Yellow)
+            ctx.strokeStyle = '#eab308'; // Yellow
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            let t_wb_plot = state.Tdb;
+            let w_wb_plot = state.W;
+            ctx.moveTo(stateX, stateY);
+            // Gambar lintasan iso-Twb menabrak kurva saturasi
+            while(t_wb_plot >= state.Twb && w_wb_plot <= CHART_W_MAX) {
+                t_wb_plot -= 0.5;
+                w_wb_plot = calcW_from_Tdb_Twb(t_wb_plot, state.Twb) * 1000;
+                ctx.lineTo(mapX(t_wb_plot), mapY(w_wb_plot));
+            }
+            ctx.stroke();
+
+            // F. Garis Enthalpy (Diagonal lurus melewati titik - Blue)
+            // Rumus iso-Enthalpy: W_kg = (h - 1.006*T) / (2501 + 1.86*T)
+            ctx.strokeStyle = '#3b82f6'; // Blue
+            ctx.setLineDash([2, 4]);
+            ctx.beginPath();
+            let isFirstH = true;
+            for(let t = -10; t <= 55; t+=5) {
+                let w_h = (state.h - 1.006 * t) / (2501 + 1.86 * t);
+                let w_h_g = w_h * 1000;
+                if(w_h_g >= 0 && w_h_g <= CHART_W_MAX + 5) { // Sedikit off-screen gapapa
+                    let px = mapX(t);
+                    let py = mapY(w_h_g);
+                    if (isFirstH) { ctx.moveTo(px, py); isFirstH = false; }
+                    else { ctx.lineTo(px, py); }
+                }
+            }
+            ctx.stroke();
+
+            // G. Garis Specific Volume (Curam melewati titik - Purple)
+            // Rumus iso-Volume: W_kg = ((v * Patm) / (0.287 * (T+273.15)) - 1) / 1.6078
+            ctx.strokeStyle = '#a855f7'; // Purple
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            let isFirstV = true;
+            for(let t = 0; t <= 55; t+=2) {
+                let w_v = ((state.v * Patm) / (0.287042 * (t + 273.15)) - 1) / 1.6078;
+                let w_v_g = w_v * 1000;
+                if(w_v_g >= 0 && w_v_g <= CHART_W_MAX + 2) {
+                    let px = mapX(t);
+                    let py = mapY(w_v_g);
+                    if (isFirstV) { ctx.moveTo(px, py); isFirstV = false; }
+                    else { ctx.lineTo(px, py); }
+                }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+
+            // --- 4. Menggambar Titik State & Proses (A -> B) ---
+            
+            // --- Proses Menuju Target (Point B) ---
+            const targetX = mapX(targetState.Tdb);
+            const targetY = mapY(targetState.W);
+            
+            // Panah Proses (A ke B)
+            ctx.strokeStyle = '#10b981'; // Emerald Green arrow
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(stateX, stateY);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
+            
+            // Titik Target (B)
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'; // Emerald glow
+            ctx.beginPath(); ctx.arc(targetX, targetY, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath(); ctx.arc(targetX, targetY, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+            
+            // Label Titik Target (B)
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('TARGET (B)', targetX, targetY - 18);
+
+
+            // --- Titik Aktual Utama (Point A) ---
+            // Outer glow hitam
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.beginPath(); ctx.arc(stateX, stateY, 15, 0, Math.PI * 2); ctx.fill();
+            
+            // Inti titik
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.arc(stateX, stateY, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Box Label di atas titik A
+            ctx.fillStyle = '#0f172a';
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetY = 2;
+            ctx.beginPath();
+            ctx.roundRect(stateX - 40, stateY - 30, 80, 20, 4);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0; // reset shadow untuk text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px JetBrains Mono, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`AKTUAL (A)`, stateX, stateY - 20);
+        }
+
+        // --- STREAMING_CHUNK:Mesin Animasi Molekuler Udara ---
+        function initParticles() {
+            particles = [];
+            for(let i=0; i<60; i++) {
+                particles.push({
+                    x: Math.random(),
+                    y: Math.random(),
+                    vx: (Math.random() - 0.5) * 0.02,
+                    vy: (Math.random() - 0.5) * 0.02,
+                    type: Math.random() < 0.2 ? 'water' : 'air' // Rasio awal, nanti disesuaikan
+                });
+            }
+            animateMicroState();
+        }
+
+        function animateMicroState() {
+            const canvas = document.getElementById('animCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const w = canvas.width = canvas.offsetWidth;
+            const h = canvas.height = canvas.offsetHeight;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Logika kecepatan: Suhu tinggi = partikel bergerak cepat (Energi kinetik)
+            // Range suhu: -10 ke 50. Konversi kecepatan: 0.5 (lambat) ke 3.0 (cepat)
+            const speedMultiplier = 0.5 + ((state.Tdb + 10) / 60) * 2.5;
+            
+            // Logika Densitas Air: Humidity Ratio tinggi = partikel biru terang (water) bertambah
+            const waterRatio = Math.min(0.8, state.W / 25); // Max 80% partikel adalah air
+
+            // Draw Partikel
+            particles.forEach((p, index) => {
+                // Tentukan tipe dinamis
+                p.type = (index / particles.length < waterRatio) ? 'water' : 'air';
+
+                // Posisi update
+                p.x += p.vx * speedMultiplier;
+                p.y += p.vy * speedMultiplier;
+
+                // Pantulan dinding
+                if(p.x < 0 || p.x > 1) p.vx *= -1;
+                if(p.y < 0 || p.y > 1) p.vy *= -1;
+
+                // Constraint
+                p.x = Math.max(0, Math.min(1, p.x));
+                p.y = Math.max(0, Math.min(1, p.y));
+
+                // Gambar dot
+                ctx.beginPath();
+                ctx.arc(p.x * w, p.y * h, p.type === 'water' ? 2.5 : 1.5, 0, Math.PI*2);
+                
+                if (p.type === 'water') {
+                    // Cek jika kondensasi (RH = 100%)
+                    if (state.RH >= 99) {
+                        ctx.fillStyle = '#3b82f6'; // Biru pekat menjadi tetesan embun
+                        // Gravitasi semu untuk efek embun jatuh jika max
+                        p.vy = Math.abs(p.vy) + 0.01;
+                    } else {
+                        ctx.fillStyle = '#22d3ee'; // Cyan uap air normal
+                    }
+                } else {
+                    ctx.fillStyle = '#64748b'; // Abu-abu udara kering
+                }
+                
+                ctx.fill();
+            });
+
+            // Overlay Indikator Suhu Dinamis (Termometer Sederhana di kiri)
+            const thW = 10;
+            const thH = h - 20;
+            const thX = 15;
+            const thY = 10;
+            
+            // Background Termometer
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.beginPath(); ctx.roundRect(thX, thY, thW, thH, 5); ctx.fill();
+            
+            // Fill Tdb (Suhu Aktual)
+            const fillPctTdb = (state.Tdb - CHART_T_MIN) / (CHART_T_MAX - CHART_T_MIN);
+            const fillHTdb = fillPctTdb * thH;
+            ctx.fillStyle = '#06b6d4'; // Cyan
+            ctx.beginPath(); ctx.roundRect(thX, thY + thH - fillHTdb, thW, fillHTdb, 5); ctx.fill();
+
+            // Garis Mark Tdp (Dew Point)
+            const fillPctTdp = (state.Tdp - CHART_T_MIN) / (CHART_T_MAX - CHART_T_MIN);
+            const yTdp = thY + thH - (fillPctTdp * thH);
+            ctx.strokeStyle = '#22c55e'; // Green
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(thX-5, yTdp); ctx.lineTo(thX + thW + 5, yTdp); ctx.stroke();
+            
+            ctx.fillStyle = '#22c55e';
+            ctx.font = '9px Inter';
+            ctx.fillText('Dew', thX + 18, yTdp + 3);
+
+            // Tetesan air efek kondensasi jika mencapat dew point
+            if(state.RH >= 99) {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+                ctx.fillRect(0,0,w,h);
+                ctx.fillStyle = '#22c55e';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText('KONDENSASI TERJADI', w/2, h/2);
+            }
+
+            animationFrameId = requestAnimationFrame(animateMicroState);
+        }
+
+
+        // --- STREAMING_CHUNK:Inisialisasi Aplikasi ---
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            switchMode(); // Set slider attributes correctly on load
+            updateCalculations(); // Jalankan initial rendering
+            initParticles();
+
+            // Resize observer untuk kanvas chart (responsivitas layar)
+            window.addEventListener('resize', () => {
+                drawEducationalChart();
+            });
+        });
+    </script>
+</body>
+</html>

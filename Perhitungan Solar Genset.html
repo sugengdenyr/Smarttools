@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Konsumsi Bahan Bakar Genset</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest">
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glow-pulse {
+            animation: glowPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%,
+            100% {
+                text-shadow: 0 0 8px rgba(52, 211, 153, 0.15);
+            }
+            50% {
+                text-shadow: 0 0 24px rgba(52, 211, 153, 0.35);
+            }
+        }
+        .glow-amber {
+            animation: glowAmber 2.5s ease-in-out infinite;
+        }
+        @keyframes glowAmber {
+            0%,
+            100% {
+                text-shadow: 0 0 8px rgba(251, 191, 36, 0.12);
+            }
+            50% {
+                text-shadow: 0 0 24px rgba(251, 191, 36, 0.30);
+            }
+        }
+        .method-card {
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .method-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .method-card.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 0 32px rgba(59, 130, 246, 0.10);
+        }
+        .input-field {
+            transition: all 0.25s ease;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.20);
+        }
+        .result-number {
+            font-variant-numeric: tabular-nums;
+        }
+        .recommendation-box {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.08), rgba(251, 191, 36, 0.02));
+            border: 1px solid rgba(251, 191, 36, 0.25);
+        }
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                background: #ffffff !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+            .print-dark {
+                color: #000000 !important;
+                background: #ffffff !important;
+            }
+            .print-dark .text-slate-400,
+            .print-dark .text-slate-500 {
+                color: #475569 !important;
+            }
+            .print-dark .text-white {
+                color: #000000 !important;
+            }
+            .print-dark .bg-slate-900,
+            .print-dark .bg-slate-950 {
+                background: #ffffff !important;
+            }
+            .print-dark .border-slate-800 {
+                border-color: #d1d5db !important;
+            }
+            .print-dark .border-slate-700 {
+                border-color: #d1d5db !important;
+            }
+            .print-dark .bg-slate-800\/50 {
+                background: #f1f5f9 !important;
+            }
+            .method-card {
+                border-color: #d1d5db !important;
+                background: #f8fafc !important;
+            }
+            .method-card.active {
+                border-color: #3b82f6 !important;
+                background: #eff6ff !important;
+            }
+            .glow-pulse,
+            .glow-amber {
+                animation: none !important;
+                text-shadow: none !important;
+            }
+            .recommendation-box {
+                background: #fefce8 !important;
+                border-color: #eab308 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-slate-900/80 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600/20 p-2.5 rounded-xl border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="fuel" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold text-white leading-tight tracking-tight">Kalkulator Konsumsi Bahan Bakar Genset</h1>
+                    <p class="text-xs text-slate-400">Estimasi Solar / Bensin · 3 Metode Perhitungan</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="resetBtn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: Method + Inputs -->
+        <section class="lg:col-span-5 flex flex-col gap-5 no-print">
+
+            <!-- Method Selection -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i> Pilih Metode Perhitungan
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                    <div id="method1Card" class="method-card active rounded-xl p-3 bg-slate-800/30 border-slate-700/50" data-method="1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-blue-400 bg-blue-500/20 px-2 py-0.5 rounded-full">#1</span>
+                            <span class="text-xs font-semibold text-white">Beban (%)</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">Estimasi berdasarkan persentase beban genset (80% / 100%).</p>
+                        <div class="mt-1.5 text-[10px] text-blue-300/70 font-mono">KVA × 0,8 × 0,17/0,2</div>
+                    </div>
+                    <div id="method2Card" class="method-card rounded-xl p-3 bg-slate-800/30 border-slate-700/50" data-method="2">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-cyan-400 bg-cyan-500/20 px-2 py-0.5 rounded-full">#2</span>
+                            <span class="text-xs font-semibold text-white">Faktor Tetap</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">Menggunakan faktor konsumsi tetap 0,21 liter/KVA/jam.</p>
+                        <div class="mt-1.5 text-[10px] text-cyan-300/70 font-mono">0,21 × KVA × jam</div>
+                    </div>
+                    <div id="method3Card" class="method-card rounded-xl p-3 bg-slate-800/30 border-slate-700/50" data-method="3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">#3</span>
+                            <span class="text-xs font-semibold text-white">Wikipedia</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">Data konsumsi spesifik (g/Kw/hr) + berat jenis bahan bakar.</p>
+                        <div class="mt-1.5 text-[10px] text-emerald-300/70 font-mono">g/Kw/hr ÷ BJ</div>
+                    </div>
+                </div>
+
+                <!-- Method Description + Recommendation -->
+                <div id="methodDescription" class="mt-4 space-y-3">
+                    <!-- Detail tiap metode -->
+                    <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1.5">
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-blue-400 shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-semibold text-white">Cara 1 – Beban (%) :</span>
+                                <span class="text-slate-400">Perhitungan berdasarkan tingkat beban genset. Cocok jika Anda mengetahui beban aktual (80% atau 100%).</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-semibold text-white">Cara 2 – Faktor Tetap :</span>
+                                <span class="text-slate-400">Menggunakan faktor 0,21 liter/KVA/jam. Sederhana dan cepat, namun kurang akurat untuk variasi beban.</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-semibold text-white">Cara 3 – Wikipedia :</span>
+                                <span class="text-slate-400">Menggunakan data konsumsi spesifik dari Wikipedia (194 g/Kw/hr untuk solar, 250 g/Kw/hr untuk bensin) dengan konversi berat jenis. Paling akurat untuk membandingkan jenis bahan bakar.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kotak Rekomendasi & Kesimpulan -->
+                    <div class="recommendation-box rounded-xl p-4 border border-amber-500/30 bg-amber-500/5">
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="star" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+                            <div>
+                                <h4 class="text-sm font-bold text-amber-300">Rekomendasi & Kesimpulan</h4>
+                                <ul class="mt-1.5 space-y-1.5 text-xs text-slate-300">
+                                    <li class="flex items-start gap-1.5">
+                                        <span class="text-emerald-400 font-bold">✔</span>
+                                        <span><strong class="text-white">Metode 1 (Beban)</strong> adalah yang paling mendekati konsumsi nyata jika Anda tahu persentase beban genset (misal 80%). Ini yang paling <span class="text-emerald-300">direkomendasikan untuk perhitungan sehari-hari</span> karena memperhitungkan faktor daya dan efisiensi genset.</span>
+                                    </li>
+                                    <li class="flex items-start gap-1.5">
+                                        <span class="text-cyan-400 font-bold">⏱</span>
+                                        <span><strong class="text-white">Metode 2 (Faktor 0,21)</strong> cocok untuk estimasi cepat tanpa data beban, tetapi hasilnya cenderung lebih tinggi dari metode 1 pada beban 80%.</span>
+                                    </li>
+                                    <li class="flex items-start gap-1.5">
+                                        <span class="text-amber-400 font-bold">⚠</span>
+                                        <span><strong class="text-white">Metode 3 (Wikipedia)</strong> menghasilkan angka konsumsi paling tinggi (overestimate) karena mengabaikan faktor daya genset. Cocok untuk <span class="text-amber-300">anggaran worst-case</span> atau jika Anda ingin memastikan tidak kekurangan BBM, tetapi tidak untuk estimasi aktual.</span>
+                                    </li>
+                                    <li class="flex items-start gap-1.5 pt-1 border-t border-amber-500/20 mt-1">
+                                        <span class="text-yellow-300 font-bold">★</span>
+                                        <span><strong class="text-white">Kesimpulan :</strong> Untuk kebutuhan sehari-hari, <span class="text-emerald-300 font-bold">gunakan Metode 1</span> dengan beban yang sesuai. Metode 3 bisa dipakai sebagai batas maksimum, dan metode 2 sebagai alternatif cepat.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Data -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Parameter Input
+                </h2>
+                <div id="inputForm" class="space-y-3.5">
+                    <!-- KVA -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Kapasitas Genset (KVA)</label>
+                        <input type="number" id="inputKva" value="100" min="1" step="1" class="input-field w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-medium focus:outline-none transition" />
+                        <p class="text-[10px] text-slate-500 mt-1">Daya nominal genset dalam Kilo Volt Ampere (KVA).</p>
+                    </div>
+
+                    <!-- Method 1: Load -->
+                    <div id="method1Inputs">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Tingkat Beban Genset</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button id="load80Btn" class="py-2.5 rounded-xl text-xs font-bold transition border-2 border-blue-500/40 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20">80% Beban</button>
+                            <button id="load100Btn" class="py-2.5 rounded-xl text-xs font-bold transition border-2 border-slate-700 bg-slate-800/30 text-slate-400 hover:bg-slate-800/50">100% Beban</button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1.5">Beban operasional genset terhadap kapasitas maksimal.</p>
+                    </div>
+
+                    <!-- Method 3: Fuel -->
+                    <div id="method3Inputs" class="hidden">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Jenis Bahan Bakar</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button id="fuelDieselBtn" class="py-2.5 rounded-xl text-xs font-bold transition border-2 border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20">
+                                <i data-lucide="droplet" class="w-3.5 h-3.5 inline mr-1"></i> Solar / Diesel
+                            </button>
+                            <button id="fuelGasolineBtn" class="py-2.5 rounded-xl text-xs font-bold transition border-2 border-slate-700 bg-slate-800/30 text-slate-400 hover:bg-slate-800/50">
+                                <i data-lucide="flame" class="w-3.5 h-3.5 inline mr-1"></i> Bensin
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1.5">Pilih jenis bahan bakar yang digunakan genset.</p>
+                    </div>
+
+                    <!-- Durasi -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1.5">Jam per Hari</label>
+                            <input type="number" id="inputHoursPerDay" value="8" min="0" step="0.5" class="input-field w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none transition" />
+                            <p class="text-[10px] text-slate-500 mt-1">Lama genset menyala setiap hari</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1.5">Jumlah Hari</label>
+                            <input type="number" id="inputDays" value="1" min="0" step="1" class="input-field w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none transition" />
+                            <p class="text-[10px] text-slate-500 mt-1">Total hari pemakaian</p>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 -mt-1">Total jam = Jam/hari × Jumlah hari</p>
+
+                    <!-- Harga -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Harga per Liter (Rp)</label>
+                        <input type="number" id="inputPrice" value="18000" min="0" step="100" class="input-field w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none transition" />
+                        <p class="text-[10px] text-slate-500 mt-1">Isi 0 jika hanya ingin melihat volume konsumsi tanpa biaya.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT: Results -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- Hasil -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card print-dark">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-4 h-4 text-amber-400 no-print"></i> Hasil Estimasi
+                    </h3>
+                    <span id="methodLabel" class="text-[10px] font-mono text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Cara 1 · Beban 80%</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-950/80 rounded-xl border border-slate-800 p-4 text-center">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wider">Total Konsumsi</p>
+                        <p id="resultLiter" class="text-3xl font-black text-emerald-400 glow-pulse result-number mt-1">0.00</p>
+                        <p class="text-[11px] text-slate-500">Liter</p>
+                    </div>
+                    <div class="bg-slate-950/80 rounded-xl border border-slate-800 p-4 text-center">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wider">Total Biaya</p>
+                        <p id="resultCost" class="text-3xl font-black text-amber-400 glow-amber result-number mt-1">Rp 0</p>
+                        <p class="text-[11px] text-slate-500">Rupiah</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5 pt-1">
+                    <div class="bg-slate-950/60 rounded-lg border border-slate-800/80 p-2.5 text-center">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-wider">Total Jam</p>
+                        <p id="resultTotalHours" class="text-base font-bold text-white">0</p>
+                        <p class="text-[10px] text-slate-500">jam</p>
+                    </div>
+                    <div class="bg-slate-950/60 rounded-lg border border-slate-800/80 p-2.5 text-center">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-wider">Per Jam</p>
+                        <p id="resultPerHour" class="text-base font-bold text-cyan-400">0.00</p>
+                        <p class="text-[10px] text-slate-500">liter/jam</p>
+                    </div>
+                    <div class="bg-slate-950/60 rounded-lg border border-slate-800/80 p-2.5 text-center">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-wider">Per Hari</p>
+                        <p id="resultPerDay" class="text-base font-bold text-blue-400">0.00</p>
+                        <p class="text-[10px] text-slate-500">liter/hari</p>
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="sigma" class="w-4 h-4 text-slate-500 shrink-0 mt-0.5"></i>
+                        <span id="resultFormula" class="font-mono text-slate-300">KVA × 0,8 × 0,17 × jam</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="fuel" class="w-4 h-4 text-slate-500 shrink-0 mt-0.5"></i>
+                        <span id="resultFuelType" class="text-slate-400">Bahan Bakar: Solar / Diesel</span>
+                    </div>
+                    <div id="resultPriceNote" class="flex items-start gap-2 text-[10px] text-slate-500">
+                        <i data-lucide="info" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
+                        <span>Harga per liter: Rp 18.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perbandingan -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl print-card print-dark no-print">
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="git-compare" class="w-4 h-4 text-slate-500"></i> Perbandingan Metode
+                </h4>
+                <div class="grid grid-cols-3 gap-2.5 mt-2.5 text-[10px]">
+                    <div class="bg-slate-950/60 rounded-xl border border-slate-800/80 p-2.5 text-center">
+                        <span class="text-blue-400 font-bold block">Cara 1</span>
+                        <span class="text-slate-400">Beban 80% / 100%</span>
+                        <span id="compare1" class="text-white font-mono block mt-0.5">0.00 L</span>
+                    </div>
+                    <div class="bg-slate-950/60 rounded-xl border border-slate-800/80 p-2.5 text-center">
+                        <span class="text-cyan-400 font-bold block">Cara 2</span>
+                        <span class="text-slate-400">Faktor 0,21</span>
+                        <span id="compare2" class="text-white font-mono block mt-0.5">0.00 L</span>
+                    </div>
+                    <div class="bg-slate-950/60 rounded-xl border border-slate-800/80 p-2.5 text-center">
+                        <span class="text-emerald-400 font-bold block">Cara 3</span>
+                        <span class="text-slate-400">Wikipedia</span>
+                        <span id="compare3" class="text-white font-mono block mt-0.5">0.00 L</span>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-2 text-center">* Perbandingan dihitung dengan parameter yang sama (KVA, jam/hari, hari).</p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+        Sugeng Deny Ramdani 2026 • Kalkulator Estimasi Bahan Bakar Genset
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== STATE =====
+            const state = {
+                method: 1,
+                loadFactor: 80,
+                fuelType: 'diesel'
+            };
+
+            // ===== DOM REFS =====
+            const $ = id => document.getElementById(id);
+
+            const elKva = $('inputKva');
+            const elHoursPerDay = $('inputHoursPerDay');
+            const elDays = $('inputDays');
+            const elPrice = $('inputPrice');
+
+            const elMethod1Inputs = $('method1Inputs');
+            const elMethod3Inputs = $('method3Inputs');
+
+            const elLoad80 = $('load80Btn');
+            const elLoad100 = $('load100Btn');
+            const elFuelDiesel = $('fuelDieselBtn');
+            const elFuelGasoline = $('fuelGasolineBtn');
+
+            const elMethodLabel = $('methodLabel');
+            const elResultLiter = $('resultLiter');
+            const elResultCost = $('resultCost');
+            const elResultTotalHours = $('resultTotalHours');
+            const elResultPerHour = $('resultPerHour');
+            const elResultPerDay = $('resultPerDay');
+            const elResultFormula = $('resultFormula');
+            const elResultFuelType = $('resultFuelType');
+            const elResultPriceNote = $('resultPriceNote');
+            const elCompare1 = $('compare1');
+            const elCompare2 = $('compare2');
+            const elCompare3 = $('compare3');
+
+            const methodCards = document.querySelectorAll('.method-card');
+
+            // ===== HELPER: update UI =====
+            function updateMethodUI() {
+                // Cards
+                methodCards.forEach(card => {
+                    const m = parseInt(card.dataset.method);
+                    card.classList.toggle('active', m === state.method);
+                });
+
+                // Input visibility
+                elMethod1Inputs.style.display = (state.method === 1) ? 'block' : 'none';
+                elMethod3Inputs.style.display = (state.method === 3) ? 'block' : 'none';
+
+                // Label
+                const labels = {
+                    1: 'Cara 1 · Beban ' + state.loadFactor + '%',
+                    2: 'Cara 2 · Faktor Tetap 0,21',
+                    3: 'Cara 3 · Wikipedia (' + (state.fuelType === 'diesel' ? 'Solar' : 'Bensin') + ')'
+                };
+                elMethodLabel.textContent = labels[state.method];
+
+                // Highlight description
+                const descs = document.querySelectorAll('#methodDescription .flex.items-start.gap-2');
+                descs.forEach((d, i) => {
+                    if (i === state.method - 1) {
+                        d.style.opacity = '1';
+                        d.style.background = 'rgba(59,130,246,0.06)';
+                        d.style.borderRadius = '6px';
+                        d.style.padding = '4px 8px';
+                        d.style.margin = '0 -4px';
+                    } else {
+                        d.style.opacity = '0.5';
+                        d.style.background = 'transparent';
+                        d.style.padding = '0';
+                        d.style.margin = '0';
+                    }
+                });
+            }
+
+            // ===== LOAD & FUEL BUTTONS =====
+            function setLoad(val) {
+                state.loadFactor = val;
+                [elLoad80, elLoad100].forEach(b => {
+                    b.classList.remove('border-blue-500/40', 'bg-blue-500/10', 'text-blue-400');
+                    b.classList.add('border-slate-700', 'bg-slate-800/30', 'text-slate-400');
+                });
+                const btn = val === 80 ? elLoad80 : elLoad100;
+                btn.classList.remove('border-slate-700', 'bg-slate-800/30', 'text-slate-400');
+                btn.classList.add('border-blue-500/40', 'bg-blue-500/10', 'text-blue-400');
+                if (state.method === 1) updateMethodUI();
+                calculate();
+            }
+
+            function setFuel(type) {
+                state.fuelType = type;
+                [elFuelDiesel, elFuelGasoline].forEach(b => {
+                    b.classList.remove('border-emerald-500/40', 'bg-emerald-500/10', 'text-emerald-400');
+                    b.classList.add('border-slate-700', 'bg-slate-800/30', 'text-slate-400');
+                });
+                const btn = type === 'diesel' ? elFuelDiesel : elFuelGasoline;
+                btn.classList.remove('border-slate-700', 'bg-slate-800/30', 'text-slate-400');
+                btn.classList.add('border-emerald-500/40', 'bg-emerald-500/10', 'text-emerald-400');
+                if (state.method === 3) updateMethodUI();
+                calculate();
+            }
+
+            // ===== MAIN CALCULATION =====
+            function calculate() {
+                const kva = parseFloat(elKva.value) || 0;
+                const hoursPerDay = parseFloat(elHoursPerDay.value) || 0;
+                const days = parseFloat(elDays.value) || 0;
+                const price = parseFloat(elPrice.value) || 0;
+                const totalHours = hoursPerDay * days;
+
+                if (kva <= 0 || totalHours <= 0) {
+                    const zero = '0.00';
+                    elResultLiter.textContent = zero;
+                    elResultCost.textContent = 'Rp 0';
+                    elResultTotalHours.textContent = '0';
+                    elResultPerHour.textContent = zero;
+                    elResultPerDay.textContent = zero;
+                    elCompare1.textContent = '0.00 L';
+                    elCompare2.textContent = '0.00 L';
+                    elCompare3.textContent = '0.00 L';
+                    elResultFormula.textContent = '—';
+                    elResultFuelType.textContent = '—';
+                    elResultPriceNote.innerHTML =
+                        '<i data-lucide="info" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i> <span>Masukkan KVA dan durasi</span>';
+                    lucide.createIcons();
+                    return;
+                }
+
+                // Method 1
+                const m1Factor = (state.loadFactor === 80) ? 0.17 : 0.2;
+                const m1PerJam = kva * 0.8 * m1Factor;
+                const m1Total = m1PerJam * totalHours;
+
+                // Method 2
+                const m2PerJam = kva * 0.21;
+                const m2Total = m2PerJam * totalHours;
+
+                // Method 3
+                let rate = 194,
+                    sg = 0.832;
+                if (state.fuelType === 'gasoline') {
+                    rate = 250;
+                    sg = 0.745;
+                }
+                const m3Total = (rate * kva * totalHours) / (1000 * sg);
+                const m3PerJam = m3Total / totalHours;
+
+                // Active result
+                let activeTotal, activePerJam, activeFormula, fuelLabel;
+                if (state.method === 1) {
+                    activeTotal = m1Total;
+                    activePerJam = m1PerJam;
+                    activeFormula =
+                        `KVA × 0,8 × ${state.loadFactor === 80 ? '0,17' : '0,2'} × jam  →  ${kva} × 0,8 × ${state.loadFactor === 80 ? '0,17' : '0,2'} × ${totalHours.toFixed(1)}`;
+                    fuelLabel = 'Solar / Diesel';
+                } else if (state.method === 2) {
+                    activeTotal = m2Total;
+                    activePerJam = m2PerJam;
+                    activeFormula = `0,21 × KVA × jam  →  0,21 × ${kva} × ${totalHours.toFixed(1)}`;
+                    fuelLabel = 'Solar / Diesel';
+                } else {
+                    activeTotal = m3Total;
+                    activePerJam = m3PerJam;
+                    const fuelName = state.fuelType === 'diesel' ? 'Solar' : 'Bensin';
+                    const r = state.fuelType === 'diesel' ? '194' : '250';
+                    const s = state.fuelType === 'diesel' ? '0,832' : '0,745';
+                    activeFormula =
+                        `${r} g/Kw/hr × ${kva} KVA × ${totalHours.toFixed(1)} jam ÷ (1000 × ${s})  =  ${activeTotal.toFixed(2)} L`;
+                    fuelLabel = fuelName;
+                }
+
+                const cost = activeTotal * price;
+
+                elResultLiter.textContent = activeTotal.toFixed(2);
+                elResultCost.textContent = price > 0 ? 'Rp ' + Math.round(cost).toLocaleString('id-ID') : 'Rp 0';
+                elResultTotalHours.textContent = totalHours.toFixed(1);
+                elResultPerHour.textContent = activePerJam.toFixed(2);
+                elResultPerDay.textContent = (activePerJam * hoursPerDay).toFixed(2);
+                elResultFormula.textContent = activeFormula;
+                elResultFuelType.textContent = 'Bahan Bakar: ' + fuelLabel;
+                elResultPriceNote.innerHTML =
+                    `<i data-lucide="info" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i> <span>Harga per liter: Rp ${price > 0 ? price.toLocaleString('id-ID') : '0'}</span>`;
+
+                // Comparison
+                elCompare1.textContent = m1Total.toFixed(2) + ' L';
+                elCompare2.textContent = m2Total.toFixed(2) + ' L';
+                elCompare3.textContent = m3Total.toFixed(2) + ' L';
+
+                const compareEls = [elCompare1, elCompare2, elCompare3];
+                compareEls.forEach((el, idx) => {
+                    el.style.color = (idx + 1 === state.method) ? '#fbbf24' : '#94a3b8';
+                    el.style.fontWeight = (idx + 1 === state.method) ? '700' : '400';
+                });
+
+                lucide.createIcons();
+            }
+
+            // ===== RESET =====
+            function resetAll() {
+                elKva.value = '100';
+                elHoursPerDay.value = '8';
+                elDays.value = '1';
+                elPrice.value = '18000';
+                state.loadFactor = 80;
+                state.fuelType = 'diesel';
+                setLoad(80);
+                setFuel('diesel');
+                state.method = 1;
+                updateMethodUI();
+                calculate();
+            }
+
+            // ===== EVENT BINDING =====
+            function init() {
+                // Method cards
+                methodCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        state.method = parseInt(this.dataset.method);
+                        updateMethodUI();
+                        calculate();
+                    });
+                });
+
+                // Load buttons
+                elLoad80.addEventListener('click', () => setLoad(80));
+                elLoad100.addEventListener('click', () => setLoad(100));
+
+                // Fuel buttons
+                elFuelDiesel.addEventListener('click', () => setFuel('diesel'));
+                elFuelGasoline.addEventListener('click', () => setFuel('gasoline'));
+
+                // Inputs
+                [elKva, elHoursPerDay, elDays, elPrice].forEach(el => {
+                    el.addEventListener('input', calculate);
+                    el.addEventListener('change', calculate);
+                });
+
+                // Reset
+                $('resetBtn').addEventListener('click', resetAll);
+
+                // Initial state
+                setLoad(80);
+                setFuel('diesel');
+                state.method = 1;
+                updateMethodUI();
+                calculate();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Interaktif Pipe Sizing & Friction Loss Chart</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Navbar Header -->
+    <header class="bg-slate-800/90 border-b border-slate-700/80 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 p-2 rounded-xl border border-blue-500/30 text-blue-400">
+                    <i data-lucide="waves" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Pipe Sizing Interactive Model</h1>
+                    <p class="text-xs text-slate-400">Kalkulator Friction Loss, Flow Rate & Diagram Nomogram Real-Time</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <!-- Unit Switcher -->
+                <div class="bg-slate-900/80 p-1 rounded-lg border border-slate-700 flex text-xs font-medium">
+                    <button id="unitUS" onclick="setUnitSystem('US')" class="px-3 py-1.5 rounded-md bg-blue-600 text-white transition-all shadow">
+                        US (GPM, ft/100ft)
+                    </button>
+                    <button id="unitMetric" onclick="setUnitSystem('Metric')" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white transition-all">
+                        Metric (L/s, m/100m)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Body Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Sidebar: Controls & Input Form -->
+        <section class="lg:col-span-4 flex flex-col gap-5">
+            
+            <!-- Calculation Mode Selector Card -->
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 block flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-blue-400"></i> Mode Perhitungan
+                </label>
+
+                <div class="grid grid-cols-3 gap-2 p-1 bg-slate-900/80 rounded-xl border border-slate-700/60">
+                    <button id="btnModeSize" onclick="setMode('findSize')" 
+                        class="py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all bg-blue-600 text-white shadow">
+                        Cari Size Pipa
+                    </button>
+                    <button id="btnModeLoss" onclick="setMode('findLoss')" 
+                        class="py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white">
+                        Cari Friction Loss
+                    </button>
+                    <button id="btnModeFlow" onclick="setMode('findFlow')" 
+                        class="py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white">
+                        Cari Max Flow
+                    </button>
+                </div>
+
+                <!-- Mode Descriptions -->
+                <div id="modeDesc" class="mt-3 p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-xs text-blue-200/90 leading-relaxed">
+                    Menghitung ukuran nominal pipa terkecil yang memenuhi kriteria batas friction loss & kecepatan aliran.
+                </div>
+            </div>
+
+            <!-- Parameters Input Card -->
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <h2 class="text-sm font-bold text-slate-200 border-b border-slate-700/60 pb-2 flex items-center justify-between">
+                        <span>Parameter Masukan</span>
+                        <span id="systemTag" class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Closed System</span>
+                    </h2>
+
+                    <!-- System Type Selector -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Jenis Sistem Piping & Material</label>
+                        <select id="selectSystem" onchange="onInputChange()" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="closed_steel">Water Closed System (Sch 40 Steel - C=125)</option>
+                            <option value="open_steel">Water Open System (Sch 40 Steel - C=100)</option>
+                            <option value="copper_l">Copper Tube Type L (C=140)</option>
+                            <option value="copper_k">Copper Tube Type K (C=140)</option>
+                        </select>
+                    </div>
+
+                    <!-- Input 1: Flow Rate (Used in Mode 1 & Mode 2) -->
+                    <div id="fieldFlow">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-medium text-slate-300">Debit Aliran / Flow Rate (Q)</label>
+                            <span id="labelFlowUnit" class="text-xs text-blue-400 font-mono">GPM</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="inputFlow" value="100" min="0.1" step="any" oninput="onInputChange()"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <input type="range" id="sliderFlow" min="1" max="2000" value="100" oninput="syncSliderToInput('sliderFlow', 'inputFlow')"
+                            class="w-full accent-blue-500 mt-1.5 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Input 2: Pipe Size (Used in Mode 2 & Mode 3) -->
+                    <div id="fieldPipeSize" class="hidden">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Ukuran Nominal Pipa (NPS)</label>
+                        <select id="selectPipeSize" onchange="onInputChange()" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+
+                    <!-- Input 3: Max Friction Loss Limit (Design Criteria) -->
+                    <div id="fieldMaxLoss">
+                        <div class="flex justify-between items-center mb-1">
+                            <label id="labelLossHeading" class="text-xs font-medium text-slate-300">Target Friction Loss Maks.</label>
+                            <span id="labelLossUnit" class="text-xs text-blue-400 font-mono">ft / 100 ft</span>
+                        </div>
+                        <input type="number" id="inputMaxLoss" value="3.0" min="0.1" max="50" step="0.1" oninput="onInputChange()"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+
+                    <!-- Input 4: Max Velocity Limit (Design Criteria) -->
+                    <div id="fieldMaxVel">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-medium text-slate-300">Batas Kecepatan Maksimum (V max)</label>
+                            <span id="labelVelUnit" class="text-xs text-blue-400 font-mono">ft/s</span>
+                        </div>
+                        <input type="number" id="inputMaxVel" value="10.0" min="1" max="30" step="0.5" oninput="onInputChange()"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                </div>
+
+                <!-- Design Criteria Preset Info -->
+                <div class="mt-6 pt-3 border-t border-slate-700/60 bg-slate-900/50 p-3 rounded-xl border border-slate-700/40 text-[11px] text-slate-400 space-y-1">
+                    <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> Standard HVAC Carrier Criteria:
+                    </div>
+                    <div>• Drop Presisi Merah: <span class="text-amber-400 font-mono">3.0 ft/100 ft</span> (0.9 m/100m)</div>
+                    <div>• Velocity Limit: <span class="text-amber-400 font-mono">10.0 ft/s</span> (3.0 m/s)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Main Panel: Calculation Outputs, Chart & Animations -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Summary KPI Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                
+                <!-- KPI 1: Selected Size -->
+                <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-blue-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="circle-dot" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ukuran Pipa</span>
+                    <div class="my-1">
+                        <span id="resPipeSize" class="text-2xl font-black text-blue-400 font-mono">2"</span>
+                        <span id="resPipeID" class="text-xs text-slate-400 block font-mono">ID: 2.067 in</span>
+                    </div>
+                    <span id="resBadgeStatus" class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full w-fit">
+                        <i data-lucide="check-circle-2" class="w-3 h-3"></i> Optimal
+                    </span>
+                </div>
+
+                <!-- KPI 2: Friction Loss -->
+                <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-indigo-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="gauge" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Friction Loss</span>
+                    <div class="my-1">
+                        <span id="resLossValue" class="text-2xl font-black text-indigo-300 font-mono">2.85</span>
+                        <span id="resLossUnit" class="text-xs text-slate-400 font-mono">ft / 100 ft</span>
+                    </div>
+                    <span id="resLossSub" class="text-[10px] text-slate-400">Presisi Aliran</span>
+                </div>
+
+                <!-- KPI 3: Velocity -->
+                <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-cyan-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="zap" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Kecepatan (V)</span>
+                    <div class="my-1">
+                        <span id="resVelValue" class="text-2xl font-black text-cyan-300 font-mono">9.55</span>
+                        <span id="resVelUnit" class="text-xs text-slate-400 font-mono">ft/s</span>
+                    </div>
+                    <span id="resVelSub" class="text-[10px] text-slate-400">&lt; 10 ft/s (Aman)</span>
+                </div>
+
+                <!-- KPI 4: Flow Rate -->
+                <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-sky-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="droplets" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Debit Aliran (Q)</span>
+                    <div class="my-1">
+                        <span id="resFlowValue" class="text-2xl font-black text-sky-300 font-mono">100</span>
+                        <span id="resFlowUnit" class="text-xs text-slate-400 font-mono">GPM</span>
+                    </div>
+                    <span id="resFlowSub" class="text-[10px] text-slate-400">Debit Operasional</span>
+                </div>
+            </div>
+
+            <!-- Nomogram Chart Visualizer -->
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-xl relative flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="line-chart" class="w-4 h-4 text-blue-400"></i>
+                        <h3 class="text-sm font-bold text-slate-200">Interactive Pipe Sizing Chart (Log-Log Nomogram)</h3>
+                    </div>
+                    <div class="flex items-center gap-3 text-[11px]">
+                        <span class="flex items-center gap-1 text-slate-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Titik Operasi
+                        </span>
+                        <span class="flex items-center gap-1 text-slate-400">
+                            <span class="w-2.5 h-0.5 bg-red-400 inline-block"></span> Batas Desain
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="relative w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 p-2">
+                    <canvas id="chartCanvas" class="w-full h-[380px] sm:h-[420px] block cursor-crosshair"></canvas>
+                    
+                    <!-- Tooltip Hover Overlay -->
+                    <div id="chartTooltip" class="hidden absolute pointer-events-none bg-slate-900/95 border border-slate-700 p-2 rounded-lg text-[11px] shadow-2xl z-20">
+                        <div id="tooltipText" class="font-mono text-slate-200"></div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-2 text-right">Diagram mengadopsi model grafik Carrier System Design Logarithmic (Log-Log Scale).</p>
+            </div>
+
+            <!-- Bottom Grid: Pipe Animation & Comparative Size Table -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- Pipe Cross Section Visualizer & Flow Animation -->
+                <div class="md:col-span-5 bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                            <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i> Visualisasi Penampang Pipa
+                        </h4>
+                        <span id="animVelLabel" class="text-xs font-mono text-cyan-400">9.55 ft/s</span>
+                    </div>
+
+                    <!-- Animation Canvas -->
+                    <div class="relative w-full h-36 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center my-2">
+                        <canvas id="animCanvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 flex justify-between items-center">
+                        <span>Diameter Luar Nominal</span>
+                        <span id="resODVal" class="font-mono text-slate-200">2.375 in</span>
+                    </div>
+                </div>
+
+                <!-- Adjacent Sizes Comparison Table -->
+                <div class="md:col-span-7 bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-xl">
+                    <h4 class="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
+                        <i data-lucide="table" class="w-4 h-4 text-blue-400"></i> Matriks Perbandingan Ukuran Pipa Berdampingan
+                    </h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-[11px]">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400 font-semibold uppercase">
+                                    <th class="py-2 px-2">Size</th>
+                                    <th class="py-2 px-2">Friction Loss</th>
+                                    <th class="py-2 px-2">Velocity</th>
+                                    <th class="py-2 px-2 text-right">Status Desain</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableCompareBody" class="divide-y divide-slate-700/50 text-slate-300 font-mono">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+        © 2026 sugeng deny ramdani. Pipe Sizing Simulator & Logarithmic Nomogram Chart Simulator • Berdasarkan Persamaan Hazen-Williams & Chart Carrier Air Conditioning Design.
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Database Standard Pipes (Inner Diameters in inches)
+        const PIPE_DATA = {
+            closed_steel: {
+                name: "Schedule 40 Steel (Closed - C=125)",
+                C: 125,
+                sizes: [
+                    { name: '1/2"', id: 0.622, od: 0.840 },
+                    { name: '3/4"', id: 0.824, od: 1.050 },
+                    { name: '1"', id: 1.049, od: 1.315 },
+                    { name: '1 1/4"', id: 1.380, od: 1.660 },
+                    { name: '1 1/2"', id: 1.610, od: 1.900 },
+                    { name: '2"', id: 2.067, od: 2.375 },
+                    { name: '2 1/2"', id: 2.469, od: 2.875 },
+                    { name: '3"', id: 3.068, od: 3.500 },
+                    { name: '3 1/2"', id: 3.548, od: 4.000 },
+                    { name: '4"', id: 4.026, od: 4.500 },
+                    { name: '5"', id: 5.047, od: 5.563 },
+                    { name: '6"', id: 6.065, od: 6.625 },
+                    { name: '8"', id: 7.981, od: 8.625 },
+                    { name: '10"', id: 10.020, od: 10.750 },
+                    { name: '12"', id: 11.938, od: 12.750 },
+                    { name: '14"', id: 13.250, od: 14.000 },
+                    { name: '16"', id: 15.250, od: 16.000 },
+                    { name: '18"', id: 17.250, od: 18.000 },
+                    { name: '20"', id: 19.250, od: 20.000 },
+                    { name: '24"', id: 23.250, od: 24.000 }
+                ]
+            },
+            open_steel: {
+                name: "Schedule 40 Steel (Open - C=100)",
+                C: 100,
+                sizes: [
+                    { name: '1/2"', id: 0.622, od: 0.840 },
+                    { name: '3/4"', id: 0.824, od: 1.050 },
+                    { name: '1"', id: 1.049, od: 1.315 },
+                    { name: '1 1/4"', id: 1.380, od: 1.660 },
+                    { name: '1 1/2"', id: 1.610, od: 1.900 },
+                    { name: '2"', id: 2.067, od: 2.375 },
+                    { name: '2 1/2"', id: 2.469, od: 2.875 },
+                    { name: '3"', id: 3.068, od: 3.500 },
+                    { name: '3 1/2"', id: 3.548, od: 4.000 },
+                    { name: '4"', id: 4.026, od: 4.500 },
+                    { name: '5"', id: 5.047, od: 5.563 },
+                    { name: '6"', id: 6.065, od: 6.625 },
+                    { name: '8"', id: 7.981, od: 8.625 },
+                    { name: '10"', id: 10.020, od: 10.750 },
+                    { name: '12"', id: 11.938, od: 12.750 },
+                    { name: '14"', id: 13.250, od: 14.000 },
+                    { name: '16"', id: 15.250, od: 16.000 },
+                    { name: '18"', id: 17.250, od: 18.000 },
+                    { name: '20"', id: 19.250, od: 20.000 },
+                    { name: '24"', id: 23.250, od: 24.000 }
+                ]
+            },
+            copper_l: {
+                name: "Copper Tube Type L (C=140)",
+                C: 140,
+                sizes: [
+                    { name: '3/8"', id: 0.430, od: 0.500 },
+                    { name: '1/2"', id: 0.545, od: 0.625 },
+                    { name: '5/8"', id: 0.666, od: 0.750 },
+                    { name: '3/4"', id: 0.785, od: 0.875 },
+                    { name: '1"', id: 1.025, od: 1.125 },
+                    { name: '1 1/4"', id: 1.265, od: 1.375 },
+                    { name: '1 1/2"', id: 1.505, od: 1.625 },
+                    { name: '2"', id: 1.985, od: 2.125 },
+                    { name: '2 1/2"', id: 2.465, od: 2.625 },
+                    { name: '3"', id: 2.945, od: 3.125 },
+                    { name: '3 1/2"', id: 3.425, od: 3.625 },
+                    { name: '4"', id: 3.905, od: 4.125 },
+                    { name: '5"', id: 4.875, od: 5.125 },
+                    { name: '6"', id: 5.845, od: 6.125 }
+                ]
+            },
+            copper_k: {
+                name: "Copper Tube Type K (C=140)",
+                C: 140,
+                sizes: [
+                    { name: '3/8"', id: 0.402, od: 0.500 },
+                    { name: '1/2"', id: 0.527, od: 0.625 },
+                    { name: '5/8"', id: 0.652, od: 0.750 },
+                    { name: '3/4"', id: 0.745, od: 0.875 },
+                    { name: '1"', id: 0.995, od: 1.125 },
+                    { name: '1 1/4"', id: 1.245, od: 1.375 },
+                    { name: '1 1/2"', id: 1.481, od: 1.625 },
+                    { name: '2"', id: 1.959, od: 2.125 },
+                    { name: '2 1/2"', id: 2.435, od: 2.625 },
+                    { name: '3"', id: 2.907, od: 3.125 },
+                    { name: '4"', id: 3.857, od: 4.125 },
+                    { name: '5"', id: 4.805, od: 5.125 },
+                    { name: '6"', id: 5.741, od: 6.125 }
+                ]
+            }
+        };
+
+        let currentMode = 'findSize'; // 'findSize', 'findLoss', 'findFlow'
+        let currentUnitSystem = 'US'; // 'US' or 'Metric'
+        let chartAnimFrame = null;
+        let flowParticles = [];
+
+        /**
+         * Calculates Head Loss (ft of water per 100 ft) using Hazen-Williams Equation
+         * Q: GPM
+         * d: Inner Diameter in inches
+         * C: Roughness coefficient
+         */
+        function calcFrictionLoss(Q_gpm, d_inch, C) {
+            if (Q_gpm <= 0 || d_inch <= 0) return 0;
+            // Hazen-Williams formula: hf (ft/100ft) = 0.2083 * (100/C)^1.852 * (Q^1.852 / d^4.8655)
+            const hf = 0.2083 * Math.pow(100 / C, 1.852) * Math.pow(Q_gpm, 1.852) / Math.pow(d_inch, 4.8655);
+            return hf;
+        }
+
+        /**
+         * Calculates Fluid Velocity (ft/s)
+         * Q: GPM
+         * d: Inner Diameter in inches
+         */
+        function calcVelocity(Q_gpm, d_inch) {
+            if (Q_gpm <= 0 || d_inch <= 0) return 0;
+            // Velocity (ft/s) = (0.408 * Q) / d^2
+            return (0.408 * Q_gpm) / (d_inch * d_inch);
+        }
+
+        /**
+         * Calculates Flow Rate (GPM) given Max Friction Loss
+         */
+        function calcFlowFromLoss(hf_ft100, d_inch, C) {
+            if (hf_ft100 <= 0 || d_inch <= 0) return 0;
+            const term = hf_ft100 * Math.pow(d_inch, 4.8655) / (0.2083 * Math.pow(100 / C, 1.852));
+            return Math.pow(term, 1 / 1.852);
+        }
+
+        /**
+         * Calculates Flow Rate (GPM) given Max Velocity
+         */
+        function calcFlowFromVel(vel_fps, d_inch) {
+            if (vel_fps <= 0 || d_inch <= 0) return 0;
+            return (vel_fps * d_inch * d_inch) / 0.408;
+        }
+
+        // US to Metric & Metric to US Conversion factors
+        function gpmToLps(gpm) { return gpm * 0.0630902; }
+        function lpsToGpm(lps) { return lps / 0.0630902; }
+        function ft100ToM100(ft100) { return ft100 * 0.3048; } // 1 ft/100ft = 0.3048 m/100m
+        function m100ToFt100(m100) { return m100 / 0.3048; }
+        function fpsToMps(fps) { return fps * 0.3048; }
+        function mpsToFps(mps) { return mps / 0.3048; }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Buttons UI
+            document.getElementById('btnModeSize').className = mode === 'findSize' ? 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all bg-blue-600 text-white shadow' : 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white';
+            
+            document.getElementById('btnModeLoss').className = mode === 'findLoss' ? 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all bg-blue-600 text-white shadow' : 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white';
+
+            document.getElementById('btnModeFlow').className = mode === 'findFlow' ? 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all bg-blue-600 text-white shadow' : 
+                'py-2 px-2 text-center rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white';
+
+            // Mode descriptions & input field visibilities
+            const desc = document.getElementById('modeDesc');
+            const fieldFlow = document.getElementById('fieldFlow');
+            const fieldPipeSize = document.getElementById('fieldPipeSize');
+            const fieldMaxLoss = document.getElementById('fieldMaxLoss');
+            const fieldMaxVel = document.getElementById('fieldMaxVel');
+
+            if (mode === 'findSize') {
+                desc.textContent = "Menghitung ukuran nominal pipa terkecil yang memenuhi kriteria batas friction loss & kecepatan aliran.";
+                fieldFlow.classList.remove('hidden');
+                fieldPipeSize.classList.add('hidden');
+                fieldMaxLoss.classList.remove('hidden');
+                fieldMaxVel.classList.remove('hidden');
+                document.getElementById('labelLossHeading').textContent = "Target Friction Loss Maks.";
+            } else if (mode === 'findLoss') {
+                desc.textContent = "Menghitung friction loss dan kecepatan aktual untuk ukuran pipa dan debit flow tertentu.";
+                fieldFlow.classList.remove('hidden');
+                fieldPipeSize.classList.remove('hidden');
+                fieldMaxLoss.classList.add('hidden');
+                fieldMaxVel.classList.add('hidden');
+            } else if (mode === 'findFlow') {
+                desc.textContent = "Menghitung kapasitas flow maksimum (GPM) yang dapat ditampung ukuran pipa tanpa melebihi batas friction loss / kecepatan.";
+                fieldFlow.classList.add('hidden');
+                fieldPipeSize.classList.remove('hidden');
+                fieldMaxLoss.classList.remove('hidden');
+                fieldMaxVel.classList.remove('hidden');
+                document.getElementById('labelLossHeading').textContent = "Batas Friction Loss Maks.";
+            }
+
+            calculateAndRender();
+        }
+
+        function setUnitSystem(unit) {
+            currentUnitSystem = unit;
+            document.getElementById('unitUS').className = unit === 'US' ? 
+                'px-3 py-1.5 rounded-md bg-blue-600 text-white transition-all shadow' : 
+                'px-3 py-1.5 rounded-md text-slate-400 hover:text-white transition-all';
+            document.getElementById('unitMetric').className = unit === 'Metric' ? 
+                'px-3 py-1.5 rounded-md bg-blue-600 text-white transition-all shadow' : 
+                'px-3 py-1.5 rounded-md text-slate-400 hover:text-white transition-all';
+
+            // Update Labels
+            if (unit === 'US') {
+                document.getElementById('labelFlowUnit').textContent = 'GPM';
+                document.getElementById('labelLossUnit').textContent = 'ft / 100 ft';
+                document.getElementById('labelVelUnit').textContent = 'ft/s';
+                document.getElementById('resLossUnit').textContent = 'ft / 100 ft';
+                document.getElementById('resVelUnit').textContent = 'ft/s';
+                document.getElementById('resFlowUnit').textContent = 'GPM';
+            } else {
+                document.getElementById('labelFlowUnit').textContent = 'L/s';
+                document.getElementById('labelLossUnit').textContent = 'm / 100 m';
+                document.getElementById('labelVelUnit').textContent = 'm/s';
+                document.getElementById('resLossUnit').textContent = 'm / 100 m';
+                document.getElementById('resVelUnit').textContent = 'm/s';
+                document.getElementById('resFlowUnit').textContent = 'L/s';
+            }
+
+            calculateAndRender();
+        }
+
+        function populatePipeDropdown() {
+            const systemKey = document.getElementById('selectSystem').value;
+            const system = PIPE_DATA[systemKey];
+            const select = document.getElementById('selectPipeSize');
+            select.innerHTML = '';
+
+            system.sizes.forEach((s, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${s.name} (ID: ${s.id.toFixed(3)}")`;
+                select.appendChild(opt);
+            });
+            // Default 2" if available
+            select.selectedIndex = Math.min(5, system.sizes.length - 1);
+        }
+
+        function syncSliderToInput(sliderId, inputId) {
+            const val = document.getElementById(sliderId).value;
+            document.getElementById(inputId).value = val;
+            calculateAndRender();
+        }
+
+        function onInputChange() {
+            calculateAndRender();
+        }
+
+        let activeCalculationState = {
+            gpm: 100,
+            pipeObj: null,
+            hf: 3.0,
+            vel: 9.5,
+            maxLossLimit: 3.0,
+            maxVelLimit: 10.0,
+            system: null,
+            status: "OK"
+        };
+
+        function calculateAndRender() {
+            const systemKey = document.getElementById('selectSystem').value;
+            const system = PIPE_DATA[systemKey];
+            document.getElementById('systemTag').textContent = system.name.split('(')[0];
+
+            let inputFlowVal = parseFloat(document.getElementById('inputFlow').value) || 0;
+            let inputMaxLossVal = parseFloat(document.getElementById('inputMaxLoss').value) || 3.0;
+            let inputMaxVelVal = parseFloat(document.getElementById('inputMaxVel').value) || 10.0;
+
+            // Convert inputs to US units for calculation engine if metric
+            let Q_gpm = currentUnitSystem === 'US' ? inputFlowVal : lpsToGpm(inputFlowVal);
+            let maxHf_ft100 = currentUnitSystem === 'US' ? inputMaxLossVal : m100ToFt100(inputMaxLossVal);
+            let maxVel_fps = currentUnitSystem === 'US' ? inputMaxVelVal : mpsToFps(inputMaxVelVal);
+
+            let selectedPipe = null;
+            let calculatedHf = 0;
+            let calculatedVel = 0;
+            let calculatedGpm = Q_gpm;
+            let statusText = "Optimal";
+            let statusClass = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+
+            if (currentMode === 'findSize') {
+                // Find smallest pipe where hf <= maxHf AND vel <= maxVel
+                for (let i = 0; i < system.sizes.length; i++) {
+                    const p = system.sizes[i];
+                    const hf = calcFrictionLoss(Q_gpm, p.id, system.C);
+                    const vel = calcVelocity(Q_gpm, p.id);
+
+                    if (hf <= maxHf_ft100 && vel <= maxVel_fps) {
+                        selectedPipe = p;
+                        calculatedHf = hf;
+                        calculatedVel = vel;
+                        break;
+                    }
+                }
+
+                // If no pipe fits limit, pick largest available
+                if (!selectedPipe) {
+                    selectedPipe = system.sizes[system.sizes.length - 1];
+                    calculatedHf = calcFrictionLoss(Q_gpm, selectedPipe.id, system.C);
+                    calculatedVel = calcVelocity(Q_gpm, selectedPipe.id);
+                    statusText = "Ukuran Pipa Maksimum Dilampaui";
+                    statusClass = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+                }
+            } else if (currentMode === 'findLoss') {
+                const pipeIdx = document.getElementById('selectPipeSize').value || 0;
+                selectedPipe = system.sizes[pipeIdx] || system.sizes[0];
+                calculatedHf = calcFrictionLoss(Q_gpm, selectedPipe.id, system.C);
+                calculatedVel = calcVelocity(Q_gpm, selectedPipe.id);
+
+                if (calculatedVel > 10.0 || calculatedHf > 3.0) {
+                    statusText = "Tinggi Friction / Vel";
+                    statusClass = "text-amber-400 bg-amber-500/10 border-amber-500/20";
+                }
+            } else if (currentMode === 'findFlow') {
+                const pipeIdx = document.getElementById('selectPipeSize').value || 0;
+                selectedPipe = system.sizes[pipeIdx] || system.sizes[0];
+
+                // Max flow constrained by both loss and velocity criteria
+                const Q_fromLoss = calcFlowFromLoss(maxHf_ft100, selectedPipe.id, system.C);
+                const Q_fromVel = calcFlowFromVel(maxVel_fps, selectedPipe.id);
+
+                calculatedGpm = Math.min(Q_fromLoss, Q_fromVel);
+                calculatedHf = calcFrictionLoss(calculatedGpm, selectedPipe.id, system.C);
+                calculatedVel = calcVelocity(calculatedGpm, selectedPipe.id);
+            }
+
+            // Update Active Calculation State
+            activeCalculationState = {
+                gpm: calculatedGpm,
+                pipeObj: selectedPipe,
+                hf: calculatedHf,
+                vel: calculatedVel,
+                maxLossLimit: maxHf_ft100,
+                maxVelLimit: maxVel_fps,
+                system: system,
+                status: statusText
+            };
+
+            // Display Results on Cards
+            document.getElementById('resPipeSize').textContent = selectedPipe.name;
+            document.getElementById('resPipeID').textContent = `ID: ${selectedPipe.id.toFixed(3)}" (${(selectedPipe.id * 25.4).toFixed(1)} mm)`;
+            document.getElementById('resODVal').textContent = `${selectedPipe.od.toFixed(3)}" (${(selectedPipe.od * 25.4).toFixed(1)} mm)`;
+
+            // Display Loss
+            const displayLoss = currentUnitSystem === 'US' ? calculatedHf : ft100ToM100(calculatedHf);
+            document.getElementById('resLossValue').textContent = displayLoss.toFixed(2);
+
+            // Display Velocity
+            const displayVel = currentUnitSystem === 'US' ? calculatedVel : fpsToMps(calculatedVel);
+            document.getElementById('resVelValue').textContent = displayVel.toFixed(2);
+            document.getElementById('animVelLabel').textContent = `${displayVel.toFixed(2)} ${currentUnitSystem === 'US' ? 'ft/s' : 'm/s'}`;
+
+            // Display Flow
+            const displayFlow = currentUnitSystem === 'US' ? calculatedGpm : gpmToLps(calculatedGpm);
+            document.getElementById('resFlowValue').textContent = displayFlow >= 100 ? displayFlow.toFixed(0) : displayFlow.toFixed(1);
+
+            // Status Badge
+            const badge = document.getElementById('resBadgeStatus');
+            badge.className = `inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit ${statusClass}`;
+            badge.innerHTML = `<i data-lucide="${statusText === 'Optimal' ? 'check-circle-2' : 'alert-triangle'}" class="w-3 h-3"></i> ${statusText}`;
+
+            // Render Comparative Table & Visual Canvas
+            renderCompareTable(system, selectedPipe, calculatedGpm);
+            drawLogLogChart();
+            lucide.createIcons();
+        }
+
+        function renderCompareTable(system, activePipe, gpm) {
+            const tbody = document.getElementById('tableCompareBody');
+            tbody.innerHTML = '';
+
+            const activeIdx = system.sizes.findIndex(s => s.name === activePipe.name);
+            const startIdx = Math.max(0, activeIdx - 1);
+            const endIdx = Math.min(system.sizes.length - 1, activeIdx + 2);
+
+            for (let i = startIdx; i <= endIdx; i++) {
+                const p = system.sizes[i];
+                const hf = calcFrictionLoss(gpm, p.id, system.C);
+                const vel = calcVelocity(gpm, p.id);
+
+                const displayHf = currentUnitSystem === 'US' ? hf : ft100ToM100(hf);
+                const displayVel = currentUnitSystem === 'US' ? vel : fpsToMps(vel);
+
+                const isSelected = p.name === activePipe.name;
+                const isVelOk = vel <= activeCalculationState.maxVelLimit;
+                const isLossOk = hf <= activeCalculationState.maxLossLimit;
+
+                let tag = `<span class="text-emerald-400">Direkomendasikan</span>`;
+                if (!isVelOk) tag = `<span class="text-rose-400">Kecepatan Tinggi</span>`;
+                else if (!isLossOk) tag = `<span class="text-amber-400">Friction Tinggi</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = isSelected ? "bg-blue-600/20 font-bold text-white border-l-2 border-blue-500" : "hover:bg-slate-700/30";
+                tr.innerHTML = `
+                    <td class="py-2 px-2">${p.name} ${isSelected ? '★' : ''}</td>
+                    <td class="py-2 px-2">${displayHf.toFixed(2)}</td>
+                    <td class="py-2 px-2">${displayVel.toFixed(2)}</td>
+                    <td class="py-2 px-2 text-right text-[10px]">${tag}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function drawLogLogChart() {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Responsive high DPI scale
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const width = rect.width;
+            const height = rect.height;
+
+            // Clear Background
+            ctx.fillStyle = '#020617'; // slate-950
+            ctx.fillRect(0, 0, width, height);
+
+            // Chart Padding
+            const padLeft = 45;
+            const padRight = 25;
+            const padTop = 25;
+            const padBottom = 35;
+
+            const graphW = width - padLeft - padRight;
+            const graphH = height - padTop - padBottom;
+
+            // Logarithmic domain ranges
+            // X-Axis: Friction Loss (ft/100ft) from 0.1 to 100
+            const minX = 0.1, maxX = 100;
+            // Y-Axis: Flow Rate (GPM) from 1 to 20,000
+            const minY = 1, maxY = 20000;
+
+            function xToPx(val) {
+                const logMin = Math.log10(minX);
+                const logMax = Math.log10(maxX);
+                const logVal = Math.log10(Math.max(minX, Math.min(maxX, val)));
+                return padLeft + ((logVal - logMin) / (logMax - logMin)) * graphW;
+            }
+
+            function yToPx(val) {
+                const logMin = Math.log10(minY);
+                const logMax = Math.log10(maxY);
+                const logVal = Math.log10(Math.max(minY, Math.min(maxY, val)));
+                return padTop + graphH - ((logVal - logMin) / (logMax - logMin)) * graphH;
+            }
+
+            // Draw Grid Lines (Logarithmic)
+            ctx.lineWidth = 1;
+
+            // Vertical Grid (X - Friction Loss)
+            const xDecades = [0.1, 1, 10, 100];
+            const xSubDecades = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 2, 3, 4, 5, 6, 8, 10, 20, 30, 40, 50, 60, 80, 100];
+
+            xSubDecades.forEach(v => {
+                const x = xToPx(v);
+                const isMajor = xDecades.includes(v);
+                ctx.strokeStyle = isMajor ? 'rgba(51, 65, 85, 0.8)' : 'rgba(30, 41, 59, 0.5)';
+                ctx.beginPath();
+                ctx.moveTo(x, padTop);
+                ctx.lineTo(x, padTop + graphH);
+                ctx.stroke();
+
+                if (isMajor || v === 0.3 || v === 3) {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '10px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(v.toString(), x, padTop + graphH + 15);
+                }
+            });
+
+            // Horizontal Grid (Y - Flow GPM)
+            const ySubDecades = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+            ySubDecades.forEach(v => {
+                const y = yToPx(v);
+                const isMajor = [1, 10, 100, 1000, 10000].includes(v);
+                ctx.strokeStyle = isMajor ? 'rgba(51, 65, 85, 0.8)' : 'rgba(30, 41, 59, 0.5)';
+                ctx.beginPath();
+                ctx.moveTo(padLeft, y);
+                ctx.lineTo(padLeft + graphW, y);
+                ctx.stroke();
+
+                if (isMajor || v === 100 || v === 1000) {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '10px monospace';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(v >= 1000 ? (v/1000) + 'k' : v, padLeft - 6, y + 3);
+                }
+            });
+
+            // Axis Labels
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Friction Loss (ft of water per 100 ft)', padLeft + graphW / 2, height - 5);
+
+            ctx.save();
+            ctx.translate(12, padTop + graphH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Flow Rate (GPM)', 0, 0);
+            ctx.restore();
+
+            // Draw Pipe Size Curves
+            const system = activeCalculationState.system;
+            if (system && system.sizes) {
+                system.sizes.forEach((p, idx) => {
+                    const isSelected = activeCalculationState.pipeObj && activeCalculationState.pipeObj.name === p.name;
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = isSelected ? '#38bdf8' : 'rgba(100, 116, 139, 0.4)';
+                    ctx.lineWidth = isSelected ? 3 : 1;
+
+                    let firstPoint = true;
+                    let lastX = 0, lastY = 0;
+
+                    // Plot flow vs loss for this pipe diameter
+                    for (let gpm = 1; gpm <= 20000; gpm *= 1.15) {
+                        const hf = calcFrictionLoss(gpm, p.id, system.C);
+                        if (hf >= minX && hf <= maxX) {
+                            const px = xToPx(hf);
+                            const py = yToPx(gpm);
+
+                            if (firstPoint) {
+                                ctx.moveTo(px, py);
+                                firstPoint = false;
+                            } else {
+                                ctx.lineTo(px, py);
+                            }
+                            lastX = px;
+                            lastY = py;
+                        }
+                    }
+                    ctx.stroke();
+
+                    // Pipe Label on Chart
+                    if (lastX > padLeft + 20 && lastY > padTop + 10 && lastY < padTop + graphH - 10) {
+                        ctx.fillStyle = isSelected ? '#38bdf8' : '#64748b';
+                        ctx.font = isSelected ? 'bold 11px Inter' : '9px Inter';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(p.name, lastX - 25, lastY - 4);
+                    }
+                });
+            }
+
+            // Draw Red Target Design Limits
+            const targetHfPx = xToPx(activeCalculationState.maxLossLimit || 3.0);
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = '#ef4444'; // Red
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(targetHfPx, padTop);
+            ctx.lineTo(targetHfPx, padTop + graphH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Label Design Limit
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Design Max 3.0 ft/100ft', targetHfPx, padTop + 12);
+
+            // Draw Active Operating Point Marker (Crosshair & Glowing Dot)
+            const curX = xToPx(activeCalculationState.hf);
+            const curY = yToPx(activeCalculationState.gpm);
+
+            if (curX >= padLeft && curX <= padLeft + graphW && curY >= padTop && curY <= padTop + graphH) {
+                // Crosshairs
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padLeft, curY); ctx.lineTo(padLeft + graphW, curY);
+                ctx.moveTo(curX, padTop); ctx.lineTo(curX, padTop + graphH);
+                ctx.stroke();
+
+                // Outer Glow Circle
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+                ctx.beginPath();
+                ctx.arc(curX, curY, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Inner Solid Dot
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(curX, curY, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticleAnimation() {
+            flowParticles = [];
+            for (let i = 0; i < 35; i++) {
+                flowParticles.push({
+                    x: Math.random(),
+                    y: 0.2 + Math.random() * 0.6,
+                    size: 2 + Math.random() * 3,
+                    speedMult: 0.8 + Math.random() * 0.4
+                });
+            }
+            animatePipe();
+        }
+
+        function animatePipe() {
+            const canvas = document.getElementById('animCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Pipe dimensions relative to canvas
+            const vel = activeCalculationState.vel || 0;
+            const speedScale = Math.min(vel / 12, 2.5); // speed bound
+
+            const pipeTop = h * 0.2;
+            const pipeBottom = h * 0.8;
+            const pipeHeight = pipeBottom - pipeTop;
+
+            // Pipe Wall Background (Steel / Copper look)
+            ctx.fillStyle = '#1e293b'; // Slate 800 pipe exterior
+            ctx.fillRect(0, 0, w, h);
+
+            // Pipe Interior Water Fill
+            const grad = ctx.createLinearGradient(0, pipeTop, 0, pipeBottom);
+            if (vel > 10.0) {
+                grad.addColorStop(0, '#991b1b');
+                grad.addColorStop(0.5, '#ef4444');
+                grad.addColorStop(1, '#991b1b');
+            } else {
+                grad.addColorStop(0, '#1e3a8a');
+                grad.addColorStop(0.5, '#3b82f6');
+                grad.addColorStop(1, '#1e3a8a');
+            }
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, pipeTop, w, pipeHeight);
+
+            // Top and Bottom Wall Lines
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(0, pipeTop - 4, w, 4);
+            ctx.fillRect(0, pipeBottom, w, 4);
+
+            // Draw Flowing Particles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            flowParticles.forEach(p => {
+                p.x += (0.005 + speedScale * 0.015) * p.speedMult;
+                if (p.x > 1) p.x = 0;
+
+                const px = p.x * w;
+                const py = pipeTop + p.y * pipeHeight;
+
+                ctx.beginPath();
+                ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Center Flow Velocity Arrow Indicator
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.4, h * 0.5);
+            ctx.lineTo(w * 0.6, h * 0.5);
+            ctx.lineTo(w * 0.58, h * 0.5 - 5);
+            ctx.moveTo(w * 0.6, h * 0.5);
+            ctx.lineTo(w * 0.58, h * 0.5 + 5);
+            ctx.stroke();
+
+            chartAnimFrame = requestAnimationFrame(animatePipe);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            populatePipeDropdown();
+            calculateAndRender();
+            initParticleAnimation();
+
+            // Resize listener for Canvas responsiveness
+            window.addEventListener('resize', () => {
+                drawLogLogChart();
+            });
+        });
+    </script>
+</body>
+</html>
