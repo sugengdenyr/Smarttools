@@ -250,12 +250,26 @@
                 </div>
             </div>
 
+            <!-- Entry Action Button -->
+            <button id="btnAddEntry" onclick="addEntryToList()"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold text-sm py-3.5 rounded-2xl shadow-xl shadow-emerald-950/40 flex items-center justify-center gap-2 transition-all border border-emerald-500/50">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                Tambah ke Daftar Entry (Simpan Baris Ini)
+            </button>
+            <p class="text-[11px] text-slate-500 text-center -mt-3">
+                Parameter di atas hanya <span class="text-slate-300 font-semibold">pratinjau</span>. Klik tombol di atas untuk mencatatnya ke daftar & rekap total.
+            </p>
+
         </section>
 
         <!-- Right Output Panel -->
         <section class="lg:col-span-7 flex flex-col gap-6">
 
-            <!-- KPI Results Overview Cards -->
+            <!-- KPI Results Overview Cards (Live Preview / Draft) -->
+            <div class="flex items-center gap-2 no-print">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pratinjau Real-time (Belum Tersimpan)</span>
+                <span class="h-px flex-1 bg-slate-800"></span>
+            </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 no-print">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Panjang Pipa</span>
@@ -286,6 +300,43 @@
                     <div class="my-1">
                         <span id="kpiTotalStapping" class="text-xl font-black text-amber-400 font-mono">1200</span>
                         <span class="text-[10px] text-slate-400 block">Pcs (10 bh / Meter)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daftar Entry Pipa (List of Saved Entries) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="list-checks" class="w-5 h-5 text-emerald-400"></i>
+                        <h3 class="text-sm sm:text-base font-bold text-white print-text">Daftar Entry Pipa</h3>
+                        <span id="entryCountBadge" class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <button onclick="clearAllEntries()" class="no-print px-3 py-1.5 bg-slate-800 hover:bg-red-900/50 text-slate-300 hover:text-red-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700 hover:border-red-800 self-start sm:self-auto">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Semua
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-semibold uppercase">
+                                <th class="py-2.5 px-3">No</th>
+                                <th class="py-2.5 px-3">Pipa & Ukuran</th>
+                                <th class="py-2.5 px-3">OD</th>
+                                <th class="py-2.5 px-3 text-right">Batang / Panjang</th>
+                                <th class="py-2.5 px-3 text-right">Isolasi</th>
+                                <th class="py-2.5 px-3 text-right">Alumunium</th>
+                                <th class="py-2.5 px-3 text-right">Stapping</th>
+                                <th class="py-2.5 px-3 text-center no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableEntryBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                    <div id="entryEmptyState" class="text-center py-8 text-xs text-slate-500 italic">
+                        Belum ada entry. Isi parameter di panel kiri lalu klik <span class="text-emerald-400 font-semibold not-italic">"Tambah ke Daftar Entry"</span>.
                     </div>
                 </div>
             </div>
@@ -394,7 +445,7 @@
                 </div>
             </div>
 
-            <!-- Rekomendasi BPB (Bon Permintaan Barang) Section -->
+            <!-- Rekapitulasi Total (Sum of All Entries) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
                 
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -402,11 +453,11 @@
                         <div class="flex items-center gap-2">
                             <i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-400"></i>
                             <h3 class="text-sm sm:text-base font-bold text-white print-text">
-                                Rekomendasi BPB (Bon Permintaan Barang)
+                                Rekapitulasi Total & Rekomendasi BPB
                             </h3>
                         </div>
                         <p class="text-xs text-slate-400 print-text">
-                            Daftar rincian material untuk pengajuan Bon Permintaan Barang (BPB) proyek
+                            Total gabungan seluruh entry yang sudah dicatat, siap diajukan sebagai Bon Permintaan Barang (BPB)
                         </p>
                     </div>
 
@@ -414,9 +465,29 @@
                         <button onclick="copyBPBToClipboard()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin BPB
                         </button>
-                        <button onclick="window.open(window.location.href, '_blank')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-blue-600/20">
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow">
                             <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak / PDF
                         </button>
+                    </div>
+                </div>
+
+                <!-- Recap KPI Summary -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 no-print">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Panjang Pipa</span>
+                        <span id="recapKpiLength" class="text-lg font-black text-blue-400 font-mono mt-1">0.0 <span class="text-[10px] text-slate-400 font-normal">m</span></span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Isolasi</span>
+                        <span id="recapKpiIso" class="text-lg font-black text-cyan-400 font-mono mt-1">0 <span class="text-[10px] text-slate-400 font-normal">Lbr</span></span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Alumunium</span>
+                        <span id="recapKpiJkt" class="text-lg font-black text-indigo-400 font-mono mt-1">0 <span class="text-[10px] text-slate-400 font-normal">Roll</span></span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Stapping</span>
+                        <span id="recapKpiStapping" class="text-lg font-black text-amber-400 font-mono mt-1">0 <span class="text-[10px] text-slate-400 font-normal">Pcs</span></span>
                     </div>
                 </div>
 
@@ -434,19 +505,22 @@
                                 <th class="py-2.5 px-3 text-right font-bold text-emerald-400">Order BPB</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBpbBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                        <tbody id="tableRecapBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
                             <!-- Dynamic Content populated via JavaScript -->
                         </tbody>
                     </table>
+                    <div id="recapEmptyState" class="text-center py-8 text-xs text-slate-500 italic">
+                        Rekap akan tampil otomatis setelah minimal 1 entry ditambahkan ke daftar.
+                    </div>
                 </div>
 
                 <!-- Copy Confirmation Alert -->
                 <div id="bpbCopyMessage" class="hidden p-2.5 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-emerald-300 text-center font-sans no-print">
-                    ✓ Rekomendasi Bon Permintaan Barang (BPB) berhasil disalin ke clipboard!
+                    ✓ Rekapitulasi BPB berhasil disalin ke clipboard!
                 </div>
 
                 <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
-                    <span>* Order BPB direkomendasikan dengan pembulatan ke atas untuk menjamin ketersediaan fisik di lapangan.</span>
+                    <span>* Order BPB direkomendasikan dengan pembulatan ke atas (per kelompok material sejenis) untuk menjamin ketersediaan fisik di lapangan.</span>
                 </div>
 
             </div>
@@ -813,76 +887,225 @@
             document.getElementById('dispStepStappingRate').textContent = stappingRate;
             document.getElementById('dispStepStappingResult').textContent = totalStappingPcs;
 
-            // BPB Full Pipe Name
+            // Store current draft (not yet saved to entry list)
             const fullNamePipeBPB = `${pipeMaterialName} ${pipeSchedule} ${pipeSizeName}`.trim();
-
-            // Update BPB Table
-            updateBpbTable({
+            window.currentDraft = {
                 pipeFullName: fullNamePipeBPB,
                 pipeSchedule: pipeSchedule,
-                pipeDia: pipeDia_mm,
-                jointCount: jointCount,
+                pipeDia_mm: pipeDia_mm,
                 jointLen: jointLen,
+                jointCount: jointCount,
                 totalLen: totalPipeLengthM,
+                pipeArea_m2: pipeArea_m2,
                 isoBrand: isoBrand,
-                tIso: tIso_mm,
-                nbrSheetDim: `${nbrLen_m}m × ${nbrWid_m}m`,
+                tIso_mm: tIso_mm,
+                nbrLen_m: nbrLen_m,
+                nbrWid_m: nbrWid_m,
                 nbrRawSheets: nbrRawSheets,
+                sparePercent: sparePercent,
+                spareMultiplier: spareMultiplier,
                 nbrExactSheets: nbrFinalSheetsExact,
-                nbrBpbSheets: nbrBpbOrderSheets,
-                jktSheetDim: `Roll ${jktLen_m}m × ${jktWid_m}m • t=${jktThick_mm}mm`,
-                jktRawSheets: jktExactSheets / spareMultiplier,
+                jktLen_m: jktLen_m,
+                jktWid_m: jktWid_m,
+                jktThick_mm: jktThick_mm,
                 jktExactSheets: jktExactSheets,
-                jktBpbSheets: jktBpbOrderSheets,
                 stappingRate: stappingRate,
                 stappingRawPcs: totalStappingPcs,
-                stappingBpbPcs: totalStappingBpbPcs
-            });
+                stappingExactPcs: totalStappingPcs * spareMultiplier
+            };
 
             // Update 3D Pipe Model & Visual Materials
             update3dModel(pipeMaterialKey, pipeDia_mm, tIso_mm, jktThick_mm, stappingRate);
         }
 
-        function updateBpbTable(data) {
-            const tbody = document.getElementById('tableBpbBody');
-            tbody.innerHTML = `
+        // ===================== ENTRY LIST (Daftar Entry) =====================
+        let entries = [];
+        let entrySeq = 1;
+
+        function addEntryToList() {
+            if (!window.currentDraft) return;
+            const entry = Object.assign({}, window.currentDraft, { id: entrySeq++ });
+            entries.push(entry);
+            renderEntryList();
+            renderRecap();
+
+            const btn = document.getElementById('btnAddEntry');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i> Tersimpan ke Daftar!';
+            btn.classList.add('bg-emerald-500');
+            lucide.createIcons();
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-emerald-500');
+                lucide.createIcons();
+            }, 1200);
+        }
+
+        function removeEntry(id) {
+            entries = entries.filter(e => e.id !== id);
+            renderEntryList();
+            renderRecap();
+        }
+
+        function clearAllEntries() {
+            if (entries.length === 0) return;
+            if (!confirm('Hapus semua entry dari daftar? Tindakan ini tidak bisa dibatalkan.')) return;
+            entries = [];
+            renderEntryList();
+            renderRecap();
+        }
+
+        function renderEntryList() {
+            const tbody = document.getElementById('tableEntryBody');
+            const emptyState = document.getElementById('entryEmptyState');
+            const badge = document.getElementById('entryCountBadge');
+            badge.textContent = entries.length;
+
+            if (entries.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = entries.map((e, idx) => `
                 <tr class="hover:bg-slate-800/40 print-text">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">1</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-slate-100">${data.pipeFullName}</td>
-                    <td class="py-2.5 px-3 text-slate-400 font-sans">Dia. OD ${data.pipeDia.toFixed(1)} mm • ${data.pipeSchedule} • ${data.jointLen}m/btg</td>
-                    <td class="py-2.5 px-3 text-right text-slate-300">${data.totalLen.toFixed(1)}</td>
-                    <td class="py-2.5 px-3 text-right text-slate-300">${data.totalLen.toFixed(1)}</td>
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
+                    <td class="py-2.5 px-3 font-sans">
+                        <div class="font-semibold text-slate-100">${e.pipeFullName}</div>
+                        <div class="text-[10px] text-slate-500 font-sans">${e.pipeSchedule}</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-300">${e.pipeDia_mm.toFixed(1)} mm</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">
+                        ${e.jointCount} btg
+                        <div class="text-[10px] text-slate-500">${e.totalLen.toFixed(1)} m</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-right text-cyan-300">
+                        ${e.nbrExactSheets.toFixed(2)} lbr
+                        <div class="text-[10px] text-slate-500 font-sans">${e.isoBrand} ${e.tIso_mm}mm</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-right text-indigo-300">
+                        ${e.jktExactSheets.toFixed(2)} roll
+                        <div class="text-[10px] text-slate-500 font-sans">t=${e.jktThick_mm}mm</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-right text-amber-300">${Math.round(e.stappingExactPcs)} pcs</td>
+                    <td class="py-2.5 px-3 text-center no-print">
+                        <button onclick="removeEntry(${e.id})" class="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors" title="Hapus entry ini">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // ===================== RECAP (Rekapitulasi Total) =====================
+        function renderRecap() {
+            const emptyState = document.getElementById('recapEmptyState');
+            const tbody = document.getElementById('tableRecapBody');
+
+            if (entries.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                updateRecapKpis(0, 0, 0, 0);
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            // Group by pipe spec (material + schedule + size)
+            const pipeGroups = {};
+            let grandTotalLen = 0;
+            entries.forEach(e => {
+                const key = e.pipeFullName;
+                if (!pipeGroups[key]) pipeGroups[key] = { name: key, schedule: e.pipeSchedule, dia: e.pipeDia_mm, batang: 0, meter: 0 };
+                pipeGroups[key].batang += e.jointCount;
+                pipeGroups[key].meter += e.totalLen;
+                grandTotalLen += e.totalLen;
+            });
+
+            // Group insulation by brand + thickness + sheet dimension
+            const isoGroups = {};
+            let totalIsoExact = 0;
+            entries.forEach(e => {
+                const key = `${e.isoBrand}__${e.tIso_mm}__${e.nbrLen_m}x${e.nbrWid_m}`;
+                if (!isoGroups[key]) isoGroups[key] = { label: `${e.isoBrand} • t=${e.tIso_mm}mm • Sheet ${e.nbrLen_m}m×${e.nbrWid_m}m`, exact: 0 };
+                isoGroups[key].exact += e.nbrExactSheets;
+                totalIsoExact += e.nbrExactSheets;
+            });
+
+            // Group alumunium by roll spec
+            const jktGroups = {};
+            let totalJktExact = 0;
+            entries.forEach(e => {
+                const key = `${e.jktLen_m}__${e.jktWid_m}__${e.jktThick_mm}`;
+                if (!jktGroups[key]) jktGroups[key] = { label: `Roll ${e.jktLen_m}m × ${e.jktWid_m}m • t=${e.jktThick_mm}mm`, exact: 0 };
+                jktGroups[key].exact += e.jktExactSheets;
+                totalJktExact += e.jktExactSheets;
+            });
+
+            // Stapping total (combined across all entries)
+            let totalStappingExact = 0;
+            entries.forEach(e => totalStappingExact += e.stappingExactPcs);
+
+            updateRecapKpis(grandTotalLen, Math.ceil(totalIsoExact), Math.ceil(totalJktExact), Math.ceil(totalStappingExact));
+
+            let rowNo = 1;
+            let rows = '';
+
+            Object.values(pipeGroups).forEach(g => {
+                rows += `<tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${rowNo++}</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-slate-100">${g.name}</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">Dia. OD ${g.dia.toFixed(1)} mm • ${g.schedule}</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">${g.meter.toFixed(1)}</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">${g.meter.toFixed(1)}</td>
                     <td class="py-2.5 px-3 text-center text-slate-400">Batang</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-white">${data.jointCount} Btg</td>
-                </tr>
-                <tr class="hover:bg-slate-800/40 print-text">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">2</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Isolasi Lembaran ${data.isoBrand}</td>
-                    <td class="py-2.5 px-3 text-slate-400 font-sans">${data.isoBrand} t=${data.tIso}mm • Sheet ${data.nbrSheetDim}</td>
-                    <td class="py-2.5 px-3 text-right text-cyan-400">${data.nbrRawSheets.toFixed(2)}</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-cyan-300">${data.nbrExactSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-white">${g.batang} Btg</td>
+                </tr>`;
+            });
+
+            Object.values(isoGroups).forEach(g => {
+                rows += `<tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${rowNo++}</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Isolasi Lembaran</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">${g.label}</td>
+                    <td class="py-2.5 px-3 text-right text-cyan-400">${g.exact.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-cyan-300">${g.exact.toFixed(2)}</td>
                     <td class="py-2.5 px-3 text-center text-slate-400">Lembar</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400">${data.nbrBpbSheets} Lbr</td>
-                </tr>
-                <tr class="hover:bg-slate-800/40 print-text">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">3</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400">${Math.ceil(g.exact)} Lbr</td>
+                </tr>`;
+            });
+
+            Object.values(jktGroups).forEach(g => {
+                rows += `<tr class="hover:bg-slate-800/40 print-text">
+                    <td class="py-2.5 px-3 font-sans text-slate-400">${rowNo++}</td>
                     <td class="py-2.5 px-3 font-sans font-semibold text-indigo-300">Alumunium Sheet</td>
-                    <td class="py-2.5 px-3 text-slate-400 font-sans">Roll Alumunium ${data.jktSheetDim}</td>
-                    <td class="py-2.5 px-3 text-right text-indigo-400">${data.jktRawSheets.toFixed(2)}</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${data.jktExactSheets.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-slate-400 font-sans">${g.label}</td>
+                    <td class="py-2.5 px-3 text-right text-indigo-400">${g.exact.toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${g.exact.toFixed(2)}</td>
                     <td class="py-2.5 px-3 text-center text-slate-400">Roll</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${data.jktBpbSheets} Roll</td>
-                </tr>
-                <tr class="hover:bg-slate-800/40 print-text">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">4</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-amber-300">Stapping</td>
-                    <td class="py-2.5 px-3 text-slate-400 font-sans">Skrup Tapping Pengunci Jacketing (~1cm) • ${data.stappingRate} bh/m</td>
-                    <td class="py-2.5 px-3 text-right text-amber-400">${data.stappingRawPcs}</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-amber-300">${data.stappingBpbPcs}</td>
-                    <td class="py-2.5 px-3 text-center text-slate-400">Pcs</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-amber-400">${data.stappingBpbPcs} Pcs</td>
-                </tr>
-            `;
+                    <td class="py-2.5 px-3 text-right font-bold text-indigo-300">${Math.ceil(g.exact)} Roll</td>
+                </tr>`;
+            });
+
+            rows += `<tr class="hover:bg-slate-800/40 print-text">
+                <td class="py-2.5 px-3 font-sans text-slate-400">${rowNo++}</td>
+                <td class="py-2.5 px-3 font-sans font-semibold text-amber-300">Stapping</td>
+                <td class="py-2.5 px-3 text-slate-400 font-sans">Skrup Tapping Pengunci Jacketing (Gabungan Seluruh Entry)</td>
+                <td class="py-2.5 px-3 text-right text-amber-400">${totalStappingExact.toFixed(0)}</td>
+                <td class="py-2.5 px-3 text-right font-bold text-amber-300">${totalStappingExact.toFixed(0)}</td>
+                <td class="py-2.5 px-3 text-center text-slate-400">Pcs</td>
+                <td class="py-2.5 px-3 text-right font-bold text-amber-400">${Math.ceil(totalStappingExact)} Pcs</td>
+            </tr>`;
+
+            tbody.innerHTML = rows;
+        }
+
+        function updateRecapKpis(totalLen, isoSheets, jktSheets, stappingPcs) {
+            document.getElementById('recapKpiLength').innerHTML = `${totalLen.toFixed(1)} <span class="text-[10px] text-slate-400 font-normal">m</span>`;
+            document.getElementById('recapKpiIso').innerHTML = `${isoSheets} <span class="text-[10px] text-slate-400 font-normal">Lbr</span>`;
+            document.getElementById('recapKpiJkt').innerHTML = `${jktSheets} <span class="text-[10px] text-slate-400 font-normal">Roll</span>`;
+            document.getElementById('recapKpiStapping').innerHTML = `${stappingPcs} <span class="text-[10px] text-slate-400 font-normal">Pcs</span>`;
         }
 
         // 3D Scene Variables
@@ -1114,9 +1337,14 @@
         }
 
         function copyBPBToClipboard() {
-            const table = document.getElementById('tableBpbBody');
+            if (entries.length === 0) {
+                alert('Belum ada entry di daftar. Tambahkan minimal 1 entry terlebih dahulu.');
+                return;
+            }
+            const table = document.getElementById('tableRecapBody');
             let text = "BON PERMINTAAN BARANG (BPB) REKOMENDASI\n";
             text += "ISOLASI PIPA LEMBARAN, ALUMUNIUM SHEET & STAPPING\n";
+            text += `Rekap dari ${entries.length} entry\n`;
             text += "===============================================\n\n";
 
             const rows = table.querySelectorAll('tr');
@@ -1131,16 +1359,41 @@
                 }
             });
 
-            document.execCommand('copy');
-            const msg = document.getElementById('bpbCopyMessage');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 3500);
+            const finishCopy = () => {
+                const msg = document.getElementById('bpbCopyMessage');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3500);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(finishCopy).catch(() => {
+                    fallbackCopyText(text);
+                    finishCopy();
+                });
+            } else {
+                fallbackCopyText(text);
+                finishCopy();
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             init3DScene();
             onPipeMaterialChange();
             syncCanvasSize();
+            renderEntryList();
+            renderRecap();
             lucide.createIcons();
         });
     </script>
