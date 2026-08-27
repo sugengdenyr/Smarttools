@@ -927,41 +927,14 @@
             calculateSummary();
         }
 
-        // Print Handler 1: BPB Only
+       // Print Handler 1: BPB Only
 function printBPBOnly() {
-    const bpbElement = document.getElementById('bpbSection');
-    if (!bpbElement) return;
-
-    const printWin = window.open('', '_blank');
-    printWin.document.write('<html><head><title>Cetak Rekomendasi BPB</title>');
-    Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach(st => {
-        printWin.document.write(st.outerHTML);
-    });
-    printWin.document.write('</head><body class="bg-slate-900 text-white p-6">');
-    printWin.document.write(bpbElement.innerHTML);
-    printWin.document.write('</body></html>');
-    printWin.document.close();
-    printWin.focus();
-    setTimeout(() => {
-        printWin.print();
-    }, 500);
+    window.print();
 }
 
 // Print Handler 2: Full Report (BPB + Material Entries)
 function printFullReport() {
-    const printWin = window.open('', '_blank');
-    printWin.document.write('<html><head><title>Laporan Perhitungan Cat & Material</title>');
-    Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach(st => {
-        printWin.document.write(st.outerHTML);
-    });
-    printWin.document.write('</head><body class="bg-slate-900 text-white p-6">');
-    printWin.document.write(document.body.innerHTML);
-    printWin.document.write('</body></html>');
-    printWin.document.close();
-    printWin.focus();
-    setTimeout(() => {
-        printWin.print();
-    }, 500);
+    window.print();
 }
 
         // DOM Initialization
