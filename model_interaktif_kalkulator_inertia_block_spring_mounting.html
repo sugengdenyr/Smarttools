@@ -1238,24 +1238,14 @@
             triggerPrintProcess(false);
         }
 
-        function triggerPrintProcess(isBPBOnly) {
-            const printHTML = buildPrintableHTML(isBPBOnly);
-            const printContainer = document.getElementById('printContainer');
-            printContainer.innerHTML = printHTML;
-            const printWin = window.open('', '_blank');
-        printWin.document.write('<html><head><title>Print Report</title>');
-        Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach(st => {
-            printWin.document.write(st.outerHTML);
-        });
-        printWin.document.write('</head><body style="background:white; padding:20px;">');
-        printWin.document.write(printContainer.innerHTML);
-        printWin.document.write('</body></html>');
-        printWin.document.close();
-        printWin.focus();
-        setTimeout(() => {
-            printWin.print();
-        }, 500);
-        }
+function triggerPrintProcess(isBPBOnly) {
+    const printHTML = buildPrintableHTML(isBPBOnly);
+    const printContainer = document.getElementById('printContainer');
+    printContainer.innerHTML = printHTML;
+
+    // Langsung panggil cetak di halaman yang sama
+    window.print();
+}
 
         // INITIALIZATION ON DOM READY
         window.addEventListener('DOMContentLoaded', () => {
