@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Interaktif Perhitungan Lem PVC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @media print {
+            body { background-color: #ffffff !important; color: #000000 !important; }
+            .no-print { display: none !important; }
+            .print-header { display: block !important; }
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                padding: 12px !important;
+                margin-bottom: 20px !important;
+                page-break-inside: avoid;
+            }
+            table { width: 100% !important; border-collapse: collapse !important; color: #000000 !important; }
+            th, td { border: 1px solid #94a3b8 !important; color: #000000 !important; padding: 6px 8px !important; font-size: 11px !important; }
+            th { background-color: #f1f5f9 !important; }
+            .text-white, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400 { color: #000000 !important; }
+            .text-blue-400, .text-emerald-400, .text-cyan-400, .text-cyan-400 { color: #0f172a !important; font-weight: bold !important; }
+            body.print-bpb-only-mode #materialListSection { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header Print Mode -->
+    <div class="hidden print-header p-4 border-b border-slate-300 mb-4">
+        <h1 class="text-xl font-bold text-black">Rekomendasi Bon Permintaan Barang (BPB) - Lem PVC</h1>
+        <p class="text-xs text-slate-600">Model Interaktif Estimasi Sambungan & Kebutuhan Lem PVC • Project Estimator 2026</p>
+    </div>
+
+    <!-- App Header -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-cyan-500/20 p-2.5 rounded-xl border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="droplet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Kalkulator Interaktif Kebutuhan Lem PVC</h1>
+                    <p class="text-xs text-slate-400">Estimasi Sambungan Pipa & Fitting, Konsumsi Gram Lem, & Bon Permintaan Barang (BPB)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Data
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT PANEL: Settings & Inputs -->
+        <section class="lg:col-span-5 flex flex-col gap-5 no-print">
+
+            <!-- Card 1: Select Method & Waste Factor -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4 text-cyan-400"></i> 1. Metode & Parameter Acuan</span>
+                </h2>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Metode Perhitungan Lem</label>
+                    <select id="selectMethod" onchange="calculateSummary()" 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium">
+                        <option value="ruglue" selected>Tabel RUGlue (Acuan Kaleng 400g)</option>
+                        <option value="quart">Tabel Quart (CPVC/PVC Solvent Cement)</option>
+                        <option value="perplexity">Hasil Perhitungan Perplexity AI (Gram/Socket)</option>
+                        <option value="tim_project">Referensi Tim Project (5g / inch Pipa)</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Sistem akan menyesuaikan konsumsi gram/sambungan berdasarkan parameter metode di atas.</p>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-300">Spare / Waste Factor (Ceceran & Sisa)</label>
+                        <span id="labelSpareVal" class="text-xs text-cyan-400 font-mono font-bold">10%</span>
+                    </div>
+                    <input type="range" id="sliderSpare" min="0" max="30" value="10" step="5" oninput="updateSpareLabel()"
+                        class="w-full accent-cyan-500 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Card 2: Form Input Material -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> 2. Form Input Material (Pipa / Fitting)
+                </h2>
+
+                <!-- Material Category -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Kategori Material</label>
+                    <select id="selectCategory" onchange="onCategoryChange()" 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="pipa">Pipa PVC (Batang)</option>
+                        <option value="fitting">Fitting PVC (Sock, Tee, Elbow, Dop, CO, dll)</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Sub Type -->
+                <div id="wrapperSubType">
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Jenis Fitting</label>
+                    <select id="selectFittingType" 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="Sock Polos / Drat" data-joints="2">Sock Polos / Drat (2 Sambungan)</option>
+                        <option value="Elbow 90 / 45 Deg" data-joints="2">Elbow / Knee 90° / 45° (2 Sambungan)</option>
+                        <option value="Tee Equal / Reducing" data-joints="3">Tee Equal / Reducer (3 Sambungan)</option>
+                        <option value="TY / Cross / Y-Branch" data-joints="3">Tee Y / Cross (3-4 Sambungan)</option>
+                        <option value="Dop / Cap" data-joints="1">Dop / Cap (1 Sambungan)</option>
+                        <option value="Clean Out (CO) / Plug" data-joints="1">Clean Out (CO) (1 Sambungan)</option>
+                        <option value="Water Mur / Valve Socket" data-joints="2">Water Mur / Valve Socket (2 Sambungan)</option>
+                        <option value="Reducer Socket / Increaser" data-joints="2">Reducer Socket (2 Sambungan)</option>
+                    </select>
+                </div>
+
+                <!-- Size & Qty -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Ukuran Pipa / Fitting</label>
+                        <select id="selectSize" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="0.5">1/2 inch</option>
+                            <option value="0.75">3/4 inch</option>
+                            <option value="1">1 inch</option>
+                            <option value="1.25">1 1/4 inch</option>
+                            <option value="1.5">1 1/2 inch</option>
+                            <option value="2">2 inch</option>
+                            <option value="2.5">2 1/2 inch</option>
+                            <option value="3">3 inch</option>
+                            <option value="4">4 inch</option>
+                            <option value="5">5 inch</option>
+                            <option value="6">6 inch</option>
+                            <option value="8">8 inch</option>
+                            <option value="10">10 inch</option>
+                            <option value="12">12 inch</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Jumlah (Pcs / Batang)</label>
+                        <input type="number" id="inputQty" value="10" min="1" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <button onclick="addMaterialItem()" 
+                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-blue-600/20 mt-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambahkan ke Daftar Input
+                </button>
+            </div>
+
+        </section>
+
+        <!-- RIGHT PANEL: Tables, Summary & BPB Output -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- Section 3: Data Entry Table -->
+            <div id="materialListSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col justify-between print-card">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-4 h-4 text-blue-400 no-print"></i> Data Entry Material
+                        </h3>
+                        <span id="badgeItemCount" class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 no-print">
+                            0 Item
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                    <th class="py-2 px-2 text-center">No</th>
+                                    <th class="py-2 px-2">Kategori</th>
+                                    <th class="py-2 px-2">Deskripsi Item</th>
+                                    <th class="py-2 px-2 text-center">Ukuran</th>
+                                    <th class="py-2 px-2 text-center">Qty</th>
+                                    <th class="py-2 px-2 text-center">Faktor Sambungan</th>
+                                    <th class="py-2 px-2 text-right">Total Sambungan</th>
+                                    <th class="py-2 px-2 text-center no-print">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialTableBody" class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center bg-slate-950/80 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                        <i data-lucide="link" class="w-4 h-4 text-cyan-400 no-print"></i> Total Estimasi Sambungan (Joints)
+                    </span>
+                    <span id="totalJointsVal" class="text-xl font-black text-cyan-400 font-mono">0 Sambungan</span>
+                </div>
+            </div>
+
+            <!-- Section 4 & 5: Summary & BPB Card -->
+            <div id="bpbSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-5 h-5 text-cyan-400 no-print"></i> Summary Kebutuhan Lem PVC & Rekomendasi BPB
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Kalkulasi total berat lem (gram) dan konversi ke jumlah kaleng @400gr</p>
+                    </div>
+                </div>
+
+                <!-- Calculated Output Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                <th class="py-2.5 px-3">Metode Acuan</th>
+                                <th class="py-2.5 px-3 text-right">Netto Berat Lem</th>
+                                <th class="py-2.5 px-3 text-right">Gross Lem (+Spare)</th>
+                                <th class="py-2.5 px-3 text-right text-cyan-400">Rekomendasi BPB (@400g)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bpbTableBody" class="divide-y divide-slate-800 text-slate-200 font-mono">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1.5 no-print">
+                    <div class="font-bold text-cyan-400 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4"></i> Catatan Parameter Metode:
+                    </div>
+                    <div class="text-[11px] text-slate-400 space-y-1">
+                        <p>• <strong>RUGlue:</strong> Berdasarkan data pemakaian kaleng 400g resmi RUGlue.</p>
+                        <p>• <strong>Quart:</strong> Berdasarkan acuan standar Quart Solvent Cement (1 Quart ~ 946 mL / 870g).</p>
+                        <p>• <strong>Perplexity AI:</strong> Kalkulasi teoritis volume & densitas lem 0.92 g/mL per socket.</p>
+                        <p>• <strong>Referensi Tim Project:</strong> Menggunakan patokan rata-rata 5 gram lem per inch diameter pipa.</p>
+                    </div>
+                </div>
+
+                <!-- Print Action Buttons -->
+                <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-800 no-print">
+                    <button onclick="printBPBOnly()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition border border-slate-700">
+                        <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Cetak Bon BPB Saja
+                    </button>
+                    <button onclick="printFullReport()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-lg shadow-cyan-600/20">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Laporan Keseluruhan
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
+        Sugeng Deny Ramdani 2026
+    </footer>
+
+    <script>
+        // Database Gram Lem per Sambungan (Joint) Berdasarkan Ukuran & Metode
+        // Nilai dikonversi ke gram per 1 sambungan
+        const GLUE_PARAMS = {
+            // Metode 1: RUGlue (1 Kaleng 400g / Jumlah Sambungan)
+            ruglue: {
+                0.5: 400 / 142,
+                0.75: 400 / 108,
+                1: 400 / 77,
+                1.25: 400 / 48,
+                1.5: 400 / 38,
+                2: 400 / 25,
+                2.5: 400 / 16,
+                3: 400 / 12,
+                4: 400 / 8,
+                5: 400 / 5,
+                6: 400 / 4,
+                8: 400 / 2,
+                10: 400 / 2,
+                12: 400 / 1
+            },
+            // Metode 2: Quart Solvent Cement (~870 gram / Jumlah Sambungan)
+            quart: {
+                0.5: 870 / 300,
+                0.75: 870 / 200,
+                1: 870 / 125,
+                1.25: 870 / 90,
+                1.5: 870 / 90,
+                2: 870 / 60,
+                2.5: 870 / 50,
+                3: 870 / 40,
+                4: 870 / 30,
+                5: 870 / 18,
+                6: 870 / 10,
+                8: 870 / 5,
+                10: 870 / 2.5,
+                12: 870 / 1.5
+            },
+            // Metode 3: Perplexity AI (Gram teoritis per socket)
+            perplexity: {
+                0.5: 5.8,
+                0.75: 7.7,
+                1: 7.7,
+                1.25: 11.5,
+                1.5: 11.5,
+                2: 11.5,
+                2.5: 15.3,
+                3: 15.3,
+                4: 23.0,
+                5: 38.3,
+                6: 38.3,
+                8: 70.0,
+                10: 110.0,
+                12: 150.0
+            },
+            // Metode 4: Tim Project (5g x Inci Pipa)
+            tim_project: {
+                0.5: 0.5 * 5,
+                0.75: 0.75 * 5,
+                1: 1 * 5,
+                1.25: 1.25 * 5,
+                1.5: 1.5 * 5,
+                2: 2 * 5,
+                2.5: 2.5 * 5,
+                3: 3 * 5,
+                4: 4 * 5,
+                5: 5 * 5,
+                6: 6 * 5,
+                8: 8 * 5,
+                10: 10 * 5,
+                12: 12 * 5
+            }
+        };
+
+        // State Daftar Material
+        let materialList = [
+            { id: 1, category: 'pipa', itemDesc: 'Pipa PVC Utama', size: 2, qty: 15, jointsPerUnit: 1, totalJoints: 15 },
+            { id: 2, category: 'fitting', itemDesc: 'Elbow / Knee 90°', size: 2, qty: 10, jointsPerUnit: 2, totalJoints: 20 },
+            { id: 3, category: 'fitting', itemDesc: 'Tee Equal', size: 2, qty: 5, jointsPerUnit: 3, totalJoints: 15 }
+        ];
+
+        function onCategoryChange() {
+            const cat = document.getElementById('selectCategory').value;
+            const wrapper = document.getElementById('wrapperSubType');
+            if (cat === 'pipa') {
+                wrapper.classList.add('hidden');
+            } else {
+                wrapper.classList.remove('hidden');
+            }
+        }
+
+        function updateSpareLabel() {
+            const val = document.getElementById('sliderSpare').value;
+            document.getElementById('labelSpareVal').textContent = `${val}%`;
+            calculateSummary();
+        }
+
+        function addMaterialItem() {
+            const category = document.getElementById('selectCategory').value;
+            const size = parseFloat(document.getElementById('selectSize').value);
+            const qty = parseInt(document.getElementById('inputQty').value) || 1;
+
+            let itemDesc = "Pipa PVC";
+            let jointsPerUnit = 1;
+
+            if (category === 'pipa') {
+                itemDesc = "Pipa PVC (Batang)";
+                jointsPerUnit = 1; // Asumsi 1 socket/sambungan per batang pipa
+            } else {
+                const fitSelect = document.getElementById('selectFittingType');
+                itemDesc = fitSelect.value;
+                jointsPerUnit = parseInt(fitSelect.options[fitSelect.selectedIndex].getAttribute('data-joints')) || 2;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                category: category,
+                itemDesc: itemDesc,
+                size: size,
+                qty: qty,
+                jointsPerUnit: jointsPerUnit,
+                totalJoints: qty * jointsPerUnit
+            };
+
+            materialList.push(newItem);
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        function deleteMaterialItem(id) {
+            materialList = materialList.filter(item => item.id !== id);
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        function renderMaterialTable() {
+            const tbody = document.getElementById('materialTableBody');
+            tbody.innerHTML = '';
+            let grandTotalJoints = 0;
+
+            materialList.forEach((item, idx) => {
+                grandTotalJoints += item.totalJoints;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                const catBadge = (item.category === 'pipa')
+                    ? '<span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">Pipa</span>'
+                    : '<span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">Fitting</span>';
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-2 text-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-2.5 px-2">${catBadge}</td>
+                    <td class="py-2.5 px-2 font-medium text-white">${item.itemDesc}</td>
+                    <td class="py-2.5 px-2 text-center text-cyan-300 font-bold">${item.size}"</td>
+                    <td class="py-2.5 px-2 text-center text-slate-200">${item.qty} pcs</td>
+                    <td class="py-2.5 px-2 text-center text-slate-400">${item.jointsPerUnit} samb/pcs</td>
+                    <td class="py-2.5 px-2 text-right font-bold text-cyan-400">${item.totalJoints}</td>
+                    <td class="py-2.5 px-2 text-center no-print">
+                        <button onclick="deleteMaterialItem(${item.id})" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition" title="Hapus">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('totalJointsVal').textContent = `${grandTotalJoints} Sambungan`;
+            document.getElementById('badgeItemCount').textContent = `${materialList.length} Item`;
+            lucide.createIcons();
+        }
+
+        function calculateSummary() {
+            const tbody = document.getElementById('bpbTableBody');
+            tbody.innerHTML = '';
+
+            const method = document.getElementById('selectMethod').value;
+            const sparePct = parseFloat(document.getElementById('sliderSpare').value) || 0;
+
+            let totalNetGram = 0;
+
+            materialList.forEach(item => {
+                const gramPerJoint = GLUE_PARAMS[method][item.size] || (item.size * 5);
+                totalNetGram += item.totalJoints * gramPerJoint;
+            });
+
+            const grossGram = totalNetGram * (1 + (sparePct / 100));
+            const cansRequired = Math.ceil(grossGram / 400);
+
+            const methodNames = {
+                ruglue: "Tabel RUGlue",
+                quart: "Tabel Quart",
+                perplexity: "Perhitungan Perplexity AI",
+                tim_project: "Referensi Tim Project (5g/inch)"
+            };
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/40 transition";
+            tr.innerHTML = `
+                <td class="py-3 px-3 font-semibold text-cyan-400">
+                    ${methodNames[method]}
+                    <div class="text-[10px] text-slate-400 font-normal">Spare Factor: ${sparePct}%</div>
+                </td>
+                <td class="py-3 px-3 text-right text-slate-300">${totalNetGram.toFixed(1)} gram</td>
+                <td class="py-3 px-3 text-right text-cyan-300 font-bold">${grossGram.toFixed(1)} gram</td>
+                <td class="py-3 px-3 text-right font-black text-emerald-400 text-sm">
+                    ${cansRequired > 0 ? cansRequired + ' Kaleng (@400g)' : '0 Kaleng'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+            lucide.createIcons();
+        }
+
+        function resetAllData() {
+            materialList = [];
+            renderMaterialTable();
+            calculateSummary();
+        }
+
+        function printBPBOnly() {
+            document.body.classList.add('print-bpb-only-mode');
+            window.print();
+            document.body.classList.remove('print-bpb-only-mode');
+        }
+
+        function printFullReport() {
+            document.body.classList.remove('print-bpb-only-mode');
+            window.print();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            onCategoryChange();
+            renderMaterialTable();
+            calculateSummary();
+        });
+    </script>
+</body>
+</html>
