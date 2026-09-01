@@ -159,50 +159,87 @@
                 </div>
             </div>
 
-            <!-- Card 2: Insulation Specs -->
+            <!-- Card 2: Insulation Specs (NBR / Calcium Silicate) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4"></i> 2. Spesifikasi Isolasi Lembaran
+                        <i data-lucide="layers" class="w-4 h-4"></i> 2. Spesifikasi Isolasi
                     </h3>
                     <span class="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full">
-                        Isolasi Lembaran
+                        Pilih Jenis
                     </span>
                 </div>
 
-                <!-- Insulation Brand Input -->
+                <!-- Pilihan Jenis Isolasi -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-2">Jenis Isolasi</label>
+                    <div class="flex gap-4 bg-slate-950 p-2 rounded-xl border border-slate-800">
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                            <input type="radio" name="isoType" value="nbr" checked onchange="toggleIsoType()" class="accent-cyan-500">
+                            NBR Lembaran
+                        </label>
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                            <input type="radio" name="isoType" value="calcium" onchange="toggleIsoType()" class="accent-cyan-500">
+                            Calcium Silicate Set
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Input untuk NBR (Lembaran) -->
+                <div id="nbrInputs">
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Panjang Lembaran (m)</label>
+                            <input type="number" id="inputNbrSheetLength" value="1.0" min="0.1" step="0.1" oninput="calculateAll()"
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Lembaran (m)</label>
+                            <input type="number" id="inputNbrSheetWidth" value="3.0" min="0.1" step="0.1" oninput="calculateAll()"
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Tebal (mm)</label>
+                            <select id="selectNbrThickness" onchange="calculateAll()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                                <option value="6">6 mm</option>
+                                <option value="9">9 mm</option>
+                                <option value="13">13 mm</option>
+                                <option value="19">19 mm</option>
+                                <option value="25">25 mm</option>
+                                <option value="32">32 mm</option>
+                                <option value="38" selected>38 mm</option>
+                                <option value="50">50 mm</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input untuk Calcium Silicate (Set) -->
+                <div id="calciumInputs" class="hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Panjang per Set (mm)</label>
+                            <input type="number" id="inputCalciumSetLength" value="610" readonly
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 font-mono focus:outline-none cursor-not-allowed">
+                            <p class="text-[10px] text-slate-500 mt-1">* Panjang standar 610 mm per set</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Isolasi (mm)</label>
+                            <select id="selectCalciumThickness" onchange="calculateAll()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                                <option value="25">25 mm</option>
+                                <option value="50" selected>50 mm</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Merk Isolasi (tetap) -->
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Merk Isolasi (Manual Input)</label>
                     <input type="text" id="inputIsoBrand" value="Armaflex" oninput="calculateAll()" placeholder="Contoh: Armaflex, Superlon, Insulflex, K-Flex"
                         class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                </div>
-
-                <!-- Sheet Dimensions -->
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang (m)</label>
-                        <input type="number" id="inputNbrSheetLength" value="1.0" min="0.1" step="0.1" oninput="calculateAll()"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Lebar (m)</label>
-                        <input type="number" id="inputNbrSheetWidth" value="3.0" min="0.1" step="0.1" oninput="calculateAll()"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal (mm)</label>
-                        <select id="selectNbrThickness" onchange="calculateAll()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
-                            <option value="6">6 mm</option>
-                            <option value="9">9 mm</option>
-                            <option value="13">13 mm</option>
-                            <option value="19">19 mm</option>
-                            <option value="25">25 mm</option>
-                            <option value="32">32 mm</option>
-                            <option value="38" selected>38 mm</option>
-                            <option value="50">50 mm</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
@@ -291,7 +328,7 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Isolasi (+Spare)</span>
                     <div class="my-1">
                         <span id="kpiNbrTotalSheets" class="text-xl font-black text-cyan-400 font-mono">23.25</span>
-                        <span class="text-[10px] text-slate-400 block">Lembar (BPB: 24 lbr)</span>
+                        <span class="text-[10px] text-slate-400 block" id="kpiIsoUnit">Lembar (BPB: 24 lbr)</span>
                     </div>
                 </div>
 
@@ -378,21 +415,14 @@
                         </p>
                     </div>
 
-                    <!-- Step 3: Insulation Requirement & Spare -->
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
+                    <!-- Step 3: Insulation Requirement & Spare (dinamis) -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1" id="stepIsoDetail">
                         <div class="text-cyan-400 font-bold flex justify-between">
-                            <span>• Kebutuhan Isolasi Lembaran (<span id="dispStepIsoBrandName">Armaflex</span>) & Spare</span>
+                            <span>• Kebutuhan Isolasi (<span id="dispStepIsoBrandName">Armaflex</span>) & Spare</span>
                             <span id="dispStepFinalSheetHeader" class="text-white">23.25 Lembar</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Luas 1 Lembar Isolasi = <span class="text-white font-mono" id="dispStepNbrLen">1</span> m × <span class="text-white font-mono" id="dispStepNbrWid">3</span> m = <span class="text-white font-mono" id="dispStepNbrSheetArea">3</span> m²
-                        </p>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Penampang / Luas Isolasi = <span class="text-white font-mono" id="dispStepPipeArea3">63.41</span> m² / <span class="text-white font-mono" id="dispStepNbrSheetArea2">3</span> m² = <span class="text-amber-400 font-bold font-mono" id="dispStepRawSheets">21.14</span> Lembar
-                        </p>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Isolasi Dibutuhkan (+ Spare <span id="dispStepSparePct">10</span>%) = <span class="text-white font-mono" id="dispStepRawSheets2">21.14</span> × <span class="text-white font-mono" id="dispStepSpareFact">1.1</span> = <span class="text-emerald-400 font-bold font-mono text-sm" id="dispStepFinalSheets">23.25</span> Lembar
-                        </p>
+                        <!-- Konten akan di-update oleh JavaScript -->
+                        <div id="dispStepIsoBreakdown"></div>
                     </div>
 
                     <!-- Step 4: Stapping Calculation -->
@@ -479,7 +509,7 @@
                     </div>
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Isolasi</span>
-                        <span id="recapKpiIso" class="text-lg font-black text-cyan-400 font-mono mt-1">0 <span class="text-[10px] text-slate-400 font-normal">Lbr</span></span>
+                        <span id="recapKpiIso" class="text-lg font-black text-cyan-400 font-mono mt-1">0 <span class="text-[10px] text-slate-400 font-normal" id="recapIsoUnit">Lbr</span></span>
                     </div>
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Alumunium</span>
@@ -786,6 +816,37 @@
             calculateAll();
         }
 
+        // ========== TOGGLE JENIS ISOLASI ==========
+        function toggleIsoType() {
+            const selected = document.querySelector('input[name="isoType"]:checked');
+            const nbrDiv = document.getElementById('nbrInputs');
+            const calciumDiv = document.getElementById('calciumInputs');
+
+            if (selected.value === 'nbr') {
+                nbrDiv.classList.remove('hidden');
+                calciumDiv.classList.add('hidden');
+            } else {
+                nbrDiv.classList.add('hidden');
+                calciumDiv.classList.remove('hidden');
+            }
+            calculateAll();
+        }
+
+        function getIsoType() {
+            const selected = document.querySelector('input[name="isoType"]:checked');
+            return selected ? selected.value : 'nbr';
+        }
+
+        function getIsoThickness() {
+            const type = getIsoType();
+            if (type === 'nbr') {
+                return parseFloat(document.getElementById('selectNbrThickness').value) || 0;
+            } else {
+                return parseFloat(document.getElementById('selectCalciumThickness').value) || 50;
+            }
+        }
+
+        // ========== MAIN CALCULATION ==========
         function calculateAll() {
             // Inputs
             const pipeMaterialKey = document.getElementById('selectPipeMaterial').value;
@@ -808,12 +869,18 @@
             const spareMultiplier = 1.0 + (sparePercent / 100.0);
             document.getElementById('labelSpareMultiplier').textContent = `Faktor: ${spareMultiplier.toFixed(2)} (${sparePercent}%)`;
 
-            // Insulation Parameters
+            // Jenis Isolasi
+            const isoType = getIsoType();
             const isoBrand = document.getElementById('inputIsoBrand').value.trim() || 'Armaflex';
-            const tIso_mm = parseFloat(document.getElementById('selectNbrThickness').value) || 0;
+            const tIso_mm = getIsoThickness();
+
+            // Parameter NBR
             const nbrLen_m = parseFloat(document.getElementById('inputNbrSheetLength').value) || 1.0;
             const nbrWid_m = parseFloat(document.getElementById('inputNbrSheetWidth').value) || 1.0;
             const nbrSheetArea_m2 = nbrLen_m * nbrWid_m;
+
+            // Parameter Calcium Silicate
+            const calciumSetLen_m = 0.610; // 610 mm = 0.61 m
 
             // Excel Pipe Circumference Logic
             const keliling_mm = phi * pipeDia_mm;
@@ -822,19 +889,56 @@
             // Surface Area (Keliling x Panjang Pipa)
             const pipeArea_m2 = keliling_m * totalPipeLengthM;
 
-            // Insulation Requirement
-            const nbrRawSheets = nbrSheetArea_m2 > 0 ? (pipeArea_m2 / nbrSheetArea_m2) : 0;
-            const nbrFinalSheetsExact = nbrRawSheets * spareMultiplier;
-            const nbrBpbOrderSheets = Math.ceil(nbrFinalSheetsExact);
+            // --- ISOLASI ---
+            let isoRaw, isoExact, isoUnit, isoLabelDetail;
+            let isoBreakdownHTML = '';
 
-            // Alumunium Sheet & Stapping Calculations
+            if (isoType === 'nbr') {
+                // NBR Lembaran
+                isoRaw = nbrSheetArea_m2 > 0 ? (pipeArea_m2 / nbrSheetArea_m2) : 0;
+                isoExact = isoRaw * spareMultiplier;
+                isoUnit = 'Lembar';
+                isoLabelDetail = `${isoBrand} • t=${tIso_mm}mm • Sheet ${nbrLen_m}m×${nbrWid_m}m`;
+
+                isoBreakdownHTML = `
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Luas 1 Lembar Isolasi = ${nbrLen_m} m × ${nbrWid_m} m = ${nbrSheetArea_m2.toFixed(1)} m²
+                    </p>
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Penampang / Luas Isolasi = ${pipeArea_m2.toFixed(2)} m² / ${nbrSheetArea_m2.toFixed(1)} m² = <span class="text-amber-400 font-bold font-mono">${isoRaw.toFixed(2)}</span> Lembar
+                    </p>
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Isolasi Dibutuhkan (+ Spare ${sparePercent}%) = ${isoRaw.toFixed(2)} × ${spareMultiplier.toFixed(2)} = <span class="text-emerald-400 font-bold font-mono text-sm">${isoExact.toFixed(2)}</span> Lembar
+                    </p>
+                `;
+            } else {
+                // Calcium Silicate Set
+                isoRaw = totalPipeLengthM / calciumSetLen_m;
+                isoExact = isoRaw * spareMultiplier;
+                isoUnit = 'Set';
+                isoLabelDetail = `Calcium Silicate • t=${tIso_mm}mm • 610mm/Set`;
+
+                isoBreakdownHTML = `
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Panjang per Set = 610 mm = 0.61 m
+                    </p>
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Jumlah Set = Total Panjang Pipa / 0.61 m = ${totalPipeLengthM.toFixed(1)} m / 0.61 m = <span class="text-amber-400 font-bold font-mono">${isoRaw.toFixed(2)}</span> Set
+                    </p>
+                    <p class="text-[11px] text-slate-400 font-sans">
+                        Kebutuhan (+ Spare ${sparePercent}%) = ${isoRaw.toFixed(2)} × ${spareMultiplier.toFixed(2)} = <span class="text-emerald-400 font-bold font-mono text-sm">${isoExact.toFixed(2)}</span> Set
+                    </p>
+                `;
+            }
+
+            // --- ALUMUNIUM SHEET & STAPPING ---
             const jktLen_m = parseFloat(document.getElementById('selectJacketSheetLength').value) || 25;
             const jktWid_m = parseFloat(document.getElementById('inputJacketSheetWidth').value) || 1.0;
             const jktThick_mm = parseFloat(document.getElementById('inputJacketThickness').value) || 0.5;
 
             const stappingRate = parseFloat(document.getElementById('inputStappingPerMeter').value) || 10;
             const totalStappingPcs = Math.ceil(totalPipeLengthM * stappingRate);
-            const totalStappingBpbPcs = Math.ceil(totalStappingPcs * spareMultiplier);
+            const totalStappingExact = totalPipeLengthM * stappingRate * spareMultiplier;
 
             const jktSheetArea_m2 = jktLen_m * jktWid_m;
             const jktOuterDia_mm = pipeDia_mm + (2 * tIso_mm) + (2 * jktThick_mm);
@@ -849,8 +953,13 @@
             // Update KPI Dashboard
             document.getElementById('kpiTotalLength').textContent = totalPipeLengthM.toFixed(1);
             document.getElementById('kpiPipeArea').textContent = pipeArea_m2.toFixed(2);
-            document.getElementById('kpiNbrTotalSheets').textContent = nbrFinalSheetsExact.toFixed(2);
-            document.getElementById('kpiTotalStapping').textContent = totalStappingPcs;
+
+            // Tampilkan unit isolasi di KPI
+            const kpiIsoEl = document.getElementById('kpiNbrTotalSheets');
+            kpiIsoEl.textContent = isoExact.toFixed(2);
+            document.getElementById('kpiIsoUnit').textContent = `${isoUnit} (BPB: ${Math.ceil(isoExact)} ${isoUnit})`;
+
+            document.getElementById('kpiTotalStapping').textContent = Math.ceil(totalStappingExact);
 
             // Update Step Breakdown
             document.getElementById('calcPipeLengthDisp').textContent = `${totalPipeLengthM.toFixed(0)} Meter | ${keliling_m.toFixed(3)} m`;
@@ -868,26 +977,15 @@
             document.getElementById('dispStepPipeArea').textContent = pipeArea_m2.toFixed(2);
 
             document.getElementById('dispStepIsoBrandName').textContent = isoBrand;
-            document.getElementById('dispStepFinalSheetHeader').textContent = `${nbrFinalSheetsExact.toFixed(2)} Lembar`;
-            document.getElementById('dispStepNbrLen').textContent = nbrLen_m;
-            document.getElementById('dispStepNbrWid').textContent = nbrWid_m;
-            document.getElementById('dispStepNbrSheetArea').textContent = nbrSheetArea_m2.toFixed(1);
+            document.getElementById('dispStepFinalSheetHeader').textContent = `${isoExact.toFixed(2)} ${isoUnit}`;
+            document.getElementById('dispStepIsoBreakdown').innerHTML = isoBreakdownHTML;
 
-            document.getElementById('dispStepPipeArea3').textContent = pipeArea_m2.toFixed(2);
-            document.getElementById('dispStepNbrSheetArea2').textContent = nbrSheetArea_m2.toFixed(1);
-            document.getElementById('dispStepRawSheets').textContent = nbrRawSheets.toFixed(2);
-
-            document.getElementById('dispStepSparePct').textContent = sparePercent;
-            document.getElementById('dispStepRawSheets2').textContent = nbrRawSheets.toFixed(2);
-            document.getElementById('dispStepSpareFact').textContent = spareMultiplier.toFixed(2);
-            document.getElementById('dispStepFinalSheets').textContent = nbrFinalSheetsExact.toFixed(2);
-
-            document.getElementById('dispStepStappingTotalHeader').textContent = `${totalStappingPcs} Pcs`;
+            document.getElementById('dispStepStappingTotalHeader').textContent = `${Math.ceil(totalStappingExact)} Pcs`;
             document.getElementById('dispStepTotalLengthStapping').textContent = totalPipeLengthM.toFixed(0);
             document.getElementById('dispStepStappingRate').textContent = stappingRate;
-            document.getElementById('dispStepStappingResult').textContent = totalStappingPcs;
+            document.getElementById('dispStepStappingResult').textContent = Math.ceil(totalStappingExact);
 
-            // Store current draft (not yet saved to entry list)
+            // Store current draft
             const fullNamePipeBPB = `${pipeMaterialName} ${pipeSchedule} ${pipeSizeName}`.trim();
             window.currentDraft = {
                 pipeFullName: fullNamePipeBPB,
@@ -897,28 +995,35 @@
                 jointCount: jointCount,
                 totalLen: totalPipeLengthM,
                 pipeArea_m2: pipeArea_m2,
+                isoType: isoType,
                 isoBrand: isoBrand,
                 tIso_mm: tIso_mm,
+                isoRaw: isoRaw,
+                isoExact: isoExact,
+                isoUnit: isoUnit,
+                isoLabelDetail: isoLabelDetail,
+                // NBR specifics
                 nbrLen_m: nbrLen_m,
                 nbrWid_m: nbrWid_m,
-                nbrRawSheets: nbrRawSheets,
+                nbrSheetArea_m2: nbrSheetArea_m2,
+                // Calcium specifics
+                calciumSetLen_m: calciumSetLen_m,
                 sparePercent: sparePercent,
                 spareMultiplier: spareMultiplier,
-                nbrExactSheets: nbrFinalSheetsExact,
                 jktLen_m: jktLen_m,
                 jktWid_m: jktWid_m,
                 jktThick_mm: jktThick_mm,
                 jktExactSheets: jktExactSheets,
                 stappingRate: stappingRate,
-                stappingRawPcs: totalStappingPcs,
-                stappingExactPcs: totalStappingPcs * spareMultiplier
+                stappingRawPcs: totalPipeLengthM * stappingRate,
+                stappingExactPcs: totalPipeLengthM * stappingRate * spareMultiplier
             };
 
-            // Update 3D Pipe Model & Visual Materials
+            // Update 3D model
             update3dModel(pipeMaterialKey, pipeDia_mm, tIso_mm, jktThick_mm, stappingRate);
         }
 
-        // ===================== ENTRY LIST (Daftar Entry) =====================
+        // ===================== ENTRY LIST =====================
         let entries = [];
         let entrySeq = 1;
 
@@ -981,8 +1086,8 @@
                         <div class="text-[10px] text-slate-500">${e.totalLen.toFixed(1)} m</div>
                     </td>
                     <td class="py-2.5 px-3 text-right text-cyan-300">
-                        ${e.nbrExactSheets.toFixed(2)} lbr
-                        <div class="text-[10px] text-slate-500 font-sans">${e.isoBrand} ${e.tIso_mm}mm</div>
+                        ${e.isoExact.toFixed(2)} ${e.isoUnit}
+                        <div class="text-[10px] text-slate-500 font-sans">${e.isoLabelDetail}</div>
                     </td>
                     <td class="py-2.5 px-3 text-right text-indigo-300">
                         ${e.jktExactSheets.toFixed(2)} roll
@@ -999,7 +1104,7 @@
             lucide.createIcons();
         }
 
-        // ===================== RECAP (Rekapitulasi Total) =====================
+        // ===================== RECAP =====================
         function renderRecap() {
             const emptyState = document.getElementById('recapEmptyState');
             const tbody = document.getElementById('tableRecapBody');
@@ -1012,7 +1117,7 @@
             }
             emptyState.classList.add('hidden');
 
-            // Group by pipe spec (material + schedule + size)
+            // Group by pipe spec
             const pipeGroups = {};
             let grandTotalLen = 0;
             entries.forEach(e => {
@@ -1023,17 +1128,17 @@
                 grandTotalLen += e.totalLen;
             });
 
-            // Group insulation by brand + thickness + sheet dimension
+            // Group insulation by type + label
             const isoGroups = {};
             let totalIsoExact = 0;
             entries.forEach(e => {
-                const key = `${e.isoBrand}__${e.tIso_mm}__${e.nbrLen_m}x${e.nbrWid_m}`;
-                if (!isoGroups[key]) isoGroups[key] = { label: `${e.isoBrand} • t=${e.tIso_mm}mm • Sheet ${e.nbrLen_m}m×${e.nbrWid_m}m`, exact: 0 };
-                isoGroups[key].exact += e.nbrExactSheets;
-                totalIsoExact += e.nbrExactSheets;
+                const key = `${e.isoType}__${e.isoLabelDetail}`;
+                if (!isoGroups[key]) isoGroups[key] = { label: e.isoLabelDetail, unit: e.isoUnit, exact: 0 };
+                isoGroups[key].exact += e.isoExact;
+                totalIsoExact += e.isoExact;
             });
 
-            // Group alumunium by roll spec
+            // Group alumunium
             const jktGroups = {};
             let totalJktExact = 0;
             entries.forEach(e => {
@@ -1043,7 +1148,6 @@
                 totalJktExact += e.jktExactSheets;
             });
 
-            // Stapping total (combined across all entries)
             let totalStappingExact = 0;
             entries.forEach(e => totalStappingExact += e.stappingExactPcs);
 
@@ -1067,12 +1171,12 @@
             Object.values(isoGroups).forEach(g => {
                 rows += `<tr class="hover:bg-slate-800/40 print-text">
                     <td class="py-2.5 px-3 font-sans text-slate-400">${rowNo++}</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Isolasi Lembaran</td>
+                    <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Isolasi</td>
                     <td class="py-2.5 px-3 text-slate-400 font-sans">${g.label}</td>
                     <td class="py-2.5 px-3 text-right text-cyan-400">${g.exact.toFixed(2)}</td>
                     <td class="py-2.5 px-3 text-right font-bold text-cyan-300">${g.exact.toFixed(2)}</td>
-                    <td class="py-2.5 px-3 text-center text-slate-400">Lembar</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400">${Math.ceil(g.exact)} Lbr</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">${g.unit}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400">${Math.ceil(g.exact)} ${g.unit}</td>
                 </tr>`;
             });
 
@@ -1103,12 +1207,12 @@
 
         function updateRecapKpis(totalLen, isoSheets, jktSheets, stappingPcs) {
             document.getElementById('recapKpiLength').innerHTML = `${totalLen.toFixed(1)} <span class="text-[10px] text-slate-400 font-normal">m</span>`;
-            document.getElementById('recapKpiIso').innerHTML = `${isoSheets} <span class="text-[10px] text-slate-400 font-normal">Lbr</span>`;
+            document.getElementById('recapKpiIso').innerHTML = `${isoSheets} <span class="text-[10px] text-slate-400 font-normal" id="recapIsoUnit">${entries.length > 0 ? entries[0].isoUnit : 'Lbr'}</span>`;
             document.getElementById('recapKpiJkt').innerHTML = `${jktSheets} <span class="text-[10px] text-slate-400 font-normal">Roll</span>`;
             document.getElementById('recapKpiStapping').innerHTML = `${stappingPcs} <span class="text-[10px] text-slate-400 font-normal">Pcs</span>`;
         }
 
-        // 3D Scene Variables
+        // ===================== 3D SCENE =====================
         let scene, camera, renderer;
         let pipeGroup;
         let isMouseDown = false;
@@ -1134,7 +1238,6 @@
             renderer.setSize(w, h, false);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            // Ambient & Directional Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
             scene.add(ambientLight);
 
@@ -1149,7 +1252,6 @@
             pipeGroup = new THREE.Group();
             scene.add(pipeGroup);
 
-            // Drag Mouse / Touch events
             container.addEventListener('mousedown', (e) => {
                 isMouseDown = true;
                 mouseX = e.clientX;
@@ -1168,7 +1270,6 @@
                 mouseY = e.clientY;
             });
 
-            // Touch support for mobile
             container.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 1) {
                     isMouseDown = true;
@@ -1205,7 +1306,6 @@
         function update3dModel(matKey, pipeDia, tIso, tJacket, stappingRate) {
             if (!pipeGroup) return;
 
-            // Clear previous meshes
             while (pipeGroup.children.length > 0) {
                 const child = pipeGroup.children[0];
                 if (child.geometry) child.geometry.dispose();
@@ -1216,7 +1316,6 @@
                 pipeGroup.remove(child);
             }
 
-            // Normalization Scale
             const pipeLength = 8.5;
             const totalOD = pipeDia + 2 * tIso + 2 * tJacket;
             const maxRadius = 1.9;
@@ -1226,29 +1325,28 @@
             const rIso = Math.max(rPipe + 0.25, ((pipeDia / 2) + tIso) * scale);
             const rJacket = Math.max(rIso + 0.12, ((pipeDia / 2) + tIso + tJacket) * scale);
 
-            // Material specific core pipe colors & finishes
-            let pipeColor = 0x94a3b8; // Default Galvanized Silver Gray
+            let pipeColor = 0x94a3b8;
             let pipeMetalness = 0.8;
             let pipeRoughness = 0.3;
             let pipeLabel = "Pipa Galvanis";
 
             if (matKey === 'blacksteel') {
-                pipeColor = 0x1e293b; // Dark Black Steel
+                pipeColor = 0x1e293b;
                 pipeMetalness = 0.6;
                 pipeRoughness = 0.5;
                 pipeLabel = "Pipa Black Steel";
             } else if (matKey === 'stainless') {
-                pipeColor = 0xf1f5f9; // Polished Stainless Chrome
+                pipeColor = 0xf1f5f9;
                 pipeMetalness = 0.98;
                 pipeRoughness = 0.1;
                 pipeLabel = "Pipa Stainless Steel";
             } else if (matKey === 'ppr') {
-                pipeColor = 0x059669; // Green PPR
+                pipeColor = 0x059669;
                 pipeMetalness = 0.1;
                 pipeRoughness = 0.4;
                 pipeLabel = "Pipa PPR";
             } else if (matKey === 'pvc') {
-                pipeColor = 0xe2e8f0; // Off-white PVC
+                pipeColor = 0xe2e8f0;
                 pipeMetalness = 0.1;
                 pipeRoughness = 0.3;
                 pipeLabel = "Pipa PVC";
@@ -1256,7 +1354,6 @@
                 pipeLabel = "Pipa Inti";
             }
 
-            // Update Legend Pipe UI Label & Color
             const legendLabelEl = document.getElementById('legendPipeLabel');
             const legendColorEl = document.getElementById('legendPipeColor');
             if (legendLabelEl) legendLabelEl.textContent = pipeLabel;
@@ -1279,10 +1376,10 @@
             pipeMesh.rotation.z = Math.PI / 2;
             pipeGroup.add(pipeMesh);
 
-            // 2. Middle Insulation Layer (Black NBR Foam Rubber #111827)
+            // 2. Middle Insulation Layer (Black NBR Foam #111827)
             const isoGeo = new THREE.CylinderGeometry(rIso, rIso, pipeLength * 0.75, 32);
             const isoMat = new THREE.MeshStandardMaterial({ 
-                color: 0x111827, // Black NBR Foam
+                color: 0x111827, 
                 roughness: 0.95,
                 metalness: 0.05 
             });
@@ -1291,10 +1388,10 @@
             isoMesh.position.x = -pipeLength * 0.05;
             pipeGroup.add(isoMesh);
 
-            // 3. Outer Alumunium Sheet Layer (Shiny Alumunium #e2e8f0)
+            // 3. Outer Alumunium Sheet Layer
             const jktGeo = new THREE.CylinderGeometry(rJacket, rJacket, pipeLength * 0.5, 32);
             const jktMat = new THREE.MeshStandardMaterial({ 
-                color: 0xe2e8f0, // Shiny Alumunium Metal
+                color: 0xe2e8f0, 
                 metalness: 0.9, 
                 roughness: 0.15 
             });
@@ -1303,7 +1400,7 @@
             jktMesh.position.x = -pipeLength * 0.15;
             pipeGroup.add(jktMesh);
 
-            // 4. Stapping Screws along the longitudinal seam (Gold Hex Bolts)
+            // 4. Stapping Screws
             const screwCount = Math.min(24, Math.max(5, Math.round(stappingRate * 0.6)));
             const screwGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.14, 12);
             const screwMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.1 });
@@ -1325,7 +1422,7 @@
 
             if (pipeGroup) {
                 if (!isMouseDown) {
-                    targetRotationY += 0.003; // Smooth idle rotation
+                    targetRotationY += 0.003;
                 }
                 pipeGroup.rotation.x += (targetRotationX - pipeGroup.rotation.x) * 0.1;
                 pipeGroup.rotation.y += (targetRotationY - pipeGroup.rotation.y) * 0.1;
@@ -1336,6 +1433,7 @@
             }
         }
 
+        // ===================== COPY BPB =====================
         function copyBPBToClipboard() {
             if (entries.length === 0) {
                 alert('Belum ada entry di daftar. Tambahkan minimal 1 entry terlebih dahulu.');
@@ -1388,6 +1486,7 @@
             document.body.removeChild(ta);
         }
 
+        // ===================== INIT =====================
         window.addEventListener('DOMContentLoaded', () => {
             init3DScene();
             onPipeMaterialChange();
@@ -1395,6 +1494,9 @@
             renderEntryList();
             renderRecap();
             lucide.createIcons();
+            // Set default radio
+            document.querySelector('input[name="isoType"][value="nbr"]').checked = true;
+            toggleIsoType();
         });
     </script>
 </body>
