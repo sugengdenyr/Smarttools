@@ -50,7 +50,19 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
-
+    <!-- HEADER KHUSUS CETAK (TIDAK MUNCUL DI HALAMAN UTAMA) -->
+<div class="hidden print:block mb-6 border-b-2 border-blue-600 pb-3">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-lg font-black tracking-wide text-slate-900 uppercase">Kalkulator Isolasi Lembaran, Alumunium Sheet & Stapping</h1>
+            <p class="text-xs text-slate-600 mt-0.5">Estimasi Kebutuhan Isolasi, Metal Jacketing & Skrup Stapping BPB</p>
+        </div>
+        <div class="text-right text-xs space-y-0.5">
+            <p class="text-slate-700">Tanggal: <span class="font-medium text-slate-900">1 September 2026</span></p>
+            <p class="text-slate-700">Nama Proyek: <span class="border-b border-dotted border-slate-600 inline-block w-36"></span></p>
+        </div>
+    </div>
+</div>
     <!-- Header Banner -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -1499,5 +1511,22 @@
             toggleIsoType();
         });
     </script>
+    <!-- SIGNATURE KHUSUS CETAK -->
+<div class="hidden print:grid grid-cols-2 gap-16 mt-16 pt-4 text-xs text-center font-sans">
+    <div class="flex flex-col items-center">
+        <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
+        <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+            <span class="opacity-0">.</span>
+        </div>
+        <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">SPV / SM / SE</p>
+    </div>
+    <div class="flex flex-col items-center">
+        <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
+        <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+            <span class="opacity-0">.</span>
+        </div>
+        <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">Project Manager</p>
+    </div>
+</div>
 </body>
 </html>
