@@ -75,15 +75,30 @@
             body.print-bpb-only-mode #materialListSection {
                 display: none !important;
             }
+            <!-- Contoh pembungkus bagian input di index.html Anda -->
+            <div class="no-print space-y-4 mb-6">
+            <!-- Semua elemen form, dropdown kemasan, dan tombol pengisian Anda ada di sini -->
+            </div>
+            <div class="no-print">
+            <!-- Masukkan seluruh form input, tombol Reset, dan pilihan parameter Anda di sini -->
+            </div> 
         }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-    <!-- Header for Print mode -->
-    <div class="hidden print-header p-4 border-b border-slate-300 mb-4">
-        <h1 class="text-xl font-bold text-black">Laporan Rekomendasi Perhitungan Cat & Material</h1>
-        <p class="text-xs text-slate-600">Model Interaktif Estimasi Cat Pipa & Struktur Konstruksi • Sugeng Deny Ramdani 2026</p>
+    <!-- HEADER KHUSUS CETAK (TIDAK MUNCUL DI HALAMAN UTAMA) -->
+    <div class="hidden print:block mb-6 border-b-2 border-blue-600 pb-3">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-lg font-black tracking-wide text-slate-900 uppercase">Perhitungan Cat untuk Pipa dan Support</h1>
+                <p class="text-xs text-slate-600 mt-0.5">Kalkulator Luas Permukaan, Kebutuhan Cat dan Thinner sebagai Rekomendasi Permintaan Barang </p>
+            </div>
+            <div class="text-right text-xs space-y-0.5">
+                <p class="text-slate-700">Tanggal: <span class="font-medium text-slate-900">1 September 2026</span></p>
+                <p class="text-slate-700">Nama Proyek: <span class="border-b border-dotted border-slate-600 inline-block w-36"></span></p>
+            </div>
+        </div>
     </div>
 
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
@@ -93,8 +108,8 @@
                     <i data-lucide="paint-bucket" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-white leading-tight">Model Interaktif Perhitungan Cat Pipa & Struktur</h1>
-                    <p class="text-xs text-slate-400">Kalkulator Luas Permukaan, Kebutuhan Cat, Thinner 50% + Spare & Bon Permintaan Barang (BPB)</p>
+                    <h1 class="text-lg font-bold text-white leading-tight">Perhitungan Cat untuk Pipa dan Support</h1>
+                    <p class="text-xs text-slate-400">Kalkulator Luas Permukaan, Kebutuhan Cat dan Thinner sebagai Rekomendasi Permintaan Barang</p>
                 </div>
             </div>
             
@@ -129,7 +144,7 @@
                     </div>
                     <select id="selectThinnerRatio" onchange="onThinnerRatioChange()" 
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium">
-                        <option value="0.50" selected>Standar Revisi - 50% Thinner (1 Cat : 0.5 Thinner)</option>
+                        <option value="0.50" selected>Rekomendasi Project - 50% Thinner (1 Cat : 0.5 Thinner) Include Spare</option>
                         <option value="0.15">Kuas / Roller (15% Thinner - 10-20%)</option>
                         <option value="0.35">Spray Gun (35% Thinner - 30-40%)</option>
                         <option value="0.20">Kustom - 20% Thinner</option>
@@ -384,9 +399,25 @@
         </section>
 
     </main>
+     <!-- SIGNATURE KHUSUS CETAK -->
+    <div class="hidden print:grid grid-cols-2 gap-16 mt-16 pt-4 text-xs text-center font-sans">
+        <div class="flex flex-col items-center">
+            <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
+            <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+                <span class="opacity-0">.</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">SPV / SM / SE</p>
+        </div>
+        <div class="flex flex-col items-center">
+            <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
+            <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+                <span class="opacity-0">.</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">Project Manager</p>
+        </div>
+    </div>
 
     <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
-        Sugeng Deny Ramdani 2026 • Model Interaktif Perhitungan Cat Pipa & Struktur
     </footer>
 
     <script>
@@ -928,16 +959,55 @@
         }
 
        // Print Handler 1: BPB Only
-function printBPBOnly() {
-    window.print();
-}
+        function printBPBOnly() {
+        window.print();
+        }       
 
 // Print Handler 2: Full Report (BPB + Material Entries)
-function printFullReport() {
-    window.print();
-}
+        function printFullReport() {
+            window.print();
+        }
 
         // DOM Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            onMaterialTypeChange();
+            onPaintTypeChange();
+            onThinnerRatioChange();
+            renderMaterialTable();
+            calculateSummary();
+        });
+                // ... (semua kode sebelumnya tetap sama, hanya ganti bagian print handler di bawah)
+
+        // ============================================================
+        // PRINT HANDLERS - DIPERBAIKI
+        // ============================================================
+
+        // Cetak hanya Rekomendasi BPB (sembunyikan daftar material)
+        function printBPBOnly() {
+            // Tambahkan class ke body agar CSS menyembunyikan #materialListSection
+            document.body.classList.add('print-bpb-only-mode');
+            // Jalankan print
+            window.print();
+            // Hapus class setelah print selesai (fallback jika afterprint tidak terpicu)
+            setTimeout(function() {
+                document.body.classList.remove('print-bpb-only-mode');
+            }, 1000);
+        }
+
+        // Cetak Laporan Keseluruhan (material + BPB)
+        function printFullReport() {
+            // Pastikan class BPB-only tidak aktif
+            document.body.classList.remove('print-bpb-only-mode');
+            // Jalankan print
+            window.print();
+        }
+
+        // Bersihkan class setelah print dialog ditutup (event global)
+        window.addEventListener('afterprint', function() {
+            document.body.classList.remove('print-bpb-only-mode');
+        });
+
+        // DOM Initialization (tetap sama)
         window.addEventListener('DOMContentLoaded', () => {
             onMaterialTypeChange();
             onPaintTypeChange();
