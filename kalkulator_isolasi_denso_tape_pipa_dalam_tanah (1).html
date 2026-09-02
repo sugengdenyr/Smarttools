@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Isolasi Denso Tape Pipa Dalam Tanah - BPB</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Kalkulator Isolasi Pipa Dalam Tanah</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter & Lucide Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Three.js for 3D Pipe & Denso Tape Wrapping Visualization -->
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body {
@@ -29,7 +30,18 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+        .katex-display {
+            display: inline-block !important;
+            margin: 0 !important;
+        }
+        .katex {
+            font-size: 1em !important;
+        }
         @media print {
+            @page {
+                margin: 1.2cm;
+                size: A4 portrait;
+            }
             .no-print {
                 display: none !important;
             }
@@ -39,59 +51,123 @@
             }
             .print-card {
                 background: white !important;
-                border: 1px solid #ccc !important;
-                color: black !important;
+                border: none !important;
                 box-shadow: none !important;
+                padding: 0 !important;
+                color: black !important;
             }
             .print-text {
                 color: black !important;
             }
+            .print-only {
+                display: block !important;
+            }
+            .print\\:hidden {
+                display: none !important;
+            }
+            table th {
+                background-color: #f1f5f9 !important;
+                color: #1e293b !important;
+                border-bottom: 2px solid #cbd5e1 !important;
+            }
+            table td {
+                border-bottom: 1px solid #e2e8f0 !important;
+                color: #000 !important;
+            }
+            .print-border {
+                border: 1px solid #e2e8f0 !important;
+            }
+            .print\\:bg-transparent {
+                background: transparent !important;
+            }
+            .print\\:p-0 {
+                padding: 0 !important;
+            }
+            .print\\:border-none {
+                border: none !important;
+            }
+            .print\\:text-black {
+                color: black !important;
+            }
+            .print\\:text-slate-900 {
+                color: #0f172a !important;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-amber-600 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-600 selection:text-white">
 
+    <!-- ====== KOP / HEADER DOKUMEN CETAK (Hanya Muncul Saat Print) ====== -->
+    <div class="hidden print:block mb-6 border-b-2 border-slate-800 pb-4 print-only">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-xl font-black tracking-wide text-slate-900 uppercase">REKOMENDASI PERMINTAAN BARANG (BPB)</h1>
+                <h2 class="text-xs font-bold text-slate-700 mt-1">ISOLASI WRAPPING UNTUK PIPA DALAM TANAH</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Metode Spiral / Helical Wrapping</p>
+            </div>
+            <div class="text-right text-xs space-y-1">
+                <p class="text-slate-700">Tanggal Cetak: <span class="font-bold text-slate-900" id="printDate"></span></p>
+                <p class="text-slate-700">User / Engineer:__________________ <span class="font-bold text-slate-900" id="printUser">-</span></p>
+                <p class="text-slate-700">Nama Proyek:__________________ <span class="font-bold text-slate-900" id="printProject">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header UI Web -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
-                <div class="bg-amber-500/20 p-2.5 rounded-xl border border-amber-500/30 text-amber-400 shadow-inner">
+                <div class="bg-cyan-500/20 p-2.5 rounded-xl border border-cyan-500/30 text-cyan-400 shadow-inner">
                     <i data-lucide="layers" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <h1 class="text-base sm:text-lg font-bold text-white leading-tight flex items-center gap-2">
-                        Kalkulator Isolasi Wrapping Denso Tape Pipa Dalam Tanah
+                        Perhitungan Isolasi Wrapping Pipa Dalam Tanah
                     </h1>
-                    <p class="text-xs text-slate-400">Estimasi Kebutuhan Denso Tape / Densopol / Densoclad (Pemasangan Underground Spiral)</p>
+                    <p class="text-xs text-slate-400">Estimasi Kebutuhan Denso Tape / Bitumen Tape</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-xs font-mono bg-slate-800 text-slate-300 px-3 py-1 rounded-lg border border-slate-700">
-                    Sistem Metrik Presisi
-                </span>
             </div>
         </div>
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+        <!-- ===== PANEL KIRI: INPUT ===== -->
         <section class="lg:col-span-5 flex flex-col gap-5 no-print">
-            
+
+            <!-- Identitas Proyek (untuk kop cetak) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-100 mb-3 flex items-center gap-2 border-b border-slate-800 pb-2">
+                    <i data-lucide="clipboard-signature" class="w-4 h-4"></i> Identitas Proyek
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">User </label>
+                        <input type="text" id="inputUser" oninput="syncIdentity()" placeholder="Nama" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Proyek </label>
+                        <input type="text" id="inputProject" oninput="syncIdentity()" placeholder="Proyek - Area" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                    </div>
+                </div>
+            </div>
+
             <!-- Card 1: Main Pipe Parameters -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                        <i data-lucide="disc" class="w-4 h-4"></i> 1. Parameter Pipa Inti
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+                        <i data-lucide="disc" class="w-4 h-4"></i> 1. Parameter Pipa
                     </h2>
-                    <span class="text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                    <span class="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full">
                         Spesifikasi Pipa
                     </span>
                 </div>
 
-                <!-- Pipe Material Selector -->
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Jenis Pipa & Panjang Standar Per Batang</label>
-                    <select id="selectPipeMaterial" onchange="onPipeMaterialChange()" 
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition-colors">
+                    <select id="selectPipeMaterial" onchange="onPipeMaterialChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors">
                         <option value="galvanis" selected>Pipa Galvanis (6.0 Meter / Batang)</option>
                         <option value="blacksteel">Pipa Black Steel (6.0 Meter / Batang)</option>
                         <option value="stainless">Pipa Stainless Steel (6.0 Meter / Batang)</option>
@@ -101,44 +177,35 @@
                     </select>
                 </div>
 
-                <!-- Pipe Schedule Selection -->
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Kelas / Schedule Ketebalan Pipa</label>
-                    <select id="selectPipeSchedule" onchange="onPipeScheduleChange()" 
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition-colors">
+                    <select id="selectPipeSchedule" onchange="onPipeScheduleChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors">
                     </select>
                 </div>
 
-                <!-- Pipe Size Selection & Dynamic OD -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran Nominal Pipa (NPS)</label>
-                        <select id="selectPipeSize" onchange="onPipeSizeChange()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        <select id="selectPipeSize" onchange="onPipeSizeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Diameter Luar / OD (mm)</label>
-                        <input type="number" id="inputCustomOD" value="114.3" min="1" step="0.1" oninput="calculateAll()"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        <input type="number" id="inputCustomOD" value="114.3" min="1" step="0.1" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
 
-                <!-- Joint Length & Quantity Inputs -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Panjang / Batang (m)</label>
-                        <input type="number" id="inputLengthPerJoint" value="6.0" min="0.5" step="0.5" oninput="calculateAll()"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        <input type="number" id="inputLengthPerJoint" value="6.0" min="0.5" step="0.5" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Batang Pipa (Qty)</label>
-                        <input type="number" id="inputJointCount" value="4" min="1" step="1" oninput="calculateAll()"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        <input type="number" id="inputJointCount" value="4" min="1" step="1" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
 
-                <!-- Total Pipe Meter Preview -->
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
                     <span class="text-slate-400 font-sans">Total Panjang Pipa Item Ini:</span>
                     <span id="dispTotalLengthHeader" class="font-mono text-emerald-400 font-bold text-sm">24.0 Meter</span>
@@ -148,25 +215,22 @@
             <!-- Card 2: Denso Tape Specs & Overlap Options -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-2">
-                        <i data-lucide="shield-alert" class="w-4 h-4"></i> 2. Spesifikasi Denso Tape & Overlap
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> 2. Spesifikasi Wrapping
                     </h3>
-                    <span id="badgeBitumenRule" class="text-[10px] font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full">
-                        Auto Standard Denso
+                    <span id="badgeBitumenRule" class="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full">
+                        Wrapping Tape
                     </span>
                 </div>
 
-                <!-- Denso Brand & Tape Width -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Merk / Tipe Denso Tape</label>
-                        <input type="text" id="inputBitumenBrand" value="Denso Tape" oninput="calculateAll()" placeholder="Contoh: Denso Tape, Densopol 60, Densoclad 70"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Merk / Tipe Wrapping</label>
+                        <input type="text" id="inputBitumenBrand" value="" oninput="calculateAll()" placeholder="Contoh: Denso Tape, Densopol 60, Densoclad 70" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Tape (mm)</label>
-                        <select id="selectTapeWidth" onchange="calculateAll()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-orange-500">
+                        <select id="selectTapeWidth" onchange="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                             <option value="50">50 mm (Pipa ≤ 2")</option>
                             <option value="75">75 mm</option>
                             <option value="100" selected>100 mm (Pipa 2" < NPS ≤ 4")</option>
@@ -177,12 +241,10 @@
                     </div>
                 </div>
 
-                <!-- Roll Length & Thickness Dropdowns (Updated range up to 6mm) -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Panjang Roll Tape (m)</label>
-                        <select id="selectRollLength" onchange="calculateAll()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-orange-500">
+                        <select id="selectRollLength" onchange="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                             <option value="10" selected>10 Meter / Roll (Standard Denso)</option>
                             <option value="12.5">12.5 Meter / Roll</option>
                             <option value="15">15 Meter / Roll</option>
@@ -191,28 +253,25 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Denso Tape (mm)</label>
-                        <select id="selectTapeThickness" onchange="calculateAll()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-orange-500">
-                            <option value="1.15" selected>1.15 mm (Standard Denso Petrolatum)</option>
-                            <option value="1.25">1.25 mm (Densopol 60 / Densoclad 40)</option>
-                            <option value="1.50">1.50 mm (Denso Heavy Duty / Petrolatum HD)</option>
-                            <option value="1.65">1.65 mm (Densopol Heavy)</option>
-                            <option value="2.00">2.00 mm (Densoclad 70 / Bitumen Extra)</option>
-                            <option value="2.50">2.50 mm (Denso Extra Duty)</option>
-                            <option value="3.00">3.00 mm (Denso Heavy Coating 3mm)</option>
-                            <option value="4.00">4.00 mm (Denso Mastic Tape 4mm)</option>
-                            <option value="5.00">5.00 mm (Denso Heavy Mastic 5mm)</option>
-                            <option value="6.00">6.00 mm (Denso Extreme Duty 6mm)</option>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Wrapping (mm)</label>
+                        <select id="selectTapeThickness" onchange="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                            <option value="1.15" selected>1.15 mm</option>
+                            <option value="1.25">1.25 mm </option>
+                            <option value="1.50">1.50 mm </option>
+                            <option value="1.65">1.65 mm </option>
+                            <option value="2.00">2.00 mm </option>
+                            <option value="2.50">2.50 mm </option>
+                            <option value="3.00">3.00 mm </option>
+                            <option value="4.00">4.00 mm </option>
+                            <option value="5.00">5.00 mm </option>
+                            <option value="6.00">6.00 mm </option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Overlap Selection -->
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Metode / Lebar Overlap Lilitan Spiral</label>
-                    <select id="selectOverlapMode" onchange="onOverlapModeChange()" 
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
+                    <select id="selectOverlapMode" onchange="onOverlapModeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                         <option value="half" selected>1/2 Dari Lebar Tape (50% Overlap - Standard Double Layer)</option>
                         <option value="10">1 cm (10 mm) Overlap</option>
                         <option value="20">2 cm (20 mm) Overlap</option>
@@ -223,17 +282,15 @@
                     </select>
                 </div>
 
-                <!-- Custom Overlap Input field -->
                 <div id="wrapperCustomOverlap" class="hidden">
                     <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Overlap Custom (mm)</label>
-                    <input type="number" id="inputCustomOverlapMm" value="25" min="1" step="1" oninput="calculateAll()"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-orange-500">
+                    <input type="number" id="inputCustomOverlapMm" value="25" min="1" step="1" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                 </div>
             </div>
 
-            <!-- Action Buttons: Add Item & Reset -->
+            <!-- Action Buttons -->
             <div class="flex gap-3">
-                <button onclick="addCurrentItemToTable()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95">
+                <button onclick="addCurrentItemToTable()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah ke Data Entry
                 </button>
                 <button onclick="resetInputForm()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
@@ -243,18 +300,18 @@
 
         </section>
 
+        <!-- ===== PANEL KANAN: OUTPUT ===== -->
         <section class="lg:col-span-7 flex flex-col gap-6">
 
-            <!-- KPI Dashboard Overview Cards -->
+            <!-- KPI Dashboard -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 no-print">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Panjang Pipa</span>
                     <div class="my-1">
-                        <span id="kpiTotalLength" class="text-xl font-black text-amber-400 font-mono">24.0</span>
+                        <span id="kpiTotalLength" class="text-xl font-black text-cyan-400 font-mono">24.0</span>
                         <span id="kpiTotalLengthSub" class="text-[10px] text-slate-400 block">Meter (4 btg @ 6m)</span>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luas Penampang Pipa</span>
                     <div class="my-1">
@@ -262,102 +319,114 @@
                         <span class="text-[10px] text-slate-400 block">m² (Keliling × Panjang)</span>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Denso Tape Required</span>
                     <div class="my-1">
-                        <span id="kpiTotalRolls" class="text-xl font-black text-orange-400 font-mono">18</span>
+                        <span id="kpiTotalRolls" class="text-xl font-black text-cyan-400 font-mono">18</span>
                         <span id="kpiTotalRollsSub" class="text-[10px] text-slate-400 block">Roll (@ 10m)</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Step-by-Step Spiral Math Calculation Breakdown -->
+            <!-- Step-by-Step Spiral Math Calculation Breakdown (dengan KaTeX) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 no-print">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                     <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i> Formulasi Perhitungan Lilitan Denso Tape Spiral (Geometri Akurat)
+                        <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i> Formulasi Perhitungan Lilitan Wrapping Tape Spiral
                     </h3>
                     <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                        Geometri Presisi
+                        Metode Perhitungan
                     </span>
                 </div>
 
-                <div class="space-y-2.5 text-xs text-slate-300 font-mono">
-                    <!-- Step 1: Circumference & Pitch -->
+                <div class="space-y-3 text-xs text-slate-300 font-mono">
+
+                    <!-- Step 1 -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
-                        <div class="text-amber-400 font-bold flex justify-between">
-                            <span>• 1. Keliling Pipa & Langkah Pitch Lilitan (Effective Pitch)</span>
+                        <div class="text-cyan-400 font-bold flex justify-between">
+                            <span>• 1. Keliling Pipa &amp; Langkah Pitch Lilitan (Effective Pitch)</span>
                             <span id="dispStep1Header" class="text-white">C = 0.359m | Pitch = 50mm</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Keliling Pipa ($C$) = $\pi \times \text{OD} = 3.14 \times <span id="dispStepDiaPipa" class="text-white font-mono">114.3</span> \text{ mm} = <span id="dispStepKelilingMm" class="text-amber-300 font-mono">358.90</span> \text{ mm} = <span id="dispStepKelilingM" class="text-amber-300 font-mono">0.359</span>\text{ Meter}$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep1">
+                            <span class="math-inline">C = \pi \times D</span> dengan
+                            <span class="math-inline">D = <span id="dispStepDiaPipa">114.3</span> \text{ mm}</span>
+                            &rarr; <span class="math-inline">C = <span id="dispStepKelilingMm">358.90</span> \text{ mm}</span>
+                            = <span class="math-inline"><span id="dispStepKelilingM">0.359</span> \text{ m}</span>
                         </p>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Langkah Maju Pitch ($P$) = $\text{Lebar Tape} - \text{Overlap} = <span id="dispStepTapeWidth" class="text-white font-mono">100</span>\text{mm} - <span id="dispStepOverlapVal" class="text-white font-mono">50</span>\text{mm} = <span id="dispStepPitch" class="text-emerald-400 font-bold font-mono">50</span>\text{ mm}$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep1b">
+                            <span class="math-inline">P = W - O</span> dengan
+                            <span class="math-inline">W = <span id="dispStepTapeWidth">100</span> \text{ mm}</span>,
+                            <span class="math-inline">O = <span id="dispStepOverlapVal">50</span> \text{ mm}</span>
+                            &rarr; <span class="math-inline">P = <span id="dispStepPitch" class="text-emerald-400 font-bold">50</span> \text{ mm}</span>
                         </p>
                     </div>
 
-                    <!-- Step 2: Tape Length Per Meter Pipe -->
+                    <!-- Step 2 -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
                         <div class="text-emerald-400 font-bold flex justify-between">
                             <span>• 2. Kebutuhan Panjang Denso Tape Per Meter Pipa</span>
                             <span id="dispStep2Header" class="text-white">7.25 m Tape / m Pipa</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Panjang Tape per 1 Lilitan ($L_{\text{turn}}$) = $\sqrt{C^2 + P^2} = \sqrt{<span id="dispStepC2" class="text-white font-mono">358.9</span>^2 + <span id="dispStepP2" class="text-white font-mono">50</span>^2} = <span id="dispStepLturn" class="text-cyan-300 font-mono">362.37</span>\text{ mm}$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep2">
+                            <span class="math-inline">L_{\text{turn}} = \sqrt{C^2 + P^2}</span>
+                            = <span class="math-inline">\sqrt{<span id="dispStepC2">358.9</span>^2 + <span id="dispStepP2">50</span>^2}</span>
+                            = <span class="math-inline"><span id="dispStepLturn">362.37</span> \text{ mm}</span>
                         </p>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Faktor Lilitan Spiral = $L_{\text{turn}} / P = <span id="dispStepLturn2" class="text-white font-mono">362.37</span> / <span id="dispStepPitch2" class="text-white font-mono">50</span> = <span id="dispStepRatio" class="text-emerald-400 font-bold font-mono">7.25</span> \text{ meter tape / meter pipa}$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep2b">
+                            <span class="math-inline">F = L_{\text{turn}} / P</span>
+                            = <span class="math-inline"><span id="dispStepLturn2">362.37</span> / <span id="dispStepPitch2">50</span></span>
+                            = <span class="math-inline"><span id="dispStepRatio" class="text-emerald-400 font-bold">7.25</span></span>
+                            &nbsp;meter tape / meter pipa
                         </p>
                     </div>
 
-                    <!-- Step 3: Total Tape & Roll Order -->
+                    <!-- Step 3 -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
-                        <div class="text-orange-400 font-bold flex justify-between">
-                            <span>• 3. Total Kebutuhan Denso Tape & Kebutuhan Roll Order</span>
+                        <div class="text-cyan-400 font-bold flex justify-between">
+                            <span>• 3. Total Kebutuhan Denso Tape &amp; Kebutuhan Roll Order</span>
                             <span id="dispStep3Header" class="text-white">173.9 Meter | 18 Roll</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Total Tape Akurat = $\text{Panjang Pipa} \times \text{Faktor Lilitan} = <span id="dispStepTotalLenPipe" class="text-white font-mono">24</span>\text{m} \times <span id="dispStepRatio2" class="text-white font-mono">7.25</span> = <span id="dispStepTapeFinalM" class="text-emerald-400 font-bold font-mono">173.9</span>\text{ Meter}$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep3">
+                            <span class="math-inline">L_{\text{total}} = L_{\text{pipa}} \times F</span>
+                            = <span class="math-inline"><span id="dispStepTotalLenPipe">24</span> \times <span id="dispStepRatio2">7.25</span></span>
+                            = <span class="math-inline"><span id="dispStepTapeFinalM" class="text-emerald-400 font-bold">173.9</span> \text{ m}</span>
                         </p>
-                        <p class="text-[11px] text-slate-400 font-sans">
-                            Jumlah Order BPB = $\lceil <span id="dispStepTapeFinalM2" class="text-white font-mono">173.9</span> / <span id="dispStepRollLen" class="text-white font-mono">10</span>\text{m} \rceil = <span id="dispStepBpbRolls" class="text-orange-400 font-bold font-mono text-sm">18 Roll</span>$.
+                        <p class="text-[11px] text-slate-400 font-sans" id="mathStep3b">
+                            <span class="math-inline">\text{Roll Order} = \lceil L_{\text{total}} / L_{\text{roll}} \rceil</span>
+                            = <span class="math-inline">\lceil <span id="dispStepTapeFinalM2">173.9</span> / <span id="dispStepRollLen">10</span> \rceil</span>
+                            = <span class="math-inline" style="font-weight:700;color:#34d399;"><span id="dispStepBpbRolls">18</span> \text{ Roll}</span>
                         </p>
                     </div>
+
                 </div>
             </div>
 
-            <!-- 3D Interactive Container -->
+            <!-- 3D Interactive -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center no-print">
                 <div class="w-full flex items-center justify-between mb-2 border-b border-slate-800 pb-2">
                     <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i data-lucide="box" class="w-4 h-4 text-amber-400"></i> Visualisasi 3D Pipa & Lilitan Denso Tape Spiral (360° Interactive)
+                        <i data-lucide="box" class="w-4 h-4 text-cyan-400"></i> Visualisasi 3D Pipa &amp; Lilitan Denso Tape Spiral (360° Interactive)
                     </h3>
-                    <span class="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-mono">
+                    <span class="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full font-mono">
                         Drag Mouse / Sentuh
                     </span>
                 </div>
-
-                <!-- High-Visibility 3D Container -->
                 <div class="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing shadow-inner" id="container3d">
                     <canvas id="canvas3d" class="w-full h-full block"></canvas>
                     <div class="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] text-slate-300 font-mono shadow">
-                        💡 Putar dengan drag mouse / sentuhan jari
+                         Putar dengan drag mouse / sentuhan jari
                     </div>
                 </div>
-
-                <!-- Color Legends -->
                 <div class="flex flex-wrap justify-center gap-4 text-[11px] mt-3">
                     <div class="flex items-center gap-1.5">
-                        <span id="legendPipeColor" class="w-3.5 h-3.5 rounded-full bg-slate-400 border border-slate-200"></span> 
+                        <span id="legendPipeColor" class="w-3.5 h-3.5 rounded-full bg-slate-400 border border-slate-200"></span>
                         <span id="legendPipeLabel" class="text-slate-200 font-medium">Pipa Inti</span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <span class="w-3.5 h-3.5 rounded-full bg-amber-600 border border-amber-400"></span> Denso Tape Wrapping (Spiral)
+                        <span class="w-3.5 h-3.5 rounded-full bg-cyan-600 border border-cyan-400"></span> Denso Tape Wrapping (Spiral)
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <span class="w-3.5 h-3.5 rounded-full bg-orange-500 border border-orange-300"></span> Garis Overlap Tape
+                        <span class="w-3.5 h-3.5 rounded-full bg-cyan-500 border border-cyan-300"></span> Garis Overlap Tape
                     </div>
                 </div>
             </div>
@@ -367,7 +436,7 @@
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div>
                         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i data-lucide="list" class="w-4 h-4 text-amber-400"></i> Data Entry Daftar Pipa Yang Di-Wrap
+                            <i data-lucide="list" class="w-4 h-4 text-cyan-400"></i> Data Entry Daftar Pipa Yang Di-Wrap
                         </h3>
                         <p class="text-xs text-slate-400">
                             Daftar item pipa yang dimasukkan. Anda dapat memasukkan beberapa ukuran berbeda (seperti 2", 4", 6").
@@ -377,7 +446,6 @@
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Kosongkan Semua
                     </button>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs font-mono">
                         <thead>
@@ -385,21 +453,21 @@
                                 <th class="py-2.5 px-3">No</th>
                                 <th class="py-2.5 px-3">Deskripsi Pipa</th>
                                 <th class="py-2.5 px-3 text-center">Panjang (m)</th>
-                                <th class="py-2.5 px-3">Denso Tape & Overlap</th>
+                                <th class="py-2.5 px-3">Denso Tape &amp; Overlap</th>
                                 <th class="py-2.5 px-3 text-right">Kebutuhan Tape</th>
                                 <th class="py-2.5 px-3 text-right">Order BPB</th>
                                 <th class="py-2.5 px-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tableDataEntryBody" class="divide-y divide-slate-800/70 text-slate-200">
-                            <!-- Populated via JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card">
-                
+            <!-- BPB Summary + Cetak -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 print-card ">
+
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                     <div>
                         <div class="flex items-center gap-2">
@@ -409,21 +477,19 @@
                             </h3>
                         </div>
                         <p class="text-xs text-slate-400 print-text">
-                            Ringkasan total material Denso Tape dikelompokkan secara terpisah menurut Spesifikasi & Ukuran
+                            Ringkasan total material Wrapping dikelompokkan secara terpisah menurut Spesifikasi &amp; Ukuran
                         </p>
                     </div>
-
                     <div class="flex items-center gap-2 no-print">
                         <button onclick="copyBPBToClipboard()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin BPB
                         </button>
-                        <button onclick="window.print()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-amber-600/20">
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-cyan-600/20">
                             <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak / PDF
                         </button>
                     </div>
                 </div>
 
-                <!-- Printable Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
@@ -437,20 +503,31 @@
                             </tr>
                         </thead>
                         <tbody id="tableBpbSummaryBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
-                            <!-- Dynamic Content populated via JavaScript -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Copy Confirmation Alert -->
                 <div id="bpbCopyMessage" class="hidden p-2.5 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-emerald-300 text-center font-sans no-print">
                     ✓ Rekomendasi Bon Permintaan Barang (BPB) berhasil disalin ke clipboard!
                 </div>
 
                 <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
-                    <span>* Catatan: Setiap ukuran/lebar tape ditampilkan terpisah agar sesuai pesanan barang (SKU) di lapangan.</span>
+                    <span>* Catatan: Saat input, Periksa kembali merk, lebar dan ketebalan Wrapping menyesuaikan spesifikasi yang berlaku di proyek. </span>
                 </div>
+            </div>
 
+            <!-- Signature Area (Print Only) -->
+            <div class="hidden print:grid grid-cols-2 gap-16 mt-8 pt-4 text-xs text-center font-sans">
+                <div class="flex flex-col items-center">
+                    <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
+                    <div class="w-48 border-b border-slate-900 pb-1 mb-1"><span class="opacity-0">.</span></div>
+                    <p class="text-[11px] font-bold text-slate-900 uppercase" id="signUser">SPV / SM / SE </p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
+                    <div class="w-48 border-b border-slate-900 pb-1 mb-1"><span class="opacity-0">.</span></div>
+                    <p class="text-[11px] font-bold text-slate-900 uppercase">PROJECT MANAGER</p>
+                </div>
             </div>
 
         </section>
@@ -459,13 +536,14 @@
 
     <footer class="bg-slate-950 border-t border-slate-900 py-4 px-6 text-center text-xs text-slate-500 mt-auto no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <span>Kalkulator Estimasi Isolasi Wrapping Denso Tape Pipa Dalam Tanah</span>
-            <span class="font-medium text-slate-400">© Sugeng Deny Ramdani - 2026</span>
+            <span class="font-medium text-slate-400"> Sugeng Deny Ramdani - 2026</span>
         </div>
     </footer>
 
     <script>
-        // Database Ukuran Pipa Standar (NPS)
+        // ============================================================
+        //  DATABASE
+        // ============================================================
         const PIPE_SIZES_LIST = [
             { name: '1/2"', inch: 0.5 },
             { name: '3/4"', inch: 0.75 },
@@ -489,7 +567,6 @@
             { name: 'Custom (User Input)', inch: 0 }
         ];
 
-        // SPINDO & Standard Pipe OD Matrix
         const SPINDO_OD_MATRIX = {
             '1/2"': { 'Class Light': 21.4, 'Class Medium': 21.3, 'Class Heavy': 21.3, 'Sch 40': 21.3, 'PN 10': 20.0, 'Kelas AW': 22.0 },
             '3/4"': { 'Class Light': 26.8, 'Class Medium': 26.9, 'Class Heavy': 26.8, 'Sch 40': 26.7, 'PN 10': 25.0, 'Kelas AW': 26.0 },
@@ -530,19 +607,59 @@
             custom: 'Pipa Custom'
         };
 
-        // Data Entry Table Array
+        // ============================================================
+        //  STATE
+        // ============================================================
         let dataEntries = [];
         let currentCalcResult = null;
 
+        // ============================================================
+        //  IDENTITAS (untuk kop cetak)
+        // ============================================================
+        function syncIdentity() {
+            const user = document.getElementById('inputUser').value || '-';
+            const proj = document.getElementById('inputProject').value || '-';
+            document.getElementById('printUser').textContent = user;
+            document.getElementById('signUser').textContent = user !== '-' ? user : 'ENGINEER / USER';
+            document.getElementById('printProject').textContent = proj;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const str = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+                ' - ' + now.toLocaleTimeString('id-ID');
+            document.getElementById('printDate').textContent = str;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
         function getODForSizeAndSchedule(sizeName, scheduleName) {
             if (SPINDO_OD_MATRIX[sizeName] && SPINDO_OD_MATRIX[sizeName][scheduleName]) {
                 return SPINDO_OD_MATRIX[sizeName][scheduleName];
             }
             const fallbackMap = {
-                '1/2"': 21.3, '3/4"': 26.7, '1"': 33.4, '1 1/4"': 42.2, '1 1/2"': 48.3,
-                '2"': 60.3, '2 1/2"': 73.0, '3"': 88.9, '4"': 114.3, '5"': 141.3,
-                '6"': 168.3, '8"': 219.1, '10"': 273.1, '12"': 323.9, '14"': 355.6,
-                '16"': 406.4, '18"': 457.2, '20"': 508.0, '24"': 609.6
+                '1/2"': 21.3,
+                '3/4"': 26.7,
+                '1"': 33.4,
+                '1 1/4"': 42.2,
+                '1 1/2"': 48.3,
+                '2"': 60.3,
+                '2 1/2"': 73.0,
+                '3"': 88.9,
+                '4"': 114.3,
+                '5"': 141.3,
+                '6"': 168.3,
+                '8"': 219.1,
+                '10"': 273.1,
+                '12"': 323.9,
+                '14"': 355.6,
+                '16"': 406.4,
+                '18"': 457.2,
+                '20"': 508.0,
+                '24"': 609.6
             };
             return fallbackMap[sizeName] || 114.3;
         }
@@ -550,8 +667,7 @@
         function populateSizeDropdown() {
             const select = document.getElementById('selectPipeSize');
             const currentSched = document.getElementById('selectPipeSchedule').value || 'Class Medium';
-            const previousIdx = select.selectedIndex >= 0 ? select.selectedIndex : 8; // Default 4"
-
+            const previousIdx = select.selectedIndex >= 0 ? select.selectedIndex : 8;
             select.innerHTML = '';
             PIPE_SIZES_LIST.forEach((p, idx) => {
                 const opt = document.createElement('option');
@@ -571,7 +687,6 @@
             const mat = document.getElementById('selectPipeMaterial').value;
             const schedSelect = document.getElementById('selectPipeSchedule');
             schedSelect.innerHTML = '';
-
             const options = SCHEDULE_MAP[mat] || ['Class Medium'];
             options.forEach(s => {
                 const opt = document.createElement('option');
@@ -584,11 +699,8 @@
         function onPipeMaterialChange() {
             const mat = document.getElementById('selectPipeMaterial').value;
             const lengthInput = document.getElementById('inputLengthPerJoint');
-
             populateScheduleDropdown();
             populateSizeDropdown();
-
-            // Set length rules: PVC/PPR = 4m, Steel/Galvanized = 6m
             if (mat === 'ppr' || mat === 'pvc') {
                 lengthInput.value = 4.0;
                 lengthInput.readOnly = true;
@@ -598,7 +710,6 @@
             } else {
                 lengthInput.readOnly = false;
             }
-
             syncPipeODFromSelection();
             calculateAll();
         }
@@ -619,7 +730,6 @@
             const idx = parseInt(document.getElementById('selectPipeSize').value);
             const selectedPipe = PIPE_SIZES_LIST[idx] || {};
             const currentSched = document.getElementById('selectPipeSchedule').value || 'Class Medium';
-
             if (selectedPipe.inch > 0) {
                 const exactOD = getODForSizeAndSchedule(selectedPipe.name, currentSched);
                 document.getElementById('inputCustomOD').value = exactOD;
@@ -632,11 +742,6 @@
             const inchVal = pipeObj.inch || 4.0;
             const selectTape = document.getElementById('selectTapeWidth');
             const badge = document.getElementById('badgeBitumenRule');
-
-            // Standard Denso Tape Rules:
-            // Pipe <= 2" -> 50mm
-            // 2" < Pipe <= 4" -> 100mm
-            // Pipe > 4" -> 150mm
             if (inchVal > 0 && inchVal <= 2.0) {
                 selectTape.value = "50";
                 badge.textContent = "Auto Standard Denso: Lebar 50mm (Pipa ≤ 2\")";
@@ -660,61 +765,49 @@
             calculateAll();
         }
 
+        // ============================================================
+        //  KALKULASI UTAMA
+        // ============================================================
         function calculateAll() {
-            // 1. Pipe Parameters
             const pipeMatKey = document.getElementById('selectPipeMaterial').value;
             const pipeMatName = MATERIAL_DISPLAY_NAMES[pipeMatKey] || 'Pipa';
             const pipeSched = document.getElementById('selectPipeSchedule').value || 'Class Medium';
-
             const pipeSizeIdx = parseInt(document.getElementById('selectPipeSize').value);
             const pipeSizeObj = PIPE_SIZES_LIST[pipeSizeIdx] || {};
             const pipeSizeName = pipeSizeObj.name ? pipeSizeObj.name : '';
-
             const jointLen = parseFloat(document.getElementById('inputLengthPerJoint').value) || 0;
             const jointCount = parseFloat(document.getElementById('inputJointCount').value) || 0;
             const totalPipeLengthM = jointLen * jointCount;
-
             const pipeDia_mm = parseFloat(document.getElementById('inputCustomOD').value) || 114.3;
             const phi = 3.14159265;
 
-            // 2. Denso Tape Specs
             const bitumenBrand = document.getElementById('inputBitumenBrand').value.trim() || 'Denso Tape';
             const tapeWidth_mm = parseFloat(document.getElementById('selectTapeWidth').value) || 100;
             const rollLen_m = parseFloat(document.getElementById('selectRollLength').value) || 10;
             const tapeThick_mm = parseFloat(document.getElementById('selectTapeThickness').value) || 1.15;
 
-            // Overlap Calculation
             const overlapMode = document.getElementById('selectOverlapMode').value;
-            let overlap_mm = tapeWidth_mm / 2.0; // Default 50%
+            let overlap_mm = tapeWidth_mm / 2.0;
             let overlapText = "50% (1/2 Lebar Tape)";
-
-            if (overlapMode === '10') { overlap_mm = 10; overlapText = "10 mm (1 cm)"; }
-            else if (overlapMode === '20') { overlap_mm = 20; overlapText = "20 mm (2 cm)"; }
-            else if (overlapMode === '30') { overlap_mm = 30; overlapText = "30 mm (3 cm)"; }
-            else if (overlapMode === '40') { overlap_mm = 40; overlapText = "40 mm (4 cm)"; }
-            else if (overlapMode === '50') { overlap_mm = 50; overlapText = "50 mm (5 cm)"; }
-            else if (overlapMode === 'custom') {
+            if (overlapMode === '10') { overlap_mm = 10;
+                overlapText = "10 mm (1 cm)"; } else if (overlapMode === '20') { overlap_mm = 20;
+                overlapText = "20 mm (2 cm)"; } else if (overlapMode === '30') { overlap_mm = 30;
+                overlapText = "30 mm (3 cm)"; } else if (overlapMode === '40') { overlap_mm = 40;
+                overlapText = "40 mm (4 cm)"; } else if (overlapMode === '50') { overlap_mm = 50;
+                overlapText = "50 mm (5 cm)"; } else if (overlapMode === 'custom') {
                 overlap_mm = parseFloat(document.getElementById('inputCustomOverlapMm').value) || 25;
                 overlapText = `${overlap_mm} mm (Custom)`;
             }
 
-            // Effective Advance Pitch per Spiral Turn
             const pitch_mm = Math.max(1, tapeWidth_mm - overlap_mm);
-
-            // Pipe Circumference
             const keliling_mm = phi * pipeDia_mm;
             const keliling_m = keliling_mm / 1000.0;
             const pipeArea_m2 = keliling_m * totalPipeLengthM;
-
-            // Spiral Tape Length per Turn (Helical Geometry)
             const tapeLenPerTurn_mm = Math.sqrt(Math.pow(keliling_mm, 2) + Math.pow(pitch_mm, 2));
-            const spiralFactor = tapeLenPerTurn_mm / pitch_mm; // Tape meters required per meter pipe
-
-            // Total Tape Length Requirement (Exact - Overlap is naturally built into pitch)
+            const spiralFactor = tapeLenPerTurn_mm / pitch_mm;
             const tapeFinalLengthM = totalPipeLengthM * spiralFactor;
             const bpbRollCount = Math.ceil(tapeFinalLengthM / rollLen_m);
 
-            // Store Current Calculation Object
             currentCalcResult = {
                 pipeMatKey,
                 pipeMatName,
@@ -740,15 +833,15 @@
                 bpbRollCount
             };
 
-            // Update Header & Dashboard KPIs
+            // Update UI
             document.getElementById('dispTotalLengthHeader').textContent = `${totalPipeLengthM.toFixed(1)} Meter`;
             document.getElementById('kpiTotalLength').textContent = totalPipeLengthM.toFixed(1);
             document.getElementById('kpiTotalLengthSub').textContent = `Meter (${jointCount} btg @ ${jointLen}m)`;
             document.getElementById('kpiPipeArea').textContent = pipeArea_m2.toFixed(2);
             document.getElementById('kpiTotalRolls').textContent = bpbRollCount;
-            document.getElementById('kpiTotalRollsSub').textContent = `Roll (@ ${rollLen_m}m • ${tapeWidth_mm}mm • t=${tapeThick_mm}mm)`;
+            document.getElementById('kpiTotalRollsSub').textContent =
+                `Roll (@ ${rollLen_m}m • ${tapeWidth_mm}mm • t=${tapeThick_mm}mm)`;
 
-            // Update Formula Breakdown Text
             document.getElementById('dispStep1Header').textContent = `C = ${keliling_m.toFixed(3)}m | Pitch = ${pitch_mm.toFixed(0)}mm`;
             document.getElementById('dispStepDiaPipa').textContent = pipeDia_mm.toFixed(1);
             document.getElementById('dispStepKelilingMm').textContent = keliling_mm.toFixed(2);
@@ -773,13 +866,56 @@
             document.getElementById('dispStepRollLen').textContent = rollLen_m;
             document.getElementById('dispStepBpbRolls').textContent = `${bpbRollCount} Roll`;
 
-            // Update 3D Model
-            update3dModel(pipeMatKey, pipeDia_mm, tapeWidth_mm, pitch_mm);
+            // Render ulang KaTeX pada blok math
+            renderMath();
 
-            // Refresh BPB Table
+            update3dModel(pipeMatKey, pipeDia_mm, tapeWidth_mm, pitch_mm);
             renderBpbSummary();
         }
 
+        // ============================================================
+        //  RENDER KATEX
+        // ============================================================
+        function renderMath() {
+            if (typeof renderMathInElement === 'undefined') {
+                // fallback: render manual tiap .math-inline
+                document.querySelectorAll('.math-inline').forEach(el => {
+                    try {
+                        katex.render(el.textContent, el, { throwOnError: false, displayMode: false });
+                    } catch (e) { /* ignore */ }
+                });
+                return;
+            }
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '$', right: '$', display: false }
+                ]
+            });
+        }
+
+        // Load KaTeX auto-render
+        (function loadKaTeXAutoRender() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+            script.onload = function() {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '\\(', right: '\\)', display: false },
+                            { left: '$', right: '$', display: false }
+                        ]
+                    });
+                }
+            };
+            document.head.appendChild(script);
+        })();
+
+        // ============================================================
+        //  DATA ENTRY
+        // ============================================================
         function addCurrentItemToTable() {
             if (!currentCalcResult) return;
             dataEntries.push({ ...currentCalcResult, id: Date.now() });
@@ -812,52 +948,39 @@
         function renderDataEntryTable() {
             const tbody = document.getElementById('tableDataEntryBody');
             if (dataEntries.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-4 text-center text-slate-500 italic font-sans">
-                            Belum ada data entry ditambahkan. Klik tombol "+ Tambah ke Data Entry" di panel kiri.
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML =
+                    `<tr><td colspan="7" class="py-4 text-center text-slate-500 italic font-sans">Belum ada data entry ditambahkan. Klik tombol "+ Tambah ke Data Entry" di panel kiri.</td></tr>`;
                 return;
             }
-
             tbody.innerHTML = dataEntries.map((item, idx) => `
-                <tr class="hover:bg-slate-800/40 border-b border-slate-800/50">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-slate-100">${item.pipeFullName}</td>
-                    <td class="py-2.5 px-3 text-center text-amber-300 font-bold">${item.totalPipeLengthM.toFixed(1)}m (${item.jointCount} btg)</td>
-                    <td class="py-2.5 px-3 text-slate-300 font-sans">${item.bitumenBrand} (${item.tapeWidth_mm}mm, t=${item.tapeThick_mm}mm) • Overlap: ${item.overlapText}</td>
-                    <td class="py-2.5 px-3 text-right text-orange-300 font-bold">${item.tapeFinalLengthM.toFixed(1)} m</td>
-                    <td class="py-2.5 px-3 text-right text-emerald-400 font-bold">${item.bpbRollCount} Roll</td>
-                    <td class="py-2.5 px-3 text-center">
-                        <button onclick="deleteDataEntry(${item.id})" title="Hapus Baris" class="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded transition-all">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
+                    <tr class="hover:bg-slate-800/40 border-b border-slate-800/50">
+                        <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-sans font-semibold text-slate-100">${item.pipeFullName}</td>
+                        <td class="py-2.5 px-3 text-center text-cyan-300 font-bold">${item.totalPipeLengthM.toFixed(1)}m (${item.jointCount} btg)</td>
+                        <td class="py-2.5 px-3 text-slate-300 font-sans">${item.bitumenBrand} (${item.tapeWidth_mm}mm, t=${item.tapeThick_mm}mm) • Overlap: ${item.overlapText}</td>
+                        <td class="py-2.5 px-3 text-right text-cyan-300 font-bold">${item.tapeFinalLengthM.toFixed(1)} m</td>
+                        <td class="py-2.5 px-3 text-right text-emerald-400 font-bold">${item.bpbRollCount} Roll</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <button onclick="deleteDataEntry(${item.id})" title="Hapus Baris" class="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
             lucide.createIcons();
         }
 
         function renderBpbSummary() {
             const tbody = document.getElementById('tableBpbSummaryBody');
-
-            // If entries array is empty, fall back to showing currently calculated active form item
             const itemsToSummarize = dataEntries.length > 0 ? dataEntries : (currentCalcResult ? [currentCalcResult] : []);
-
             if (itemsToSummarize.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500">Kosong</td></tr>`;
                 return;
             }
-
-            // Grouping logic: Group by Tape Specifications (Brand + Width + RollLength + Thickness)
             const groupsMap = {};
-
             itemsToSummarize.forEach(item => {
-                const groupKey = `${item.bitumenBrand}_${item.tapeWidth_mm}mm_t${item.tapeThick_mm}mm_L${item.rollLen_m}m`;
-                
+                const groupKey =
+                    `${item.bitumenBrand}_${item.tapeWidth_mm}mm_t${item.tapeThick_mm}mm_L${item.rollLen_m}m`;
                 if (!groupsMap[groupKey]) {
                     groupsMap[groupKey] = {
                         brand: item.bitumenBrand,
@@ -869,77 +992,89 @@
                         totalRolls: 0
                     };
                 }
-
                 groupsMap[groupKey].totalPipeMeters += item.totalPipeLengthM;
                 groupsMap[groupKey].totalTapeMeters += item.tapeFinalLengthM;
                 groupsMap[groupKey].totalRolls += item.bpbRollCount;
             });
-
             const groupsArray = Object.values(groupsMap);
-
             tbody.innerHTML = groupsArray.map((grp, idx) => `
-                <tr class="hover:bg-slate-800/40 print-text">
-                    <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
-                    <td class="py-2.5 px-3 font-sans font-semibold text-orange-300">Denso Tape (${grp.brand})</td>
-                    <td class="py-2.5 px-3 text-slate-300 font-sans">
-                        ${grp.brand} • Lebar ${grp.width} mm • Tebal ${grp.thick} mm • Roll @ ${grp.rollLen} Meter
-                    </td>
-                    <td class="py-2.5 px-3 text-right font-bold text-orange-300">${grp.totalTapeMeters.toFixed(1)}</td>
-                    <td class="py-2.5 px-3 text-center text-slate-300 font-semibold font-sans">Meter</td>
-                    <td class="py-2.5 px-3 text-right font-bold text-emerald-400 text-sm">${grp.totalRolls} Roll</td>
-                </tr>
-            `).join('');
+                    <tr class="hover:bg-slate-800/40 print-text">
+                        <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-sans font-semibold text-cyan-300">Denso Tape (${grp.brand})</td>
+                        <td class="py-2.5 px-3 text-slate-300 font-sans">
+                            ${grp.brand} • Lebar ${grp.width} mm • Tebal ${grp.thick} mm • Roll @ ${grp.rollLen} Meter
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-bold text-cyan-300">${grp.totalTapeMeters.toFixed(1)}</td>
+                        <td class="py-2.5 px-3 text-center text-slate-300 font-semibold font-sans">Meter</td>
+                        <td class="py-2.5 px-3 text-right font-bold text-emerald-400 text-sm">${grp.totalRolls} Roll</td>
+                    </tr>
+                `).join('');
         }
 
+        function copyBPBToClipboard() {
+            const table = document.getElementById('tableBpbSummaryBody');
+            let text = "BON PERMINTAAN BARANG (BPB) REKOMENDASI\n";
+            text += "ISOLASI WRAPPING DENSO TAPE PIPA DALAM TANAH\n";
+            text += "===============================================\n\n";
+            const rows = table.querySelectorAll('tr');
+            rows.forEach((r) => {
+                const cols = r.querySelectorAll('td');
+                if (cols.length >= 6) {
+                    text += `${cols[0].innerText}. ${cols[1].innerText}\n`;
+                    text += `   Spesifikasi : ${cols[2].innerText}\n`;
+                    text += `   Vol. Metrik : ${cols[3].innerText} ${cols[4].innerText}\n`;
+                    text += `   ORDER BPB   : ${cols[5].innerText}\n\n`;
+                }
+            });
+            navigator.clipboard.writeText(text).then(() => {
+                const msg = document.getElementById('bpbCopyMessage');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3500);
+            }).catch(() => {
+                // fallback
+                document.execCommand('copy');
+            });
+        }
+
+        // ============================================================
+        //  3D SCENE
+        // ============================================================
         let scene, camera, renderer;
         let pipeGroup;
         let isMouseDown = false;
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0.3, targetRotationY = -0.5;
+        let mouseX = 0,
+            mouseY = 0;
+        let targetRotationX = 0.3,
+            targetRotationY = -0.5;
 
         function init3DScene() {
             const container = document.getElementById('container3d');
             const canvas = document.getElementById('canvas3d');
-
             if (!container || !canvas) return;
-
             const w = container.clientWidth || container.offsetWidth || 500;
             const h = container.clientHeight || container.offsetHeight || 280;
-
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a); // Dark background
-
+            scene.background = new THREE.Color(0x0f172a);
             camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
             camera.position.set(0, 2.5, 10);
-
             renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
             renderer.setSize(w, h, false);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            // Ambient & Directional Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
             scene.add(ambientLight);
-
             const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
             dirLight1.position.set(10, 15, 10);
             scene.add(dirLight1);
-
             const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.6);
             dirLight2.position.set(-10, -5, -10);
             scene.add(dirLight2);
-
             pipeGroup = new THREE.Group();
             scene.add(pipeGroup);
 
-            // Drag Mouse & Touch controls
-            container.addEventListener('mousedown', (e) => {
-                isMouseDown = true;
+            container.addEventListener('mousedown', (e) => { isMouseDown = true;
                 mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-
+                mouseY = e.clientY; });
             window.addEventListener('mouseup', () => isMouseDown = false);
-
             container.addEventListener('mousemove', (e) => {
                 if (!isMouseDown) return;
                 const deltaX = e.clientX - mouseX;
@@ -949,14 +1084,10 @@
                 mouseX = e.clientX;
                 mouseY = e.clientY;
             });
-
-            // Mobile Touch Support
             container.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    isMouseDown = true;
+                if (e.touches.length === 1) { isMouseDown = true;
                     mouseX = e.touches[0].clientX;
-                    mouseY = e.touches[0].clientY;
-                }
+                    mouseY = e.touches[0].clientY; }
             });
             container.addEventListener('touchend', () => isMouseDown = false);
             container.addEventListener('touchmove', (e) => {
@@ -968,7 +1099,6 @@
                 mouseX = e.touches[0].clientX;
                 mouseY = e.touches[0].clientY;
             });
-
             window.addEventListener('resize', syncCanvasSize);
             animate3D();
         }
@@ -985,8 +1115,6 @@
 
         function update3dModel(matKey, pipeDia, tapeWidth, pitch) {
             if (!pipeGroup) return;
-
-            // Clear previous children
             while (pipeGroup.children.length > 0) {
                 const child = pipeGroup.children[0];
                 if (child.geometry) child.geometry.dispose();
@@ -996,80 +1124,51 @@
                 }
                 pipeGroup.remove(child);
             }
-
             const pipeLength = 8.5;
             const rPipe = Math.max(0.6, Math.min(1.4, (pipeDia / 120.0)));
-
-            // Core Pipe Material Aesthetics
-            let pipeColor = 0x1e293b; // Default Black Steel / Iron
-            let pipeMetal = 0.7;
-            let pipeRough = 0.4;
-            let pipeLabel = "Pipa Galvanis";
-
-            if (matKey === 'galvanis') {
-                pipeColor = 0x94a3b8;
+            let pipeColor = 0x1e293b,
+                pipeMetal = 0.7,
+                pipeRough = 0.4,
+                pipeLabel = "Pipa Galvanis";
+            if (matKey === 'galvanis') { pipeColor = 0x94a3b8;
                 pipeMetal = 0.85;
                 pipeRough = 0.25;
-                pipeLabel = "Pipa Galvanis";
-            } else if (matKey === 'blacksteel') {
-                pipeColor = 0x111827;
+                pipeLabel = "Pipa Galvanis"; } else if (matKey === 'blacksteel') { pipeColor = 0x111827;
                 pipeMetal = 0.5;
                 pipeRough = 0.6;
-                pipeLabel = "Pipa Black Steel";
-            } else if (matKey === 'stainless') {
-                pipeColor = 0xf1f5f9;
+                pipeLabel = "Pipa Black Steel"; } else if (matKey === 'stainless') { pipeColor = 0xf1f5f9;
                 pipeMetal = 0.98;
                 pipeRough = 0.1;
-                pipeLabel = "Pipa Stainless Steel";
-            } else if (matKey === 'ppr') {
-                pipeColor = 0x059669;
+                pipeLabel = "Pipa Stainless Steel"; } else if (matKey === 'ppr') { pipeColor = 0x059669;
                 pipeMetal = 0.1;
                 pipeRough = 0.4;
-                pipeLabel = "Pipa PPR";
-            } else if (matKey === 'pvc') {
-                pipeColor = 0xe2e8f0;
+                pipeLabel = "Pipa PPR"; } else if (matKey === 'pvc') { pipeColor = 0xe2e8f0;
                 pipeMetal = 0.1;
                 pipeRough = 0.3;
-                pipeLabel = "Pipa PVC";
-            }
-
-            // Legend Label
+                pipeLabel = "Pipa PVC"; }
             const legendLabel = document.getElementById('legendPipeLabel');
             if (legendLabel) legendLabel.textContent = pipeLabel;
-
-            // 1. Core Steel/Plastic Pipe Cylinder
             const pipeGeo = new THREE.CylinderGeometry(rPipe, rPipe, pipeLength, 48);
             const pipeMat = new THREE.MeshStandardMaterial({ color: pipeColor, metalness: pipeMetal, roughness: pipeRough });
             const pipeMesh = new THREE.Mesh(pipeGeo, pipeMat);
             pipeMesh.rotation.z = Math.PI / 2;
             pipeGroup.add(pipeMesh);
 
-            // 2. Denso Tape Wrapping - Tight Thin Outer Sleeve Hugging Pipe
-            const sleeveLength = pipeLength * 0.72; // Wrapped part of pipe
-            const rTapeSleeve = rPipe + 0.015; // Very thin layer clinging to pipe surface (like real 2mm-3mm tape)
+            const sleeveLength = pipeLength * 0.72;
+            const rTapeSleeve = rPipe + 0.015;
             const sleeveGeo = new THREE.CylinderGeometry(rTapeSleeve, rTapeSleeve, sleeveLength, 48);
-            
-            // Tape surface material (Glossy protective bitumen/petrolatum tape finish)
-            const tapeMat = new THREE.MeshStandardMaterial({ 
-                color: 0xd97706, 
-                roughness: 0.4, 
-                metalness: 0.2,
-                bumpScale: 0.02
-            });
+            const tapeMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.2, bumpScale: 0.02 });
             const tapeSleeveMesh = new THREE.Mesh(sleeveGeo, tapeMat);
             tapeSleeveMesh.rotation.z = Math.PI / 2;
-            tapeSleeveMesh.position.x = 0.3; // Offset so one end shows exposed bare pipe
+            tapeSleeveMesh.position.x = 0.3;
             pipeGroup.add(tapeSleeveMesh);
 
-            // 3. Spiral Overlap Seam Lines on Top of Tape Surface
             const spiralTurns = 14;
             const startX = tapeSleeveMesh.position.x - (sleeveLength / 2);
-            const rSeam = rTapeSleeve + 0.005; // Slightly above tape sleeve
-
+            const rSeam = rTapeSleeve + 0.005;
             const pointsPerTurn = 40;
             const totalPoints = spiralTurns * pointsPerTurn;
             const helixPoints = [];
-
             for (let i = 0; i <= totalPoints; i++) {
                 const t = i / totalPoints;
                 const angle = t * spiralTurns * Math.PI * 2;
@@ -1078,22 +1177,18 @@
                 const z = rSeam * Math.sin(angle);
                 helixPoints.push(new THREE.Vector3(x, y, z));
             }
-
             const seamCurve = new THREE.CatmullRomCurve3(helixPoints);
             const seamGeo = new THREE.TubeGeometry(seamCurve, totalPoints, 0.012, 8, false);
-            const seamMat = new THREE.MeshBasicMaterial({ color: 0x78350f }); // Darker brown seam overlap line
+            const seamMat = new THREE.MeshBasicMaterial({ color: 0x0e7490 });
             const seamMesh = new THREE.Mesh(seamGeo, seamMat);
             pipeGroup.add(seamMesh);
 
-            // 4. End Ring Caps / Collars for Tape Wrapping Start & End
             const endRingGeo = new THREE.TorusGeometry(rTapeSleeve, 0.018, 12, 48);
-            const endRingMat = new THREE.MeshBasicMaterial({ color: 0x92400e });
-            
+            const endRingMat = new THREE.MeshBasicMaterial({ color: 0x0e7490 });
             const ringStart = new THREE.Mesh(endRingGeo, endRingMat);
             ringStart.rotation.y = Math.PI / 2;
             ringStart.position.x = startX;
             pipeGroup.add(ringStart);
-
             const ringEnd = new THREE.Mesh(endRingGeo, endRingMat);
             ringEnd.rotation.y = Math.PI / 2;
             ringEnd.position.x = startX + sleeveLength;
@@ -1102,48 +1197,35 @@
 
         function animate3D() {
             requestAnimationFrame(animate3D);
-
             if (pipeGroup) {
-                if (!isMouseDown) {
-                    targetRotationY += 0.003; // Smooth idle rotation
-                }
+                if (!isMouseDown) { targetRotationY += 0.003; }
                 pipeGroup.rotation.x += (targetRotationX - pipeGroup.rotation.x) * 0.1;
                 pipeGroup.rotation.y += (targetRotationY - pipeGroup.rotation.y) * 0.1;
             }
-
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
-            }
+            if (renderer && scene && camera) { renderer.render(scene, camera); }
         }
 
-        function copyBPBToClipboard() {
-            const table = document.getElementById('tableBpbSummaryBody');
-            let text = "BON PERMINTAAN BARANG (BPB) REKOMENDASI\n";
-            text += "ISOLASI WRAPPING DENSO TAPE PIPA DALAM TANAH\n";
-            text += "===============================================\n\n";
-
-            const rows = table.querySelectorAll('tr');
-            rows.forEach((r) => {
-                const cols = r.querySelectorAll('td');
-                if (cols.length >= 6) {
-                    text += `${cols[0].innerText}. ${cols[1].innerText}\n`;
-                    text += `   Spesifikasi : ${cols[2].innerText}\n`;
-                    text += `   Vol. Metrik : ${cols[3].innerText} ${cols[4].innerText}\n`;
-                    text += `   ORDER BPB   : ${cols[5].innerText}\n\n`;
-                }
-            });
-
-            document.execCommand('copy');
-            const msg = document.getElementById('bpbCopyMessage');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 3500);
-        }
-
+        // ============================================================
+        //  INIT
+        // ============================================================
         window.addEventListener('DOMContentLoaded', () => {
             init3DScene();
             onPipeMaterialChange();
             syncCanvasSize();
             lucide.createIcons();
+            syncIdentity();
+            // render math setelah semua elemen siap
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '\\(', right: '\\)', display: false },
+                            { left: '$', right: '$', display: false }
+                        ]
+                    });
+                }
+            }, 500);
         });
     </script>
 </body>
