@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kalkulator Volume Air dalam Instalasi Pipa</title>
+    <title>Kalkulator Volume Air & Glycol Instalasi Pipa</title>
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com">
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Font Inter & Lucide Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <script src="https://unpkg.com/lucide@latest">
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         * {
@@ -32,81 +30,6 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #334155;
-        }
-
-        @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-header {
-                display: block !important;
-            }
-            .print-card {
-                border: 1px solid #cbd5e1 !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-                box-shadow: none !important;
-                padding: 16px !important;
-                margin-bottom: 20px !important;
-                page-break-inside: avoid;
-            }
-            table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                color: #000000 !important;
-            }
-            th,
-            td {
-                border: 1px solid #94a3b8 !important;
-                color: #000000 !important;
-                padding: 6px 10px !important;
-                font-size: 11px !important;
-            }
-            th {
-                background: #f1f5f9 !important;
-            }
-            .text-slate-100,
-            .text-slate-200,
-            .text-slate-300,
-            .text-slate-400,
-            .text-white {
-                color: #000000 !important;
-            }
-            .text-cyan-400,
-            .text-blue-400,
-            .text-emerald-400 {
-                color: #0f172a !important;
-                font-weight: 700 !important;
-            }
-            .bg-slate-900,
-            .bg-slate-950,
-            .bg-slate-800 {
-                background: #ffffff !important;
-            }
-            .border-slate-800,
-            .border-slate-700 {
-                border-color: #cbd5e1 !important;
-            }
-            .print-footer {
-                display: block !important;
-                text-align: center !important;
-                font-size: 11px !important;
-                color: #475569 !important;
-                margin-top: 20px !important;
-                padding-top: 12px !important;
-                border-top: 1px solid #e2e8f0 !important;
-            }
-        }
-
-        .print-header {
-            display: none;
-        }
-        .print-footer {
-            display: none;
         }
 
         input[type="number"]::-webkit-inner-spin-button,
@@ -131,434 +54,978 @@
                 transform: translateY(0);
             }
         }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 11pt !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                padding: 12px !important;
+                margin-bottom: 16px !important;
+                page-break-inside: avoid;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #000000 !important;
+                margin-top: 8px !important;
+                margin-bottom: 12px !important;
+            }
+            th, td {
+                border: 1px solid #64748b !important;
+                color: #000000 !important;
+                padding: 6px 10px !important;
+                font-size: 10pt !important;
+            }
+            th {
+                background: #f1f5f9 !important;
+                font-weight: 700 !important;
+            }
+            .print-accent-bar {
+                border-bottom: 3px solid #0284c7 !important;
+            }
+            .print-footer-signature {
+                margin-top: 40px !important;
+                page-break-inside: avoid;
+            }
+            .print-glycol-hatch {
+                background: repeating-linear-gradient(
+                    45deg,
+                    #0f172a,
+                    #0f172a 4px,
+                    #cbd5e1 4px,
+                    #cbd5e1 8px
+                ) !important;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
 
-    <!-- ===== PRINT HEADER ===== -->
-    <div class="hidden print-header px-6 py-4 border-b border-slate-300 mb-4">
-        <h1 class="text-xl font-bold text-black">Rekapitulasi Volume Air dalam Instalasi Pipa</h1>
-        <p class="text-sm text-slate-600">Kalkulator Volume Air • Sugeng Deny Ramdani 2026</p>
-    </div>
-
-    <!-- ===== MAIN HEADER ===== -->
-    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+    <!-- ===== HEADER (NO PRINT) ===== -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
-                <div class="bg-cyan-600/20 p-2.5 rounded-xl border border-cyan-500/30 text-cyan-400">
-                    <i data-lucide="droplets" class="w-6 h-6"></i>
+                <div class="bg-cyan-600/20 p-2.5 rounded-xl border border-cyan-500/30 text-cyan-400 shadow-lg shadow-cyan-500/10">
+                    <i data-lucide="droplet" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-white leading-tight">Kalkulator Volume Air dalam Instalasi Pipa</h1>
-                    <p class="text-xs text-slate-400">Hitung volume air berdasarkan diameter dalam &amp; panjang pipa</p>
+                    <h1 class="text-lg font-bold text-white leading-tight flex items-center gap-2">
+                        Perhitungan Volume Air & Glycol
+                        <span class="text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold px-2 py-0.5 rounded-full">V 2.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Hitung Kebutuhan Volume Air, Glycol &amp; Rekomendasi Order BPB</p>
                 </div>
             </div>
-            <button onclick="resetAll()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Semua
-            </button>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="loadSampleData()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition border border-slate-700" title="Isi Data Contoh">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Contoh Data
+                </button>
+                <button onclick="confirmResetAll()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/40 hover:text-rose-300 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition border border-slate-700 hover:border-rose-500/40">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset
+                </button>
+                <button onclick="triggerPrint()" class="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-cyan-600/20">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Cetak BPB
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
 
-        <!-- ===== LEFT: INPUT FORM ===== -->
-        <section class="lg:col-span-2 flex flex-col gap-5 no-print">
+        <!-- ===== LEFT COLUMN: INPUT FORMS (5 COLS) ===== -->
+        <section class="lg:col-span-5 flex flex-col gap-5">
 
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> Entry Data Pipa
+            <!-- 1. INFORMASI PROYEK & PARAMETER -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i> 1. Informasi Proyek
                 </h2>
 
-                <!-- Diameter Pipa -->
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Ukuran Pipa (Diameter dalam, mm)</label>
-                    <div class="flex gap-2">
-                        <select id="selectPipeSize" onchange="onPipeSizeChange()"
-                        class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium">
-                        <!-- populated by JS -->
-                    </select>
-                    <div id="customDiameterWrapper" class="hidden flex-1">
-                        <input type="number" id="inputCustomDiameter" value="100" min="1" step="1"
-                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500 transition" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Nama Proyek</label>
+                        <input type="text" id="projName" value="" 
+                               oninput="updateSummary()"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-00 transition font-medium" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Sistem / Lokasi</label>
+                        <input type="text" id="projSystem" value="" 
+                               oninput="updateSummary()"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Nama User</label>
+                        <input type="text" id="projPrepared" value="" 
+                               oninput="updateSummary()"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium" />
                     </div>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1">Pilih ukuran standar atau pilih <strong>Kustom</strong> untuk input manual.</p>
+
+                <!-- Parameter Glycol -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="percent" class="w-3.5 h-3.5 text-cyan-400"></i> Kebutuhan Konsentrasi Glycol
+                        </label>
+                        <span id="glycolPercentBadge" class="text-xs font-bold text-cyan-400 font-mono bg-cyan-950/60 border border-cyan-800/50 px-2 py-0.5 rounded-lg">10%</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="inputGlycolPercent" min="0" max="50" step="1" value="10" 
+                               oninput="syncGlycolPercent(this.value)"
+                               class="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-950 rounded-lg" />
+                        <input type="number" id="inputGlycolNum" min="0" max="100" step="1" value="10" 
+                               oninput="syncGlycolPercent(this.value)"
+                               class="w-16 bg-slate-950 border border-slate-700 rounded-xl px-2 py-1 text-xs text-center font-mono text-cyan-300 font-bold focus:outline-none focus:border-cyan-500" />
+                    </div>
+
+                    <!-- Param Density & Drum Spec -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 text-[10px] text-slate-400">
+                        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+                            <span class="block text-slate-500">Kemasan Standard:</span>
+                            <span class="font-bold text-slate-200">1 Drum = 225 Kg</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+                            <span class="block text-slate-500">Massa Jenis Glycol (SG):</span>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <input type="number" id="glycolDensity" value="1.05" step="0.01" min="0.8" max="1.3" 
+                                       oninput="updateSummary()"
+                                       class="w-12 bg-slate-900 border border-slate-700 rounded px-1 text-center font-mono text-cyan-300 text-[11px]" />
+                                <span class="text-slate-400">kg/Liter</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Panjang Pipa -->
+            <!-- 2. DATA ENTRY PIPA & PEALATAN -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> 2. Entry Data Pipa / Tangki / Coils
+                </h2>
+
+                <!-- Tabs Entry Type -->
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-medium">
+                    <button id="tabPipeBtn" onclick="switchEntryTab('pipe')" class="flex-1 py-1.5 rounded-lg text-center bg-cyan-600 text-white transition shadow-sm">
+                        Instalasi Pipa
+                    </button>
+                    <button id="tabEquipBtn" onclick="switchEntryTab('equip')" class="flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white transition">
+                        Peralatan (Chiller/AHU/Tank)
+                    </button>
+                </div>
+
+                <!-- PIPE FORM -->
+                <div id="pipeFormBlock" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Ukuran Pipa (Diameter Dalam, mm)</label>
+                        <div class="flex gap-2">
+                            <select id="selectPipeSize" onchange="onPipeSizeChange()"
+                                class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition font-medium">
+                                <!-- Populated by JS -->
+                            </select>
+                            <div id="customDiameterWrapper" class="hidden flex-1">
+                                <input type="number" id="inputCustomDiameter" value="100" min="1" step="1" placeholder="Mm..."
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500 transition" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang Pipa (Meter)</label>
+                        <input type="number" id="inputLength" value="50" min="0.1" step="0.5" 
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500 transition" />
+                    </div>
+                </div>
+
+                <!-- EQUIPMENT FORM (Hidden by default) -->
+                <div id="equipFormBlock" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Equipment / Komponen</label>
+                        <input type="text" id="inputEquipName" placeholder="Contoh: Chiller Evaporator Barrel / Buffer Tank" 
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Volume Langsung (Liter)</label>
+                        <input type="number" id="inputEquipLitres" value="250" min="1" step="1" 
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500 transition" />
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <button onclick="addCurrentEntry()"
+                            class="w-full py-2.5 px-4 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-cyan-600/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Tambah Item
+                    </button>
+                    <button onclick="resetFormInputs()"
+                            class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition border border-slate-700">
+                        <i data-lucide="eraser" class="w-4 h-4"></i> Clear Form
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rumus Card -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 space-y-2 text-xs">
+                <div class="flex items-center gap-2 text-cyan-400 font-semibold">
+                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                    <span>Kalkulasi Standard</span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed font-mono">
+                    Volume Pipa = &pi; &times; (D/2000)&sup2; &times; L (m&sup3;)<br/>
+                    Glycol (Kg) = Vol Glycol (Liter) &times; Specific Gravity (1.05)<br/>
+                    Standard Order = Math.Ceil(Total Glycol Kg / 225 Kg)
+                </p>
+            </div>
+
+        </section>
+
+        <!-- ===== RIGHT COLUMN: TABLE & SUMMARY (7 COLS) ===== -->
+        <section class="lg:col-span-7 flex flex-col gap-5">
+
+            <!-- SUMMARY REALTIME CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                <!-- Total Volume -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Volume System</span>
+                        <div class="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-2xl font-black text-white font-mono" id="cardTotalLiter">0 L</div>
+                        <div class="text-xs text-slate-400 font-mono mt-0.5" id="cardTotalM3">0.0000 m³</div>
+                    </div>
+                </div>
+
+                <!-- Water Volume -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kebutuhan Air Bersih</span>
+                        <div class="p-2 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20">
+                            <i data-lucide="droplets" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-2xl font-black text-cyan-400 font-mono" id="cardWaterLiter">0 L</div>
+                        <div class="text-xs text-cyan-300/70 font-mono mt-0.5" id="cardWaterPercent">100% Water</div>
+                    </div>
+                </div>
+
+                <!-- Glycol Volume & Drums -->
+                <div class="bg-slate-900 border border-cyan-900/40 rounded-2xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Kebutuhan Glycol</span>
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                            <i data-lucide="package" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-2xl font-black text-emerald-400 font-mono" id="cardGlycolDrums">0 Drum</div>
+                        <div class="text-xs text-emerald-300/70 font-mono mt-0.5" id="cardGlycolKg">0 Kg (0 Liter)</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- VISUAL RATIO BAR -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
+                <div class="flex justify-between text-xs font-semibold">
+                    <span class="text-cyan-400 flex items-center gap-1.5"><i data-lucide="circle-dot" class="w-3 h-3"></i> Air Bersih: <span id="barWaterVal">0 L (100%)</span></span>
+                    <span class="text-emerald-400 flex items-center gap-1.5"><i data-lucide="circle-dot" class="w-3 h-3"></i> Glycol: <span id="barGlycolVal">0 L (0%)</span></span>
+                </div>
+                <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden flex p-0.5 border border-slate-800">
+                    <div id="barWaterFill" class="h-full bg-cyan-500 rounded-l-full transition-all duration-300" style="width: 100%;"></div>
+                    <div id="barGlycolFill" class="h-full bg-emerald-400 rounded-r-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- TABEL DATA ENTRY -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4 text-cyan-400"></i> Data List Rincian Instalasi
+                        </h3>
+                        <span id="badgeCount" class="text-xs font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-lg border border-cyan-800/60 font-semibold">
+                            0 Item
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="sticky top-0 bg-slate-900 z-10">
+                                <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                    <th class="py-2.5 px-2 text-center">No</th>
+                                    <th class="py-2.5 px-2">Komponen / Pipa</th>
+                                    <th class="py-2.5 px-2 text-center">Ukuran (mm)</th>
+                                    <th class="py-2.5 px-2 text-center">Panjang (m)</th>
+                                    <th class="py-2.5 px-2 text-right">Vol (m³)</th>
+                                    <th class="py-2.5 px-2 text-right">Vol (Liter)</th>
+                                    <th class="py-2.5 px-2 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Footer Total -->
+                <div class="mt-4 pt-3 border-t border-slate-800 space-y-2 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono border-b border-slate-800/60 pb-2">
+                        <div class="text-slate-400">Subtotal Pipa: <span class="font-bold text-cyan-300" id="webSubtotalPipe">0 L</span></div>
+                        <div class="text-slate-400">Subtotal Equip: <span class="font-bold text-cyan-300" id="webSubtotalEquip">0 L</span></div>
+                        <div class="text-slate-400">Total Items: <span class="font-bold text-white" id="totalRowCount">0</span></div>
+                    </div>
+                    <div class="flex items-center justify-between font-mono font-bold">
+                        <span class="text-slate-300">TOTAL KEBUTUHAN KESELURUHAN:</span>
+                        <div class="text-right">
+                            <span class="text-cyan-400 text-sm" id="totalTableLiter">0 Liter</span>
+                            <span class="text-emerald-400 text-xs ml-2" id="totalTableM3">(0.0000 m³)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ===== FOOTER WEB COPYRIGHT ===== -->
+    <footer class="py-4 text-center text-xs text-slate-500 border-t border-slate-900 no-print">
+        <p>© 2026 <span class="text-slate-400 font-semibold">Sugeng Deny Ramdani</span>. All rights reserved.</p>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- ===== OFFICIAL PRINT VIEW (LAYOUT AS PER REFERENCE IMAGE) ===== -->
+    <!-- ============================================================ -->
+    <div class="print-only p-8 max-w-4xl mx-auto bg-white text-black font-sans">
+        
+        <!-- Print Header Bar -->
+        <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4 print-accent-bar">
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1.5">Panjang Pipa (meter)</label>
-                <input type="number" id="inputLength" value="10" min="0.1" step="0.1"
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500 transition" />
-                <p class="text-[10px] text-slate-400 mt-1">Panjang total pipa dalam satuan meter (m).</p>
+                <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">LAPORAN KALKULASI VOLUME AIR &amp; GLYCOL</h1>
+                <p class="text-xs text-slate-600 font-medium mt-0.5">Perhitungan Sizing Volume Air, Kebutuhan Glycol &amp; Recommendation Bon Permintaan Barang (BPB)</p>
             </div>
-
-            <!-- Tombol Aksi -->
-            <div class="grid grid-cols-2 gap-3 pt-1">
-                <button onclick="addEntry()"
-                class="w-full py-2.5 px-4 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-cyan-600/20">
-                <i data-lucide="plus" class="w-4 h-4"></i> Entry
-            </button>
-            <button onclick="resetForm()"
-            class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition border border-slate-700">
-            <i data-lucide="eraser" class="w-4 h-4"></i> Reset Form
-        </button>
-    </div>
-</div>
-
-<!-- Informasi Singkat -->
-<div class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-4 space-y-2">
-    <div class="flex items-center gap-2 text-cyan-400 text-xs font-semibold">
-        <i data-lucide="info" class="w-4 h-4"></i>
-        <span>Rumus Volume Tabung</span>
-    </div>
-    <p class="text-[11px] text-slate-300 leading-relaxed">
-        <span class="font-mono text-cyan-300">V = π × r² × L</span>
-        &nbsp;dengan&nbsp;
-        <span class="font-mono text-cyan-300">r = D / 2000</span>
-        &nbsp;(D dalam mm, L dalam m)
-    </p>
-    <p class="text-[10px] text-slate-400">Hasil volume dalam <strong>m³</strong> &amp; <strong>Liter</strong>.</p>
-</div>
-</section>
-
-<!-- ===== RIGHT: TABLE & SUMMARY ===== -->
-<section class="lg:col-span-3 flex flex-col gap-5">
-
-    <!-- Tabel Data Entry -->
-    <div id="tableSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl print-card">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <i data-lucide="list" class="w-4 h-4 text-cyan-400 no-print"></i> Data Entry Pipa
-            </h3>
-            <span id="badgeCount" class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 no-print">
-                0 Item
-            </span>
+            <div class="text-right text-xs text-slate-700">
+                <div class="font-bold">Tanggal: <span id="printDate">02/09/2026</span></div>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+        <!-- Project Meta Info Header -->
+        <div class="border border-slate-300 rounded p-3 mb-5 bg-slate-50 text-xs grid grid-cols-2 gap-x-6 gap-y-1.5">
+            <div><span class="font-bold text-slate-700">Nama Proyek:</span> <span id="printProjName" class="font-semibold text-black">-</span></div>
+            <div><span class="font-bold text-slate-700">Sistem / Lokasi:</span> <span id="printProjSystem" class="font-semibold text-black">-</span></div>
+            <div><span class="font-bold text-slate-700">Target Glycol:</span> <span id="printTargetGlycol" class="font-bold text-slate-900">10%</span></div>
+        </div>
+
+        <!-- SECTION 1: REKOMENDASI PERMINTAAN BARANG (BPB) -->
+        <div class="mb-6">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-300 pb-1.5 mb-2.5">
+                1. REKOMENDASI PERMINTAAN BARANG (BPB)
+            </h2>
+
+            <table class="w-full text-left text-xs border border-slate-400">
                 <thead>
-                    <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
-                        <th class="py-2 px-2 text-center">No</th>
-                        <th class="py-2 px-2">Ukuran Pipa</th>
-                        <th class="py-2 px-2 text-center">D (mm)</th>
-                        <th class="py-2 px-2 text-center">L (m)</th>
-                        <th class="py-2 px-2 text-right">Volume (m³)</th>
-                        <th class="py-2 px-2 text-center no-print">Aksi</th>
+                    <tr class="bg-slate-200 border-b border-slate-400">
+                        <th class="py-2 px-3 border-r border-slate-400">Item Material</th>
+                        <th class="py-2 px-3 border-r border-slate-400">Spesifikasi / Standar</th>
+                        <th class="py-2 px-3 border-r border-slate-400 text-right">Kebutuhan Netto</th>
+                        <th class="py-2 px-3 text-center font-bold">Rekomendasi BPB</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-slate-800/60 text-slate-300 font-mono">
-                    <!-- populated by JS -->
+                <tbody class="divide-y divide-slate-300">
+                    <tr>
+                        <td class="py-2 px-3 border-r border-slate-400 font-bold text-slate-900">Glycol Concentrate</td>
+                        <td class="py-2 px-3 border-r border-slate-400 text-slate-700"> Ethylene / Propylene Glycol (Drum @ 225 Kg)</td>
+                        <td class="py-2 px-3 border-r border-slate-400 text-right font-mono" id="printNetGlycol">0 Kg (0 L)</td>
+                        <td class="py-2 px-3 text-center font-bold text-slate-900 font-mono" id="printOrderGlycol">0 Drum @ 225 Kg</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Total Ringkasan -->
-        <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800/80">
-            <div>
-                <span class="text-[10px] uppercase tracking-wider text-slate-400">Total Volume</span>
-                <div class="text-lg font-black text-emerald-400" id="totalVolumeM3">0.000 m³</div>
+        <!-- SECTION 2: RINGKASAN ANALYSIS & VISUAL CARD (TAMPILAN WEB METRIC) -->
+        <div class="mb-6">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-300 pb-1.5 mb-3">
+                2. RINGKASAN ANALISIS VOLUME &amp; RASIO CAMPURAN
+            </h2>
+
+            <!-- Subtotal Breakdown Table (DIATAS) -->
+            <table class="w-full text-left text-xs border border-slate-400 mb-3">
+                <tbody class="divide-y divide-slate-300 font-mono">
+                    <tr>
+                        <td class="py-1.5 px-3 bg-slate-100 font-sans font-semibold w-1/3">Sub Total Volume Pipa</td>
+                        <td class="py-1.5 px-3 font-bold text-slate-800" id="printSubtotalPipe">0 L (0.0000 m³)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 px-3 bg-slate-100 font-sans font-semibold">Sub Total Volume Equipment</td>
+                        <td class="py-1.5 px-3 font-bold text-slate-800" id="printSubtotalEquip">0 L (0.0000 m³)</td>
+                    </tr>
+                    <tr class="bg-slate-200 font-bold text-slate-900">
+                        <td class="py-2 px-3 font-sans">TOTAL KEBUTUHAN KESELURUHAN</td>
+                        <td class="py-2 px-3" id="printSubtotalTotal">0 L (0.0000 m³)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Metric Cards Grid for Print (DIBAWAH TABEL) -->
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <div class="border border-slate-300 bg-slate-50 p-3 rounded">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Total Volume System</span>
+                    <div class="text-lg font-black text-slate-900 font-mono mt-1" id="printCardTotalLiter">0 L</div>
+                    <div class="text-[10px] text-slate-600 font-mono" id="printCardTotalM3">0.0000 m³</div>
+                </div>
+
+                <div class="border border-slate-300 bg-slate-50 p-3 rounded">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Kebutuhan Air Bersih</span>
+                    <div class="text-lg font-black text-slate-900 font-mono mt-1" id="printCardWaterLiter">0 L</div>
+                    <div class="text-[10px] text-slate-600 font-mono" id="printCardWaterPercent">90% Air (0.00 m³)</div>
+                </div>
+
+                <div class="border border-slate-300 bg-slate-100 p-3 rounded border-slate-400">
+                    <span class="text-[10px] uppercase font-bold text-slate-700 block">Kebutuhan Glycol</span>
+                    <div class="text-lg font-black text-slate-900 font-mono mt-1" id="printCardGlycolDrums">0 Drum</div>
+                    <div class="text-[10px] text-slate-700 font-mono" id="printCardGlycolKg">0 Kg (0 L)</div>
+                </div>
             </div>
-            <div>
-                <span class="text-[10px] uppercase tracking-wider text-slate-400">Total Volume</span>
-                <div class="text-lg font-black text-cyan-400" id="totalVolumeLiter">0 Liter</div>
+
+            <!-- Visual Proportion Bar for Print with Arsir / Hatch Pattern for Glycol -->
+            <div class="border border-slate-300 rounded p-2.5 bg-slate-50 mb-3 space-y-1.5">
+                <div class="flex justify-between text-[11px] font-bold">
+                    <span class="text-slate-800">Air Bersih: <span id="printBarWaterVal">0 L (90%)</span></span>
+                    <span class="text-slate-900 flex items-center gap-1">
+                        <span class="inline-block w-2.5 h-2.5 print-glycol-hatch border border-slate-700"></span> 
+                        Glycol (Arsir): <span id="printBarGlycolVal">0 L (10%)</span>
+                    </span>
+                </div>
+                <div class="w-full h-3.5 bg-slate-200 rounded overflow-hidden flex border border-slate-400">
+                    <div id="printBarWaterFill" class="h-full bg-slate-300 border-r border-slate-400" style="width: 90%;"></div>
+                    <div id="printBarGlycolFill" class="h-full print-glycol-hatch" style="width: 10%;"></div>
+                </div>
             </div>
-            <div>
-                <span class="text-[10px] uppercase tracking-wider text-slate-400">Jumlah Baris</span>
-                <div class="text-lg font-black text-white" id="totalRowCount">0</div>
+
+        </div>
+
+        <!-- SECTION 3: RINCIAN LIST PIPA -->
+        <div class="mb-6">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-300 pb-1.5 mb-2.5">
+                3. RINCIAN PERHITUNGAN DETAIL PER ITEM
+            </h2>
+            <table class="w-full text-left text-xs border border-slate-400">
+                <thead>
+                    <tr class="bg-slate-100 border-b border-slate-400">
+                        <th class="py-1.5 px-2 border-r border-slate-400 text-center">No</th>
+                        <th class="py-1.5 px-2 border-r border-slate-400">Deskripsi Pipa / Equipment</th>
+                        <th class="py-1.5 px-2 border-r border-slate-400 text-center">Dia. Dalam (mm)</th>
+                        <th class="py-1.5 px-2 border-r border-slate-400 text-center">Panjang (m)</th>
+                        <th class="py-1.5 px-2 border-r border-slate-400 text-right">Vol (m³)</th>
+                        <th class="py-1.5 px-2 text-right">Vol (Liter)</th>
+                    </tr>
+                </thead>
+                <tbody id="printTableBody" class="divide-y divide-slate-300 font-mono">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SIGNATURE BLOCK -->
+        <div class="mt-8 pt-4 border-t border-slate-300 print-footer-signature">
+            <div class="flex justify-around text-center text-xs">
+                <div class="flex flex-col justify-between h-24">
+                    <p class="font-semibold text-slate-800">Dibuat Oleh,</p>
+                    <div>
+                        <p class="font-bold border-b border-slate-900 pb-1 px-8 inline-block" id="printSigPrepared">(______________)</p>
+                        <p class="text-[10px] text-slate-600 mt-1 font-medium">SPV / SM / SE</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col justify-between h-24">
+                    <p class="font-semibold text-slate-800">Diperiksa Oleh,</p>
+                    <div>
+                        <p class="font-bold border-b border-slate-900 pb-1 px-8 inline-block" id="printSigApproved">(______________)</p>
+                        <p class="text-[10px] text-slate-600 mt-1 font-medium">Project Manager</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center text-[10px] text-slate-500 font-sans border-t border-slate-200 pt-2">
+                © 2026 Sugeng Deny Ramdani. All rights reserved.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== CUSTOM MODAL DIALOG (NO NATIVE CONFIRM/ALERT) ===== -->
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 fade-in">
+            <div class="flex items-center gap-3">
+                <div id="modalIcon" class="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 id="modalTitle" class="text-sm font-bold text-white">Konfirmasi</h3>
+                    <p id="modalMessage" class="text-xs text-slate-400 mt-0.5">Apakah Anda yakin?</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800" id="modalActions">
+                <button id="modalBtnCancel" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+                    Batal
+                </button>
+                <button id="modalBtnConfirm" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition shadow-lg shadow-cyan-600/20">
+                    Ya, Lanjutkan
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Tombol Cetak -->
-    <div class="flex flex-wrap items-center justify-end gap-3 no-print">
-        <button onclick="printReport()" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-2 transition shadow-lg shadow-cyan-600/20">
-            <i data-lucide="printer" class="w-4 h-4"></i> Cetak Tabel Kebutuhan Air
-        </button>
-    </div>
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT LOGIC ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // 1. DATA DATABASE PIPES & CONSTANTS
+        // ============================================================
+        const PIPE_DB = [
+            { label: '1/2"', od: 15 },
+            { label: '3/4"', od: 20 },
+            { label: '1"', od: 25 },
+            { label: '1 1/4"', od: 32 },
+            { label: '1 1/2"', od: 40 },
+            { label: '2"', od: 50 },
+            { label: '2 1/2"', od: 65 },
+            { label: '3"', od: 80 },
+            { label: '4"', od: 100 },
+            { label: '6"', od: 150 },
+            { label: '8"', od: 200 },
+            { label: '10"', od: 250 },
+            { label: '12"', od: 300 },
+            { label: '14"', od: 350 },
+            { label: '16"', od: 400 },
+            { label: '20"', od: 500 },
+            { label: '24"', od: 600 }
+        ];
 
-</section>
+        // Standard Drum Weight in Kg
+        const GLYCOL_DRUM_KG = 225;
 
-</main>
+        // ============================================================
+        // 2. STATE MANAGEMENT
+        // ============================================================
+        let entries = [];
+        let currentTab = 'pipe'; // 'pipe' | 'equip'
 
-<!-- ===== FOOTER ===== -->
-<footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto no-print">
-    Sugeng Deny Ramdani – 2026
-</footer>
+        // DOM REFS
+        const selectPipe = document.getElementById('selectPipeSize');
+        const customWrapper = document.getElementById('customDiameterWrapper');
+        const inputCustomDiam = document.getElementById('inputCustomDiameter');
+        const inputLength = document.getElementById('inputLength');
+        const inputEquipName = document.getElementById('inputEquipName');
+        const inputEquipLitres = document.getElementById('inputEquipLitres');
+        const tbody = document.getElementById('tableBody');
+        const printTableBody = document.getElementById('printTableBody');
 
-<!-- ===== PRINT FOOTER ===== -->
-<div class="hidden print-footer">
-    Sugeng Deny Ramdani – 2026
-</div>
-
-<!-- ============================================================ -->
-<!-- ===== JAVASCRIPT ===== -->
-<script>
-    // ============================================================
-    // 1. DATA PIPES – sesuai Excel (diameter dalam, mm)
-    // ============================================================
-    const PIPE_DB = [
-        { label: '1/2"', od: 15 },
-        { label: '3/4"', od: 20 },
-        { label: '1"', od: 25 },
-        { label: '1 1/4"', od: 32 },
-        { label: '1 1/2"', od: 40 },
-        { label: '2"', od: 50 },
-        { label: '2 1/2"', od: 65 },
-        { label: '3"', od: 80 },
-        { label: '4"', od: 100 },
-        { label: '6"', od: 150 },
-        { label: '8"', od: 200 },
-        { label: '10"', od: 250 },
-        { label: '12"', od: 300 },
-        { label: '14"', od: 350 },
-        { label: '16"', od: 400 },
-        { label: '20"', od: 500 },
-        { label: '24"', od: 600 }
-    ];
-
-    // ============================================================
-    // 2. STATE
-    // ============================================================
-    let entries = [];
-
-    // ============================================================
-    // 3. DOM REFS
-    // ============================================================
-    const selectPipe = document.getElementById('selectPipeSize');
-    const customWrapper = document.getElementById('customDiameterWrapper');
-    const inputCustomDiam = document.getElementById('inputCustomDiameter');
-    const inputLength = document.getElementById('inputLength');
-    const tbody = document.getElementById('tableBody');
-    const badgeCount = document.getElementById('badgeCount');
-    const totalM3 = document.getElementById('totalVolumeM3');
-    const totalLiter = document.getElementById('totalVolumeLiter');
-    const totalRows = document.getElementById('totalRowCount');
-
-    // ============================================================
-    // 4. POPULATE PIPE DROPDOWN
-    // ============================================================
-    function populatePipeDropdown() {
-        selectPipe.innerHTML = '';
-        PIPE_DB.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.od;
-            opt.textContent = `${p.label}  (${p.od} mm)`;
-            selectPipe.appendChild(opt);
-        });
-        // Custom option
-        const optCustom = document.createElement('option');
-        optCustom.value = 'custom';
-        optCustom.textContent = '✦ Kustom (input manual)';
-        selectPipe.appendChild(optCustom);
-    }
-
-    // ============================================================
-    // 5. HANDLE PIPE SIZE CHANGE
-    // ============================================================
-    function onPipeSizeChange() {
-        const val = selectPipe.value;
-        if (val === 'custom') {
-            customWrapper.classList.remove('hidden');
-            inputCustomDiam.focus();
-        } else {
-            customWrapper.classList.add('hidden');
-        }
-    }
-
-    // ============================================================
-    // 6. GET DIAMETER VALUE
-    // ============================================================
-    function getDiameterMm() {
-        const val = selectPipe.value;
-        if (val === 'custom') {
-            return parseFloat(inputCustomDiam.value) || 0;
-        }
-        return parseFloat(val) || 0;
-    }
-
-    // ============================================================
-    // 7. CALCULATE VOLUME
-    //    V = π * (D/2000)² * L   (D in mm, L in m)
-    // ============================================================
-    function calcVolume(diamMm, lengthM) {
-        if (diamMm <= 0 || lengthM <= 0) return 0;
-        const r = diamMm / 2000; // radius in meters
-        return Math.PI * r * r * lengthM;
-    }
-
-    // ============================================================
-    // 8. ADD ENTRY
-    // ============================================================
-    function addEntry() {
-        const diam = getDiameterMm();
-        const length = parseFloat(inputLength.value) || 0;
-
-        if (diam <= 0) {
-            alert('Masukkan diameter pipa yang valid ( > 0 mm ).');
-            return;
-        }
-        if (length <= 0) {
-            alert('Masukkan panjang pipa yang valid ( > 0 m ).');
-            return;
+        // ============================================================
+        // 3. POPULATE PIPE DROPDOWN & TABS
+        // ============================================================
+        function populatePipeDropdown() {
+            selectPipe.innerHTML = '';
+            PIPE_DB.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.od;
+                opt.textContent = `${p.label}  (${p.od} mm)`;
+                selectPipe.appendChild(opt);
+            });
+            const optCustom = document.createElement('option');
+            optCustom.value = 'custom';
+            optCustom.textContent = '✦ Kustom (input manual)';
+            selectPipe.appendChild(optCustom);
         }
 
-        const vol = calcVolume(diam, length);
-        // find label
-        let label = '';
-        if (selectPipe.value === 'custom') {
-            label = `Kustom ${diam} mm`;
-        } else {
-            const found = PIPE_DB.find(p => p.od === diam);
-            label = found ? found.label : `${diam} mm`;
-        }
-
-        entries.push({
-            id: Date.now(),
-            label: label,
-            diam: diam,
-            length: length,
-            volume: vol
-        });
-
-        renderTable();
-        updateSummary();
-        resetForm();
-    }
-
-    // ============================================================
-    // 9. DELETE ENTRY
-    // ============================================================
-    function deleteEntry(id) {
-        entries = entries.filter(e => e.id !== id);
-        renderTable();
-        updateSummary();
-    }
-
-    // ============================================================
-    // 10. RENDER TABLE
-    // ============================================================
-    function renderTable() {
-        tbody.innerHTML = '';
-        if (entries.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="py-6 text-center text-slate-500 text-xs italic">
-                        Belum ada data. Tambahkan entry pipa di form sebelah kiri.
-                    </td>
-                </tr>
-            `;
-            badgeCount.textContent = '0 Item';
-            return;
-        }
-
-        entries.forEach((e, idx) => {
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-800/40 transition fade-in';
-
-            tr.innerHTML = `
-                <td class="py-2.5 px-2 text-slate-400 text-center">${idx + 1}</td>
-                <td class="py-2.5 px-2 font-medium text-white">${e.label}</td>
-                <td class="py-2.5 px-2 text-center text-cyan-300">${e.diam}</td>
-                <td class="py-2.5 px-2 text-center text-slate-300">${e.length.toFixed(1)}</td>
-                <td class="py-2.5 px-2 text-right font-bold text-emerald-400">${e.volume.toFixed(4)}</td>
-                <td class="py-2.5 px-2 text-center no-print">
-                    <button onclick="deleteEntry(${e.id})" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition" title="Hapus">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        badgeCount.textContent = `${entries.length} Item`;
-        lucide.createIcons();
-    }
-
-    // ============================================================
-    // 11. UPDATE SUMMARY
-    // ============================================================
-    function updateSummary() {
-        const total = entries.reduce((sum, e) => sum + e.volume, 0);
-        totalM3.textContent = `${total.toFixed(4)} m³`;
-        totalLiter.textContent = `${(total * 1000).toFixed(1)} Liter`;
-        totalRows.textContent = entries.length;
-    }
-
-    // ============================================================
-    // 12. RESET FORM (clear inputs but keep entries)
-    // ============================================================
-    function resetForm() {
-        selectPipe.value = PIPE_DB[0]?.od || '';
-        customWrapper.classList.add('hidden');
-        inputCustomDiam.value = 100;
-        inputLength.value = 10;
-        onPipeSizeChange();
-    }
-
-    // ============================================================
-    // 13. RESET ALL (clear entries + reset form)
-    // ============================================================
-    function resetAll() {
-        if (entries.length === 0) {
-            resetForm();
-            return;
-        }
-        if (confirm('Hapus semua data entry?')) {
-            entries = [];
-            renderTable();
-            updateSummary();
-            resetForm();
-        }
-    }
-
-    // ============================================================
-    // 14. PRINT REPORT
-    // ============================================================
-    function printReport() {
-        if (entries.length === 0) {
-            alert('Belum ada data untuk dicetak. Tambahkan entry terlebih dahulu.');
-            return;
-        }
-        window.open(window.location.href,'_blank').print();
-    }
-
-    // ============================================================
-    // 15. ENTER KEY SUPPORT
-    // ============================================================
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const active = document.activeElement;
-            if (active && (active.id === 'inputLength' || active.id === 'inputCustomDiameter' || active.tagName ===
-                    'SELECT')) {
-                e.preventDefault();
-                addEntry();
+        function onPipeSizeChange() {
+            if (selectPipe.value === 'custom') {
+                customWrapper.classList.remove('hidden');
+                inputCustomDiam.focus();
+            } else {
+                customWrapper.classList.add('hidden');
             }
         }
-    });
 
-    // ============================================================
-    // 16. INIT
-    // ============================================================
-    window.addEventListener('DOMContentLoaded', () => {
-        populatePipeDropdown();
-        resetForm();
-        renderTable();
-        updateSummary();
-        lucide.createIcons();
-        onPipeSizeChange();
-    });
+        function switchEntryTab(tab) {
+            currentTab = tab;
+            const tabPipeBtn = document.getElementById('tabPipeBtn');
+            const tabEquipBtn = document.getElementById('tabEquipBtn');
+            const pipeFormBlock = document.getElementById('pipeFormBlock');
+            const equipFormBlock = document.getElementById('equipFormBlock');
 
-    // make functions globally accessible
-    window.onPipeSizeChange = onPipeSizeChange;
-    window.addEntry = addEntry;
-    window.deleteEntry = deleteEntry;
-    window.resetAll = resetAll;
-    window.resetForm = resetForm;
-    window.printReport = printReport;
-</script>
+            if (tab === 'pipe') {
+                tabPipeBtn.className = "flex-1 py-1.5 rounded-lg text-center bg-cyan-600 text-white font-medium transition shadow-sm";
+                tabEquipBtn.className = "flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white font-medium transition";
+                pipeFormBlock.classList.remove('hidden');
+                equipFormBlock.classList.add('hidden');
+            } else {
+                tabEquipBtn.className = "flex-1 py-1.5 rounded-lg text-center bg-cyan-600 text-white font-medium transition shadow-sm";
+                tabPipeBtn.className = "flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white font-medium transition";
+                equipFormBlock.classList.remove('hidden');
+                pipeFormBlock.classList.add('hidden');
+            }
+        }
 
+        function syncGlycolPercent(val) {
+            val = Math.max(0, Math.min(100, parseFloat(val) || 0));
+            document.getElementById('inputGlycolPercent').value = val;
+            document.getElementById('inputGlycolNum').value = val;
+            document.getElementById('glycolPercentBadge').textContent = `${val}%`;
+            updateSummary();
+        }
+
+        // ============================================================
+        // 4. CALCULATION ENGINE
+        // ============================================================
+        function calcPipeVolume(diamMm, lengthM) {
+            if (diamMm <= 0 || lengthM <= 0) return 0;
+            const r = diamMm / 2000; // radius in meters
+            return Math.PI * r * r * lengthM; // volume in m³
+        }
+
+        function addCurrentEntry() {
+            if (currentTab === 'pipe') {
+                let diam = selectPipe.value === 'custom' ? parseFloat(inputCustomDiam.value) || 0 : parseFloat(selectPipe.value) || 0;
+                let length = parseFloat(inputLength.value) || 0;
+
+                if (diam <= 0) {
+                    showModal('Peringatan', 'Silakan masukkan diameter pipa yang valid (> 0 mm).', 'alert');
+                    return;
+                }
+                if (length <= 0) {
+                    showModal('Peringatan', 'Silakan masukkan panjang pipa yang valid (> 0 m).', 'alert');
+                    return;
+                }
+
+                let volM3 = calcPipeVolume(diam, length);
+                let volLitres = volM3 * 1000;
+                let label = '';
+                if (selectPipe.value === 'custom') {
+                    label = `Pipa Custom ${diam} mm`;
+                } else {
+                    const found = PIPE_DB.find(p => p.od === diam);
+                    label = found ? `Pipa ${found.label}` : `Pipa ${diam} mm`;
+                }
+
+                entries.push({
+                    id: Date.now(),
+                    type: 'pipe',
+                    label: label,
+                    diam: diam,
+                    length: length,
+                    volumeM3: volM3,
+                    volumeLitres: volLitres
+                });
+
+            } else {
+                let name = inputEquipName.value.trim() || 'Equipment Tambahan';
+                let litres = parseFloat(inputEquipLitres.value) || 0;
+
+                if (litres <= 0) {
+                    showModal('Peringatan', 'Silakan masukkan volume equipment (> 0 Liter).', 'alert');
+                    return;
+                }
+
+                entries.push({
+                    id: Date.now(),
+                    type: 'equip',
+                    label: name,
+                    diam: 0,
+                    length: 0,
+                    volumeM3: litres / 1000,
+                    volumeLitres: litres
+                });
+            }
+
+            renderTable();
+            updateSummary();
+        }
+
+        function deleteEntry(id) {
+            entries = entries.filter(e => e.id !== id);
+            renderTable();
+            updateSummary();
+        }
+
+        // ============================================================
+        // 5. RENDER TABLE
+        // ============================================================
+        function renderTable() {
+            tbody.innerHTML = '';
+            printTableBody.innerHTML = '';
+
+            if (entries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-6 text-center text-slate-500 text-xs italic">
+                            Belum ada data. Tambahkan entry pipa atau peralatan di form sebelah kiri.
+                        </td>
+                    </tr>
+                `;
+                printTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-3 text-center text-slate-500 italic">Belum ada item ditambahkan.</td>
+                    </tr>
+                `;
+                document.getElementById('badgeCount').textContent = '0 Item';
+                document.getElementById('totalRowCount').textContent = '0';
+                return;
+            }
+
+            entries.forEach((e, idx) => {
+                // Interactive UI Table Row
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition fade-in';
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-2 text-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-2.5 px-2 font-medium text-white">
+                        ${e.label}
+                        ${e.type === 'equip' ? '<span class="text-[9px] bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded ml-1 border border-slate-700">Equip</span>' : ''}
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-cyan-300">${e.diam > 0 ? e.diam : '-'}</td>
+                    <td class="py-2.5 px-2 text-center text-slate-300">${e.length > 0 ? e.length.toFixed(1) : '-'}</td>
+                    <td class="py-2.5 px-2 text-right text-slate-300">${e.volumeM3.toFixed(4)}</td>
+                    <td class="py-2.5 px-2 text-right font-bold text-cyan-400">${e.volumeLitres.toFixed(1)}</td>
+                    <td class="py-2.5 px-2 text-center">
+                        <button onclick="deleteEntry(${e.id})" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition" title="Hapus">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // Print Report Table Row
+                const ptr = document.createElement('tr');
+                ptr.innerHTML = `
+                    <td class="py-1 px-2 border-r border-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-1 px-2 border-r border-slate-400">${e.label}</td>
+                    <td class="py-1 px-2 border-r border-slate-400 text-center">${e.diam > 0 ? e.diam : '-'}</td>
+                    <td class="py-1 px-2 border-r border-slate-400 text-center">${e.length > 0 ? e.length.toFixed(1) : '-'}</td>
+                    <td class="py-1 px-2 border-r border-slate-400 text-right">${e.volumeM3.toFixed(4)}</td>
+                    <td class="py-1 px-2 text-right font-bold">${e.volumeLitres.toFixed(1)}</td>
+                `;
+                printTableBody.appendChild(ptr);
+            });
+
+            document.getElementById('badgeCount').textContent = `${entries.length} Item`;
+            document.getElementById('totalRowCount').textContent = entries.length;
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // 6. UPDATE SUMMARY & BPB RECOMMENDATIONS
+        // ============================================================
+        function updateSummary() {
+            const pipeVolSum = entries.filter(e => e.type === 'pipe').reduce((s, e) => s + e.volumeLitres, 0);
+            const equipVolSum = entries.filter(e => e.type === 'equip').reduce((s, e) => s + e.volumeLitres, 0);
+            
+            const totalVolLitres = pipeVolSum + equipVolSum;
+            const totalVolM3 = totalVolLitres / 1000;
+
+            const glycolPct = parseFloat(document.getElementById('inputGlycolNum').value) || 0;
+            const glycolSG = parseFloat(document.getElementById('glycolDensity').value) || 1.05;
+
+            // Calculations
+            const glycolVolLitres = totalVolLitres * (glycolPct / 100);
+            const waterVolLitres = totalVolLitres - glycolVolLitres;
+            const waterVolM3 = waterVolLitres / 1000;
+
+            // Glycol Weight in Kg = Volume (L) * Specific Gravity
+            const glycolKgNet = glycolVolLitres * glycolSG;
+
+            // Recommendation BPB Drums (Round Up to next full drum)
+            const drumsNeeded = glycolKgNet > 0 ? Math.ceil(glycolKgNet / GLYCOL_DRUM_KG) : 0;
+            const glycolKgSupply = drumsNeeded * GLYCOL_DRUM_KG;
+
+            // Update Cards UI (Web View)
+            document.getElementById('cardTotalLiter').textContent = `${totalVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('cardTotalM3').textContent = `${totalVolM3.toFixed(4)} m³`;
+
+            document.getElementById('cardWaterLiter').textContent = `${waterVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('cardWaterPercent').textContent = `${(100 - glycolPct).toFixed(0)}% Air (${waterVolM3.toFixed(2)} m³)`;
+
+            document.getElementById('cardGlycolDrums').textContent = `${drumsNeeded} Drum`;
+            document.getElementById('cardGlycolKg').textContent = `${glycolKgNet.toFixed(1)} Kg (${glycolVolLitres.toFixed(1)} L)`;
+
+            // Update Progress Bar (Web View)
+            document.getElementById('barWaterVal').textContent = `${waterVolLitres.toFixed(0)} L (${(100 - glycolPct).toFixed(0)}%)`;
+            document.getElementById('barGlycolVal').textContent = `${glycolVolLitres.toFixed(0)} L (${glycolPct.toFixed(0)}%)`;
+            document.getElementById('barWaterFill').style.width = `${100 - glycolPct}%`;
+            document.getElementById('barGlycolFill').style.width = `${glycolPct}%`;
+
+            // Update Web Table Subtotals & Footers
+            document.getElementById('webSubtotalPipe').textContent = `${pipeVolSum.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('webSubtotalEquip').textContent = `${equipVolSum.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('totalTableLiter').textContent = `${totalVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} Liter`;
+            document.getElementById('totalTableM3').textContent = `(${totalVolM3.toFixed(4)} m³)`;
+
+            // Sync PRINT REPORT elements
+            const projName = document.getElementById('projName').value || '-';
+            const projSystem = document.getElementById('projSystem').value || '-';
+            const projPrepared = document.getElementById('projPrepared').value || 'Sugeng Deny Ramdani';
+
+            document.getElementById('printProjName').textContent = projName;
+            document.getElementById('printProjSystem').textContent = projSystem;
+            document.getElementById('printTargetGlycol').textContent = `${glycolPct}%`;
+
+            // Print BPB Section (Hanya Glycol saja)
+            document.getElementById('printNetGlycol').textContent = `${glycolKgNet.toFixed(1)} Kg (${glycolVolLitres.toFixed(1)} L)`;
+            document.getElementById('printOrderGlycol').textContent = `${drumsNeeded} Drum @ 225 Kg (${glycolKgSupply} Kg Total)`;
+
+            // Print Metric Cards & Visual Ratio (Section 2)
+            document.getElementById('printCardTotalLiter').textContent = `${totalVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('printCardTotalM3').textContent = `${totalVolM3.toFixed(4)} m³`;
+
+            document.getElementById('printCardWaterLiter').textContent = `${waterVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} L`;
+            document.getElementById('printCardWaterPercent').textContent = `${(100 - glycolPct).toFixed(0)}% Air (${waterVolM3.toFixed(2)} m³)`;
+
+            document.getElementById('printCardGlycolDrums').textContent = `${drumsNeeded} Drum`;
+            document.getElementById('printCardGlycolKg').textContent = `${glycolKgNet.toFixed(1)} Kg (${glycolVolLitres.toFixed(1)} L)`;
+
+            document.getElementById('printBarWaterVal').textContent = `${waterVolLitres.toFixed(0)} L (${(100 - glycolPct).toFixed(0)}%)`;
+            document.getElementById('printBarGlycolVal').textContent = `${glycolVolLitres.toFixed(0)} L (${glycolPct.toFixed(0)}%)`;
+            document.getElementById('printBarWaterFill').style.width = `${100 - glycolPct}%`;
+            document.getElementById('printBarGlycolFill').style.width = `${glycolPct}%`;
+
+            // Print Subtotal Breakdown
+            document.getElementById('printSubtotalPipe').textContent = `${pipeVolSum.toLocaleString('id-ID', {maximumFractionDigits: 1})} L (${(pipeVolSum/1000).toFixed(4)} m³)`;
+            document.getElementById('printSubtotalEquip').textContent = `${equipVolSum.toLocaleString('id-ID', {maximumFractionDigits: 1})} L (${(equipVolSum/1000).toFixed(4)} m³)`;
+            document.getElementById('printSubtotalTotal').textContent = `${totalVolLitres.toLocaleString('id-ID', {maximumFractionDigits: 1})} L (${totalVolM3.toFixed(4)} m³)`;
+
+            // Signatures
+            document.getElementById('printSigPrepared').textContent = `( ${projPrepared} )`;
+            
+            const today = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById('printDate').textContent = today;
+        }
+
+        // ============================================================
+        // 7. SAMPLE DATA & UTILS
+        // ============================================================
+        function loadSampleData() {
+            entries = [
+                { id: 1, type: 'pipe', label: 'Pipa 4"', diam: 100, length: 120, volumeM3: calcPipeVolume(100, 120), volumeLitres: calcPipeVolume(100, 120) * 1000 },
+                { id: 2, type: 'pipe', label: 'Pipa 6"', diam: 150, length: 80, volumeM3: calcPipeVolume(150, 80), volumeLitres: calcPipeVolume(150, 80) * 1000 },
+                { id: 3, type: 'pipe', label: 'Pipa 3"', diam: 80, length: 60, volumeM3: calcPipeVolume(80, 60), volumeLitres: calcPipeVolume(80, 60) * 1000 },
+                { id: 4, type: 'equip', label: 'Chiller Barrel Evaporator', diam: 0, length: 0, volumeM3: 0.35, volumeLitres: 350 },
+                { id: 5, type: 'equip', label: 'AHU Coils & Expansion Tank', diam: 0, length: 0, volumeM3: 0.15, volumeLitres: 150 }
+            ];
+            syncGlycolPercent(10);
+            renderTable();
+            updateSummary();
+        }
+
+        function resetFormInputs() {
+            selectPipe.value = PIPE_DB[0].od;
+            inputCustomDiam.value = 100;
+            inputLength.value = 50;
+            inputEquipName.value = '';
+            inputEquipLitres.value = 250;
+            onPipeSizeChange();
+        }
+
+        function confirmResetAll() {
+            showModal('Konfirmasi Reset', 'Apakah Anda yakin ingin menghapus seluruh data entry pipa & peralatan?', 'confirm', () => {
+                entries = [];
+                resetFormInputs();
+                renderTable();
+                updateSummary();
+            });
+        }
+
+        function triggerPrint() {
+            if (entries.length === 0) {
+                showModal('Peringatan', 'Silakan masukkan minimal 1 entry data pipa atau peralatan sebelum mencetak BPB.', 'alert');
+                return;
+            }
+            window.print();
+        }
+
+        // ============================================================
+        // 8. CUSTOM MODAL SYSTEM (NO Native confirm/alert)
+        // ============================================================
+        function showModal(title, msg, type = 'alert', onConfirm = null) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = msg;
+
+            const btnCancel = document.getElementById('modalBtnCancel');
+            const btnConfirm = document.getElementById('modalBtnConfirm');
+
+            if (type === 'alert') {
+                btnCancel.classList.add('hidden');
+                btnConfirm.textContent = 'OK';
+                btnConfirm.onclick = closeModal;
+            } else {
+                btnCancel.classList.remove('hidden');
+                btnConfirm.textContent = 'Ya, Hapus/Reset';
+                btnConfirm.onclick = () => {
+                    if (onConfirm) onConfirm();
+                    closeModal();
+                };
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Keypress Listener for Enter
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const active = document.activeElement;
+                if (active && (active.id === 'inputLength' || active.id === 'inputCustomDiameter' || active.id === 'inputEquipLitres')) {
+                    e.preventDefault();
+                    addCurrentEntry();
+                }
+            }
+        });
+
+        // Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            populatePipeDropdown();
+            resetFormInputs();
+            loadSampleData();
+        });
+    </script>
 </body>
 </html>
