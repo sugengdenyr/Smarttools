@@ -44,7 +44,7 @@
             </div>
             <div class="text-right text-xs space-y-1">
                 <p class="text-slate-700">Tanggal Cetak: <span class="font-bold text-slate-900" id="printDate"></span></p>
-                <p class="text-slate-700">User / Requester: <span class="font-bold text-slate-900" id="printUser">-</span></p>
+                <p class="text-slate-700">User : <span class="font-bold text-slate-900" id="printUser">-</span></p>
                 <p class="text-slate-700">Nama Proyek: <span class="font-bold text-slate-900" id="printProject">-</span></p>
             </div>
         </div>
@@ -58,7 +58,7 @@
             </div>
             <div>
                 <h1 class="text-lg font-bold text-white leading-tight">Perhitungan Kebutuhan Support dan Kelengkapan Aksesoris</h1>
-                <p class="text-xs text-slate-400">Perhitungan materual struktur beserta aksesoris support (UNP, IWF, U-Bolt, Saddle, PU Block)</p>
+                <p class="text-xs text-slate-400">Perhitungan material struktur beserta aksesoris support (UNP, IWF, U-Bolt, Saddle, PU Block)</p>
             </div>
         </div>
     </header>
@@ -171,7 +171,7 @@
                 <div class="mt-4 p-3 bg-slate-950 border border-slate-800 rounded-xl text-[10px] text-slate-400 print-text print:bg-transparent print:border-none print:p-0 font-sans">
                     <strong>Note :</strong><br>
                     • 1 Batang struktur standar dihitung 6 meter (pembulatan ke atas).<br>
-                    • U-Bolt: tebal mengacu OD pipa aktual (≤25mm→6mm, 25-100mm→8mm, 100-300mm→10mm, 300-500mm→12mm, &gt;500mm→16mm). Setiap 1 set U-Bolt otomatis +2 Nut & +2 Ring, ditampilkan sebagai baris terpisah.<br>
+                    • U-Bolt: tebal mengacu ukuran nominal pipa, bukan OD aktual (s/d 1"→6mm, 1 1/4"-4"→8mm, 5"-12"→10mm, 14"-20"→12mm, ≥24"→16mm). Setiap 1 set U-Bolt sudah termasuk 2 Mur & 2 Ring, ditampilkan dalam satu baris ringkas.<br>
                     • Saddle Steam: 1 batang IWF 300 (300mm) dibelah jadi 2 saddle (150mm/pcs); pipa bantalan black steel dibelah 1/3 diameter sepanjang 300mm/pcs, sesuai ukuran pipa yang disupport.<br>
                     • PU Block mengikuti tabel katalog: dipisah Pipa Besi vs Pipa PPR, dengan pilihan diameter & tebal insulasi sesuai stok yang tersedia.
                 </div>
@@ -210,6 +210,16 @@
             '16"': 406.4, '18"': 457.0, '20"': 508.0, '24"': 610.0
         };
         const PIPE_SIZES = Object.keys(PIPE_OD);
+
+        // Ukuran nominal pipa (DN dalam mm) - dipakai KHUSUS untuk menentukan tebal U-Bolt,
+        // karena penamaan tebal U-Bolt di lapangan umumnya mengacu ke ukuran nominal (mis. 1" = 25mm),
+        // bukan OD aktual pipa (yang selalu lebih besar dari nominalnya).
+        const PIPE_DN = {
+            '1/2"': 15, '3/4"': 20, '1"': 25, '1 1/4"': 32, '1 1/2"': 40,
+            '2"': 50, '2 1/2"': 65, '3"': 80, '4"': 100, '5"': 125,
+            '6"': 150, '8"': 200, '10"': 250, '12"': 300, '14"': 350,
+            '16"': 400, '18"': 450, '20"': 500, '24"': 600
+        };
  
         // Tabel PU Block resmi (dari katalog user) - dipisah per material pipa: Besi vs PPR
         // key = diameter (mm) -> array tebal insulasi (mm) yang tersedia
@@ -264,15 +274,15 @@
         }
  
         // ================= Core Logic Engineering =================
-        // Tebal U-Bolt ditentukan dari OD aktual pipa (bukan tabel hafalan per ukuran),
-        // supaya konsisten dan tidak salah bucket di batas-batas ukuran.
+        // Tebal U-Bolt ditentukan dari ukuran NOMINAL pipa (DN), bukan OD aktual,
+        // supaya konsisten dengan cara penamaan yang umum dipakai di lapangan/gudang.
         function getUboltThickness(pipeSizeStr) {
-            const od = PIPE_OD[pipeSizeStr] || 0;
-            if (od <= 25) return 6;
-            if (od <= 100) return 8;   // mencakup 25-80mm eksplisit + gap 80-100mm (estimasi konservatif)
-            if (od <= 300) return 10;
-            if (od <= 500) return 12;
-            return 16;
+            const dn = PIPE_DN[pipeSizeStr] || 0;
+            if (dn <= 25) return 6;    // s/d 1"
+            if (dn <= 100) return 8;   // 1 1/4" s/d 4"
+            if (dn <= 300) return 10;  // 5" s/d 12"
+            if (dn <= 500) return 12;  // 14" s/d 20"
+            return 16;                 // 24" ke atas
         }
  
         // ================= Manajemen Data =================
@@ -594,8 +604,8 @@
                         if (!totalAccs[key]) {
                             totalAccs[key] = {
                                 groupType: 'ubolt',
-                                name: `U-Bolt Pipa ${ac.pipeSize}`,
-                                desc: `Tebal ${thickness}mm (OD pipa ${PIPE_OD[ac.pipeSize]}mm)`,
+                                name: `U-Bolt`,
+                                desc: `Dia. ${ac.pipeSize} Tebal ${thickness}mm c/w 2 Mur + 2 Ring`,
                                 qtyUbolt: 0, qtyMur: 0, qtyRing: 0
                             };
                         }
@@ -662,7 +672,7 @@
             }
             tableStruct.innerHTML = trStruct;
  
-            // 4. Render Tabel Aksesoris (U-Bolt dipecah jadi 3 baris: Set / Mur / Ring)
+            // 4. Render Tabel Aksesoris (U-Bolt ditampilkan dalam satu baris ringkas, sudah termasuk Mur & Ring)
             let trAcc = '';
             const accKeys = Object.keys(totalAccs).sort();
             if (accKeys.length === 0) {
@@ -672,8 +682,6 @@
                     const item = totalAccs[k];
                     if (item.groupType === 'ubolt') {
                         trAcc += tableRow(item.name, item.desc, item.qtyUbolt, 'Set', 'text-amber-300');
-                        trAcc += tableRow(`↳ Mur (Nut)`, `Pendamping ${item.name}`, item.qtyMur, 'Pcs', 'text-slate-300');
-                        trAcc += tableRow(`↳ Ring (Washer)`, `Pendamping ${item.name}`, item.qtyRing, 'Pcs', 'text-slate-300');
                     } else {
                         trAcc += tableRow(item.name, item.desc, item.qty, item.unit, 'text-amber-300');
                     }
@@ -694,4 +702,3 @@
     </footer>
 </body>
 </html>
- 
