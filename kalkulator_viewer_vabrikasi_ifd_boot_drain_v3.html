@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain — v3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  body{font-family:'Inter',sans-serif;background-color:#0f172a;color:#f8fafc;}
+  .code-font{font-family:'JetBrains Mono',monospace;}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:#1e293b;}
+  ::-webkit-scrollbar-thumb{background:#475569;border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:#64748b;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute;left:0;top:0;width:100%;color:#000;background:#fff;}
+    .no-print{display:none !important;}
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-blue-600/20 border border-blue-500/40 rounded-xl text-blue-400">
+          <i class="fa-solid fa-calculator text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white tracking-wide">Kalkulator & Viewer 3D IFD / Boot Drain <span class="text-cyan-400 text-xs align-top">v3</span></h1>
+          <p class="text-xs text-slate-400">Nesting Bin-Packing SS304, Visual Mal Potong, Trap & Dop, Viewer Realtime</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <button id="btnExplanation" class="px-3.5 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 rounded-lg transition-all flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-blue-400"></i><span>Panduan Teknikal</span>
+        </button>
+        <button id="btnPrintRequisition" class="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-md shadow-emerald-900/40 flex items-center gap-2">
+          <i class="fa-solid fa-print"></i><span>Cetak Bon Permintaan</span>
+        </button>
+        <button id="btnPrintFull" class="px-3.5 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-md shadow-blue-900/40 flex items-center gap-2">
+          <i class="fa-solid fa-print"></i><span>Cetak + Visual Mal</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Explanation Modal (sama seperti sebelumnya, tidak diubah) -->
+  <div id="modalExplanation" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-microscope text-blue-400"></i> Penjelasan Detail Struktur, Material & Fabrikasi
+        </h2>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+          <h3 class="text-md font-bold text-blue-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> 1. IFD (Industrial Floor Drain)</h3>
+          <p class="mb-3"><strong>Fungsi:</strong> Saluran pembuangan air lantai area higienis, tahan korosi & beban, mencegah bau balik dari saluran drainase.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mb-3">
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <strong class="text-amber-400 block mb-1">Struktur Utama:</strong>
+              <ul class="list-disc list-inside space-y-1 text-slate-300">
+                <li><strong>Body Box</strong> — bak plat SS304 3mm.</li>
+                <li><strong>Kupingan Waterstop</strong> — bibir keliling yang posisinya turun sedikit (step) dari permukaan atas bak.</li>
+                <li><strong>Support Cover</strong> — dudukan dalam penopang cover.</li>
+                <li><strong>Cover Grille + Perforated</strong> — bilah strip SS di atas, plat perforated Ø6mm di bawahnya.</li>
+                <li><strong>Water Seal Trap</strong> — pipa SS utuh (bukan rol plat), diameter = outlet + 2", ditutup dop plat di satu sisi.</li>
+                <li><strong>Dop / Tutup Bulat</strong> — potongan plat bulat untuk menutup trap & outlet.</li>
+              </ul>
+            </div>
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <strong class="text-amber-400 block mb-1">Material Utama:</strong>
+              <ul class="list-disc list-inside space-y-1 text-slate-300">
+                <li>Plat Stainless SS304 3mm (1,2 x 2,4 m) — body, waterstop, dop bulat.</li>
+                <li>Plat Perforated SS304 3mm Ø6mm (1,2 x 2,4 m) — alas cover.</li>
+                <li>Plat Strip SS304 30x3mm (@6 m) — bilah grille & rangka support.</li>
+                <li>Pipa Stainless SS304 (2"–6") — water seal trap.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+          <h3 class="text-md font-bold text-emerald-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-shoe-prints"></i> 2. Footbath / Boot Drain</h3>
+          <p class="mb-3">Dua sisi grating dengan ketinggian berbeda, sekat tengah, dan lantai sloping ke outlet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- Step 1 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center gap-2 mb-4 text-blue-400 font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-folder-open"></i> Step 1: Informasi Proyek & Standar Material</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Nama Proyek / Client</label>
+            <input type="text" id="projectName" value="PROYEK PT. MAYORA INDAH - BD & IFD" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Ukuran Plat Standar</label>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 flex items-center justify-between">
+              <span><i class="fa-solid fa-ruler-combined text-slate-500 mr-1.5"></i>1200 x 2400 mm</span>
+              <span class="bg-blue-900/40 text-blue-300 px-2 py-0.5 rounded text-[10px]">SS304 3MM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-square-plus"></i> Step 2: Input Item Fabrikasi</div>
+          <span class="text-[11px] text-slate-400 font-normal">Otomatis Hitung Nesting & Potongan</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+          <div class="sm:col-span-5">
+            <label class="block text-xs text-slate-400 mb-1">Jenis Produk</label>
+            <select id="itemType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-semibold">
+              <option value="IFD">IFD (Industrial Floor Drain)</option>
+              <option value="FOOTBATH">Boot Drain / Footbath</option>
+            </select>
+          </div>
+          <div class="sm:col-span-7 grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Panjang (mm)</label>
+              <input type="number" id="dimP" value="360" min="100" max="3000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white text-center font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Lebar (mm)</label>
+              <input type="number" id="dimL" value="360" min="100" max="3000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white text-center font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Tinggi (mm)</label>
+              <input type="number" id="dimT" value="300" min="50" max="1000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white text-center font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- IFD-specific fields -->
+        <div id="ifdExtraFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Ukuran Pipa Outlet</label>
+            <select id="outletInch" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
+              <option value="2">2" (OD 60.3mm)</option>
+              <option value="3">3" (OD 88.9mm)</option>
+              <option value="4" selected>4" (OD 114.3mm)</option>
+              <option value="6">6" (OD 168.3mm)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Water Seal Trap (Auto = Outlet + 2")</label>
+            <div id="trapPreview" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-cyan-300 font-bold code-font">Ø 6" (168.3mm)</div>
+          </div>
+        </div>
+
+        <!-- FOOTBATH-specific fields -->
+        <div id="footbathExtraFields" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Selisih Tinggi Grating Basah vs Kering (mm)</label>
+            <input type="number" id="immersionDepth" value="80" min="20" max="200" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white text-center font-bold focus:outline-none focus:border-emerald-500">
+          </div>
+          <div class="text-[10px] text-slate-400 flex items-end pb-1">
+            Grating sisi basah dipasang lebih rendah sejumlah nilai ini dari grating sisi kering.
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+          <div class="sm:col-span-6">
+            <label class="block text-xs text-slate-400 mb-1">Jumlah Pembuatan (Pcs)</label>
+            <div class="flex items-center gap-2">
+              <input type="number" id="itemQty" value="48" min="1" max="500" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none focus:border-emerald-500">
+              <span class="text-xs text-slate-400">Unit</span>
+            </div>
+          </div>
+          <div class="sm:col-span-6 flex gap-2">
+            <button id="btnAddEntry" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all shadow-md shadow-emerald-950 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus"></i><span>Tambah ke Data Entry</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-list-check"></i> Step 3: Data Entry Item Proyek</div>
+          <span id="entryCountBadge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">0 Item</span>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-3">#</th>
+                <th class="p-3">Jenis Item</th>
+                <th class="p-3 text-center">Ukuran (P x L x T)</th>
+                <th class="p-3 text-center">Spesifikasi</th>
+                <th class="p-3 text-center">Jumlah</th>
+                <th class="p-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="dataEntryTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+          </table>
+          <div id="emptyState" class="p-8 text-center text-slate-500 text-xs">
+            <i class="fa-solid fa-inbox text-2xl mb-2 text-slate-600 block"></i>
+            Belum ada item ditambahkan. Silahkan input item di atas.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2 text-blue-400 font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-chart-pie"></i> Step 4: Rekap & Optimasi Pemotongan Plat (Nesting)</div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">Standard Sheet:</span>
+            <span class="text-xs font-semibold text-slate-200">1200 x 2400 mm</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Plat Stainless 3mm</span>
+            <span id="sumPlatSolid" class="text-lg font-bold text-blue-400 code-font">0 Lembar</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1.2 x 2.4 M</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Plat Perforated Ø6mm</span>
+            <span id="sumPlatPerf" class="text-lg font-bold text-emerald-400 code-font">0 Lembar</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1.2 x 2.4 M</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Plat Strip 30x3mm</span>
+            <span id="sumPlatStrip" class="text-lg font-bold text-amber-400 code-font">0 Batang</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">@ 6 Meter</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Pipa SS304 (Trap)</span>
+            <span id="sumPipa" class="text-lg font-bold text-cyan-400 code-font">0 Batang</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">@ 6 Meter</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Dop Bulat</span>
+            <span id="sumDop" class="text-lg font-bold text-purple-400 code-font">0 Pcs</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Trap + Outlet</span>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-slate-300 flex items-center justify-between">
+            <span>Detail Layout Potongan + Visual Mal per Lembar:</span>
+            <span class="text-[11px] text-slate-500 font-normal">Kotak putus-putus + lingkaran = potongan bulat</span>
+          </h4>
+          <div id="cuttingBreakdownContainer" class="space-y-3 text-xs code-font">
+            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-500 text-center text-xs">
+              Sistem akan menghitung susunan potongan plat per lembar setelah data entry diinput.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg sticky top-20 flex flex-col h-[650px]">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2"><i class="fa-solid fa-cube text-cyan-400"></i><h3 class="text-sm font-bold text-white">Visualisasi 3D Realtime</h3></div>
+          <span id="active3DLabel" class="text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800 px-2.5 py-0.5 rounded-full">IFD (360 x 360 x 300 mm)</span>
+        </div>
+        <div class="relative flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden cursor-grab active:cursor-grabbing" id="canvasContainer">
+          <canvas id="threeCanvas" class="w-full h-full block"></canvas>
+          <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[10px] text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-arrows-spin text-cyan-400 animate-spin"></i><span>Drag mouse / sentuh untuk putar 3D</span>
+          </div>
+          <div class="absolute bottom-3 right-3 flex flex-col gap-2">
+            <button id="btnToggleExplode" class="bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-xs px-3 py-1.5 rounded-lg shadow-lg font-semibold flex items-center gap-2 transition-all">
+              <i class="fa-solid fa-layer-group"></i><span id="explodeBtnText">Mode Explode (Lepas)</span>
+            </button>
+            <button id="btnToggleWireframe" class="bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs px-3 py-1.5 rounded-lg shadow-lg font-semibold flex items-center gap-2 transition-all">
+              <i class="fa-solid fa-border-none"></i><span>Toggle Wireframe</span>
+            </button>
+          </div>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-[11px] text-slate-400">
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span><span>Body SS304 3mm</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span><span>Perforated Ø6mm</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block"></span><span>Bilah Strip Grille</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span><span>Water Seal Trap (Pipa)</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span><span>Outlet Pipe</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-sky-300 inline-block"></span><span>Genangan Air (Sisi Basah)</span></div>
+          <div class="flex items-center gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800 col-span-2"><span class="w-2.5 h-2.5 rounded-full bg-neutral-500 inline-block"></span><span>Kupingan Waterstop (step tanam)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="text-center text-[10px] text-slate-600 py-5 border-t border-slate-900 no-print">
+    Kalkulator Fabrikasi &amp; Viewer 3D IFD / Boot Drain &mdash; Sugeng Deny Ramdani 2026
+  </footer>
+
+  <!-- PRINT AREA -->
+  <div id="printArea" class="hidden">
+    <div class="p-8 max-w-4xl mx-auto bg-white text-slate-900 font-sans">
+      <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-bold uppercase tracking-wider">BON PERMINTAAN MATERIAL FABRIKASI</h1>
+          <p class="text-sm font-semibold text-slate-600" id="printProjectName">PROYEK: PT MAYORA INDAH</p>
+          <p class="text-xs text-slate-500">Item: Industrial Floor Drain (IFD) & Boot Drain (Footbath)</p>
+        </div>
+        <div class="text-right text-xs">
+          <p class="font-bold">Tanggal: <span id="printDate"></span></p>
+          <p>No. Requisition: REQ-FAB-<span id="printReqId">001</span></p>
+          <p>Status: APPROVED FOR CUTTING</p>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">1. Summary Rekomendasi Order Material</h3>
+        <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
+          <thead><tr class="bg-slate-100 text-left">
+            <th class="border border-slate-300 p-2">Deskripsi Material</th>
+            <th class="border border-slate-300 p-2 text-center">Spesifikasi Ukuran</th>
+            <th class="border border-slate-300 p-2 text-center">Jumlah Order</th>
+            <th class="border border-slate-300 p-2">Keterangan Usage</th>
+          </tr></thead>
+          <tbody id="printSummaryTable"></tbody>
+        </table>
+      </div>
+
+      <div class="mb-6">
+        <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">2. Rincian Pemotongan Plat (Cutting Nesting Sheet Plan)</h3>
+        <div id="printCuttingPlan" class="space-y-3 text-xs code-font"></div>
+      </div>
+
+      <div class="mt-12 pt-6 border-t border-slate-300 grid grid-cols-3 text-center text-xs">
+        <div><p class="mb-12 font-semibold">Dibuat Oleh (Estimator),</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Produksi/Fabrikasi )</p></div>
+        <div><p class="mb-12 font-semibold">Diperiksa Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Supervisor Teknik )</p></div>
+        <div><p class="mb-12 font-semibold">Disetujui Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Manager Logistik )</p></div>
+      </div>
+      <p class="text-center text-[9px] text-slate-400 mt-8">Kalkulator Fabrikasi &amp; Viewer 3D IFD / Boot Drain &mdash; Sugeng Deny Ramdani 2026</p>
+    </div>
+  </div>
+
+<script>
+// ============================= GLOBAL STATE =============================
+let projectEntries = [];
+let isExploded = false;
+let isWireframe = false;
+
+// ============================= DOM REFS =============================
+const projectNameInput = document.getElementById('projectName');
+const itemTypeSelect = document.getElementById('itemType');
+const dimPInput = document.getElementById('dimP');
+const dimLInput = document.getElementById('dimL');
+const dimTInput = document.getElementById('dimT');
+const itemQtyInput = document.getElementById('itemQty');
+const outletInchSelect = document.getElementById('outletInch');
+const trapPreview = document.getElementById('trapPreview');
+const immersionDepthInput = document.getElementById('immersionDepth');
+const ifdExtraFields = document.getElementById('ifdExtraFields');
+const footbathExtraFields = document.getElementById('footbathExtraFields');
+const btnAddEntry = document.getElementById('btnAddEntry');
+const dataEntryTableBody = document.getElementById('dataEntryTableBody');
+const emptyState = document.getElementById('emptyState');
+const entryCountBadge = document.getElementById('entryCountBadge');
+
+const sumPlatSolid = document.getElementById('sumPlatSolid');
+const sumPlatPerf = document.getElementById('sumPlatPerf');
+const sumPlatStrip = document.getElementById('sumPlatStrip');
+const sumPipa = document.getElementById('sumPipa');
+const sumDop = document.getElementById('sumDop');
+const cuttingBreakdownContainer = document.getElementById('cuttingBreakdownContainer');
+
+const btnExplanation = document.getElementById('btnExplanation');
+const modalExplanation = document.getElementById('modalExplanation');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnPrintRequisition = document.getElementById('btnPrintRequisition');
+const btnPrintFull = document.getElementById('btnPrintFull');
+
+btnExplanation.addEventListener('click', () => modalExplanation.classList.remove('hidden'));
+btnCloseModal.addEventListener('click', () => modalExplanation.classList.add('hidden'));
+
+// Toggle extra fields by type
+function refreshExtraFieldsVisibility(){
+  if (itemTypeSelect.value === 'IFD'){
+    ifdExtraFields.classList.remove('hidden');
+    footbathExtraFields.classList.add('hidden');
+  } else {
+    ifdExtraFields.classList.add('hidden');
+    footbathExtraFields.classList.remove('hidden');
+  }
+}
+itemTypeSelect.addEventListener('change', refreshExtraFieldsVisibility);
+
+// Pipe OD (diameter luar) dalam mm
+const PIPE_OD = { 2: 60.3, 3: 88.9, 4: 114.3, 6: 168.3 };
+function pipeOD(inch){ return PIPE_OD[inch] || (inch*25.4); }
+function updateTrapPreview(){
+  const outletInch = parseInt(outletInchSelect.value) || 4;
+  const trapInch = outletInch + 2;
+  const trapOD = pipeOD(trapInch);
+  trapPreview.textContent = `Ø ${trapInch}" (${trapOD.toFixed(1)}mm)`;
+}
+outletInchSelect.addEventListener('change', updateTrapPreview);
+
+// ============================= INIT =============================
+window.addEventListener('DOMContentLoaded', () => {
+  refreshExtraFieldsVisibility();
+  updateTrapPreview();
+  addProjectItem('IFD', 360, 360, 300, 48, { outletInch: 4 });
+  updateAllCalculations();
+  init3DViewer();
+  update3DModel(projectEntries[0]);
+});
+
+// ============================= ADD ENTRY =============================
+btnAddEntry.addEventListener('click', () => {
+  const type = itemTypeSelect.value;
+  const P = parseInt(dimPInput.value) || 300;
+  const L = parseInt(dimLInput.value) || 300;
+  const T = parseInt(dimTInput.value) || 200;
+  const qty = parseInt(itemQtyInput.value) || 1;
+  let extra = {};
+  if (type === 'IFD') extra.outletInch = parseInt(outletInchSelect.value) || 4;
+  else extra.immersionDepth = parseInt(immersionDepthInput.value) || 80;
+
+  const entry = addProjectItem(type, P, L, T, qty, extra);
+  updateAllCalculations();
+  update3DModel(entry);
+});
+
+function addProjectItem(type, P, L, T, qty, extra){
+  const entry = { id: Date.now() + Math.random().toString(36).substr(2,4), type, P, L, T, qty, ...extra };
+  projectEntries.push(entry);
+  renderTable();
+  return entry;
+}
+
+function removeProjectItem(id){
+  projectEntries = projectEntries.filter(i => i.id !== id);
+  updateAllCalculations();
+  renderTable();
+  if (projectEntries.length > 0) update3DModel(projectEntries[projectEntries.length - 1]);
+}
+
+function renderTable(){
+  entryCountBadge.textContent = `${projectEntries.length} Item`;
+  if (projectEntries.length === 0){
+    dataEntryTableBody.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+
+  dataEntryTableBody.innerHTML = projectEntries.map((item, idx) => {
+    const specText = item.type === 'IFD'
+      ? `Outlet ${item.outletInch}" / Trap ${item.outletInch+2}"`
+      : `Selisih rendam ${item.immersionDepth}mm`;
+    return `
+      <tr class="hover:bg-slate-900/60 transition-colors">
+        <td class="p-3 text-slate-500 font-bold">${idx+1}</td>
+        <td class="p-3">
+          <span class="font-bold text-white block">${item.type === 'IFD' ? 'IFD (Floor Drain)' : 'Boot Drain / Footbath'}</span>
+          <span class="text-[10px] text-slate-500">SS304 3mm Heavy Duty</span>
+        </td>
+        <td class="p-3 text-center code-font text-slate-300">${item.P} x ${item.L} x ${item.T} mm</td>
+        <td class="p-3 text-center text-[10px] text-cyan-300">${specText}</td>
+        <td class="p-3 text-center font-bold text-amber-400">${item.qty} Pcs</td>
+        <td class="p-3 text-right">
+          <div class="flex items-center justify-end gap-1">
+            <button onclick="previewItem3D('${item.id}')" title="Lihat 3D" class="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950 rounded-lg"><i class="fa-solid fa-eye"></i></button>
+            <button onclick="removeProjectItem('${item.id}')" title="Hapus" class="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-950 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function previewItem3D(id){
+  const item = projectEntries.find(i => i.id === id);
+  if (item) update3DModel(item);
+}
+
+// ============================= CUT HELPERS =============================
+function rectCut(w, h, label){ return { w, h, label, isRound:false }; }
+function roundCut(d, label){ return { w:d, h:d, label, isRound:true, diameter:d }; }
+
+function computeIFDCuts(P, L, T, qty, outletInch){
+  let solidCuts = [], perfCuts = [], stripLen = 0, pipeLenTotal = 0, dopCount = 0;
+  const outletOD = pipeOD(outletInch);
+  const trapInch = outletInch + 2;
+  const trapOD = pipeOD(trapInch);
+  const trapHeight = Math.max(80, Math.round(T * 0.55));
+
+  for (let q = 0; q < qty; q++){
+    // Body box
+    solidCuts.push(rectCut(P, L, `Dasar Bak ${P}x${L}mm`));
+    solidCuts.push(rectCut(P, T, `Dinding Panjang ${P}x${T}mm`));
+    solidCuts.push(rectCut(P, T, `Dinding Panjang ${P}x${T}mm`));
+    solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
+    solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
+
+    // Kupingan waterstop (step tanam)
+    solidCuts.push(rectCut(P + 60, 30, `Kupingan Waterstop ${P+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(P + 60, 30, `Kupingan Waterstop ${P+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(L + 60, 30, `Kupingan Waterstop ${L+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(L + 60, 30, `Kupingan Waterstop ${L+60}x30mm (step tanam)`));
+
+    // Dop bulat (trap + outlet) - dari plat lembaran
+    solidCuts.push(roundCut(trapOD + 20, `Dop Tutup Trap Ø${(trapOD+20).toFixed(1)}mm (${trapInch}")`));
+    solidCuts.push(roundCut(outletOD + 20, `Dop Tutup Outlet Ø${(outletOD+20).toFixed(1)}mm (${outletInch}")`));
+    dopCount += 2;
+
+    // Pipa water seal - panjang = 55% T (dalam mm)
+    pipeLenTotal += trapHeight;
+
+    // Cover: alas perforated Ø6mm
+    const coverW = Math.max(60, P - 15), coverL = Math.max(60, L - 15);
+    perfCuts.push(rectCut(coverW, coverL, `Alas Perforated Ø6mm ${coverW}x${coverL}mm (Cover IFD)`));
+
+    // Grille bilah strip + rangka support
+    const pitch = 30;
+    const numBars = Math.max(3, Math.floor(coverW / pitch));
+    stripLen += numBars * coverL;
+    stripLen += (P * 2) + (L * 2); // rangka support cover
+  }
+  return { solidCuts, perfCuts, stripLen, pipeLenTotal, dopCount };
+}
+
+function computeFootbathCuts(P, L, T, qty, immersionDepth){
+  let solidCuts = [], perfCuts = [], stripLen = 0, pipeLenTotal = 0, dopCount = 0;
+  const outletOD = 114.3; // 4" default untuk footbath
+
+  for (let q = 0; q < qty; q++){
+    solidCuts.push(rectCut(P, L, `Dasar BootDrain (Slope 5%) ${P}x${L}mm`));
+    solidCuts.push(rectCut(P, T, `Dinding Panjang ${P}x${T}mm`));
+    solidCuts.push(rectCut(P, T, `Dinding Panjang ${P}x${T}mm`));
+    solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
+    solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
+    solidCuts.push(rectCut(L, Math.max(60, T - immersionDepth), `Sekat Tengah Basah/Kering ${L}x${Math.max(60,T-immersionDepth)}mm`));
+
+    solidCuts.push(rectCut(P + 60, 30, `Kupingan Waterstop ${P+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(P + 60, 30, `Kupingan Waterstop ${P+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(L + 60, 30, `Kupingan Waterstop ${L+60}x30mm (step tanam)`));
+    solidCuts.push(rectCut(L + 60, 30, `Kupingan Waterstop ${L+60}x30mm (step tanam)`));
+
+    solidCuts.push(roundCut(outletOD + 20, `Dop Tutup Outlet Ø${(outletOD+20).toFixed(1)}mm (4")`));
+    dopCount += 1;
+
+    // Pipa water seal untuk footbath? (tidak ada, hanya outlet) - tetapi jika ada trap, tambahkan
+    // Asumsi footbath tidak pakai trap, hanya outlet. Jadi pipeLenTotal += 0.
+
+    const halfP = Math.max(60, Math.floor(P / 2) - 10);
+    const coverL = Math.max(60, L - 10);
+    perfCuts.push(rectCut(halfP, coverL, `Alas Perforated Ø6mm Sisi BASAH ${halfP}x${coverL}mm`));
+    perfCuts.push(rectCut(halfP, coverL, `Alas Perforated Ø6mm Sisi KERING ${halfP}x${coverL}mm`));
+
+    const pitch = 30;
+    const numBars = Math.max(3, Math.floor(coverL / pitch));
+    stripLen += numBars * halfP * 2; // dua sisi grille
+    stripLen += 6 * halfP; // rib support heavy duty
+  }
+  return { solidCuts, perfCuts, stripLen, pipeLenTotal, dopCount };
+}
+
+// ============================= NESTING ENGINE =============================
+function packNesting2D(items, sheetW, sheetH){
+  if (items.length === 0) return [];
+  const sorted = [...items].sort((a,b) => (b.h*b.w) - (a.h*a.w));
+  let sheets = [];
+
+  function newSheet(){
+    return { id: sheets.length + 1, width: sheetW, height: sheetH, shelves: [], currentY: 0, usedArea: 0, cutsSummary: {}, placed: [] };
+  }
+  let active = newSheet();
+
+  function registerPlaced(sheet, item, x, y, w, h, rotated){
+    sheet.placed.push({ w, h, label: item.label, isRound: item.isRound, diameter: item.diameter, x, y, rotated });
+    sheet.usedArea += w * h;
+    const key = `${w}x${h}mm (${item.label})`;
+    sheet.cutsSummary[key] = (sheet.cutsSummary[key] || 0) + 1;
+  }
+
+  sorted.forEach(item => {
+    let placedFlag = false;
+    const allSheets = sheets.concat([active]);
+
+    for (const sheet of allSheets){
+      for (const shelf of sheet.shelves){
+        if (item.h <= shelf.height && (shelf.currentX + item.w) <= sheetW){
+          const x = shelf.currentX, y = shelf.y;
+          shelf.currentX += item.w;
+          registerPlaced(sheet, item, x, y, item.w, item.h, false);
+          placedFlag = true; break;
+        } else if (item.w <= shelf.height && (shelf.currentX + item.h) <= sheetW){
+          const x = shelf.currentX, y = shelf.y;
+          shelf.currentX += item.h;
+          registerPlaced(sheet, item, x, y, item.h, item.w, true);
+          placedFlag = true; break;
+        }
+      }
+      if (placedFlag) break;
+    }
+
+    if (!placedFlag){
+      if (active.currentY + item.h <= sheetH){
+        const shelf = { y: active.currentY, height: item.h, currentX: item.w };
+        active.shelves.push(shelf);
+        registerPlaced(active, item, 0, shelf.y, item.w, item.h, false);
+        active.currentY += item.h;
+      } else {
+        sheets.push(active);
+        active = newSheet();
+        const shelf = { y: 0, height: item.h, currentX: item.w };
+        active.shelves.push(shelf);
+        registerPlaced(active, item, 0, 0, item.w, item.h, false);
+        active.currentY += item.h;
+      }
+    }
+  });
+
+  if (active.shelves.length > 0) sheets.push(active);
+  return sheets;
+}
+
+// ============================= NESTING VISUAL (SVG "MAL") =============================
+function buildNestingSVG(sheet, colors){
+  const svgW = 2400, svgH = 1200; // sheet ditampilkan landscape (transpose dari W=1200,H=2400)
+  let inner = '';
+  sheet.placed.forEach((it, idx) => {
+    const dx = it.y, dy = it.x, dw = it.h, dh = it.w;
+    if (it.isRound){
+      const cx = dx + dw/2, cy = dy + dh/2, r = Math.max(4, Math.min(dw,dh)/2 - 4);
+      inner += `<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="none" stroke="#475569" stroke-dasharray="6 6" stroke-width="3"/>`;
+      inner += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${colors.fill}" fill-opacity="0.35" stroke="${colors.stroke}" stroke-width="4"/>`;
+      inner += `<text x="${cx}" y="${cy}" font-size="26" fill="#e2e8f0" text-anchor="middle" dominant-baseline="middle">Ø${it.diameter.toFixed(0)}</text>`;
+    } else {
+      inner += `<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="${colors.fill}" fill-opacity="0.28" stroke="${colors.stroke}" stroke-width="3"/>`;
+      inner += `<text x="${dx+dw/2}" y="${dy+dh/2-6}" font-size="24" fill="#e2e8f0" text-anchor="middle">${it.w}x${it.h}</text>`;
+      inner += `<text x="${dx+dw/2}" y="${dy+dh/2+22}" font-size="18" fill="#94a3b8" text-anchor="middle">#${idx+1}</text>`;
+    }
+  });
+  return `<svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto rounded-lg border border-slate-700 bg-slate-950 mt-2">
+    <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#0b1220"/>
+    ${inner}
+  </svg>`;
+}
+
+// ============================= MAIN CALC =============================
+function updateAllCalculations(){
+  if (projectEntries.length === 0){
+    sumPlatSolid.textContent = "0 Lembar";
+    sumPlatPerf.textContent = "0 Lembar";
+    sumPlatStrip.textContent = "0 Batang";
+    sumPipa.textContent = "0 Batang";
+    sumDop.textContent = "0 Pcs";
+    cuttingBreakdownContainer.innerHTML = `<div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-500 text-center text-xs">Belum ada item ditambahkan.</div>`;
+    return;
+  }
+
+  let solidCuts = [], perfCuts = [], totalStripLengthMM = 0, totalPipeLengthMM = 0, totalDop = 0;
+
+  projectEntries.forEach(entry => {
+    if (entry.type === 'IFD'){
+      const r = computeIFDCuts(entry.P, entry.L, entry.T, entry.qty, entry.outletInch);
+      solidCuts = solidCuts.concat(r.solidCuts);
+      perfCuts = perfCuts.concat(r.perfCuts);
+      totalStripLengthMM += r.stripLen;
+      totalPipeLengthMM += r.pipeLenTotal;
+      totalDop += r.dopCount;
+    } else {
+      const r = computeFootbathCuts(entry.P, entry.L, entry.T, entry.qty, entry.immersionDepth);
+      solidCuts = solidCuts.concat(r.solidCuts);
+      perfCuts = perfCuts.concat(r.perfCuts);
+      totalStripLengthMM += r.stripLen;
+      totalPipeLengthMM += r.pipeLenTotal;
+      totalDop += r.dopCount;
+    }
+  });
+
+  const solidSheets = packNesting2D(solidCuts, 1200, 2400);
+  const perfSheets = packNesting2D(perfCuts, 1200, 2400);
+  const totalStripBars = Math.ceil(totalStripLengthMM / 6000);
+  const totalPipeBars = Math.ceil(totalPipeLengthMM / 6000);
+
+  sumPlatSolid.textContent = `${solidSheets.length} Lembar`;
+  sumPlatPerf.textContent = `${perfSheets.length} Lembar`;
+  sumPlatStrip.textContent = `${totalStripBars} Batang`;
+  sumPipa.textContent = `${totalPipeBars} Batang`;
+  sumDop.textContent = `${totalDop} Pcs`;
+
+  renderCuttingBreakdown(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop);
+}
+
+function renderCuttingBreakdown(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop){
+  let html = '';
+  const solidColors = { fill:'#3b82f6', stroke:'#60a5fa' };
+  const perfColors = { fill:'#10b981', stroke:'#34d399' };
+
+  if (solidSheets.length > 0){
+    html += `<div class="font-bold text-blue-400 mb-1 uppercase tracking-wider text-[11px]"><i class="fa-solid fa-layer-group mr-1"></i> Plat Stainless SS304 3MM (1.2 x 2.4 M) - Total ${solidSheets.length} Lembar:</div>`;
+    solidSheets.forEach(sheet => {
+      const efficiency = ((sheet.usedArea / (1200*2400)) * 100).toFixed(1);
+      html += `<div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-1 text-slate-300">
+          <span class="font-bold text-blue-300">Lembar ${sheet.id}</span>
+          <span class="text-[10px] bg-blue-950 text-blue-400 border border-blue-800 px-2 py-0.5 rounded">Efisiensi Material: ${efficiency}%</span>
+        </div>
+        <ul class="space-y-1 text-slate-400 pl-2">`;
+      for (const [k,q] of Object.entries(sheet.cutsSummary)){
+        html += `<li class="flex items-center justify-between text-[11px]"><span>- Dipotong menjadi <strong class="text-white">${k}</strong></span><span class="font-bold text-amber-400">${q} Pcs</span></li>`;
+      }
+      html += `</ul>${buildNestingSVG(sheet, solidColors)}</div>`;
+    });
+  }
+
+  if (perfSheets.length > 0){
+    html += `<div class="font-bold text-emerald-400 mt-3 mb-1 uppercase tracking-wider text-[11px]"><i class="fa-solid fa-grip mr-1"></i> Plat Perforated SS304 3MM Ø6mm (1.2 x 2.4 M) - Total ${perfSheets.length} Lembar:</div>`;
+    perfSheets.forEach(sheet => {
+      const efficiency = ((sheet.usedArea / (1200*2400)) * 100).toFixed(1);
+      html += `<div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-1 text-slate-300">
+          <span class="font-bold text-emerald-300">Lembar ${sheet.id} (Perforated)</span>
+          <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded">Efisiensi: ${efficiency}%</span>
+        </div>
+        <ul class="space-y-1 text-slate-400 pl-2">`;
+      for (const [k,q] of Object.entries(sheet.cutsSummary)){
+        html += `<li class="flex items-center justify-between text-[11px]"><span>- Dipotong menjadi <strong class="text-white">${k}</strong></span><span class="font-bold text-amber-400">${q} Pcs</span></li>`;
+      }
+      html += `</ul>${buildNestingSVG(sheet, perfColors)}</div>`;
+    });
+  }
+
+  cuttingBreakdownContainer.innerHTML = html;
+  populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop);
+}
+
+function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop){
+  document.getElementById('printProjectName').textContent = `PROYEK: ${projectNameInput.value.toUpperCase()}`;
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
+
+  const printTable = document.getElementById('printSummaryTable');
+  printTable.innerHTML = `
+    <tr>
+      <td class="border border-slate-300 p-2 font-semibold">Plat Stainless SS304 3MM</td>
+      <td class="border border-slate-300 p-2 text-center">1.2 x 2.4 Meter</td>
+      <td class="border border-slate-300 p-2 text-center font-bold">${solidSheets.length} Lembar</td>
+      <td class="border border-slate-300 p-2">Body Box, Waterstop, Dop Bulat</td>
+    </tr>
+    <tr>
+      <td class="border border-slate-300 p-2 font-semibold">Plat Perforated SS304 3MM Ø6mm</td>
+      <td class="border border-slate-300 p-2 text-center">1.2 x 2.4 Meter</td>
+      <td class="border border-slate-300 p-2 text-center font-bold">${perfSheets.length} Lembar</td>
+      <td class="border border-slate-300 p-2">Alas Cover IFD & Grille Boot Drain</td>
+    </tr>
+    <tr>
+      <td class="border border-slate-300 p-2 font-semibold">Plat Strip SS304 30x3mm</td>
+      <td class="border border-slate-300 p-2 text-center">6 Meter / Batang</td>
+      <td class="border border-slate-300 p-2 text-center font-bold">${totalStripBars} Batang</td>
+      <td class="border border-slate-300 p-2">Bilah Grille & Rangka Support Cover</td>
+    </tr>
+    <tr>
+      <td class="border border-slate-300 p-2 font-semibold">Pipa Stainless SS304 (Water Seal Trap)</td>
+      <td class="border border-slate-300 p-2 text-center">Sesuai Ø trap per item</td>
+      <td class="border border-slate-300 p-2 text-center font-bold">${totalPipeBars} Batang (6m)</td>
+      <td class="border border-slate-300 p-2">Water Seal Trap (dipotong 55% T)</td>
+    </tr>
+    <tr>
+      <td class="border border-slate-300 p-2 font-semibold">Dop / Cap Bulat</td>
+      <td class="border border-slate-300 p-2 text-center">Sesuai Ø trap & outlet</td>
+      <td class="border border-slate-300 p-2 text-center font-bold">${totalDop} Pcs</td>
+      <td class="border border-slate-300 p-2">Tutup Ujung Trap & Outlet</td>
+    </tr>
+  `;
+
+  const printPlan = document.getElementById('printCuttingPlan');
+  let planHtml = `<div class="bg-slate-50 p-4 border border-slate-300 rounded space-y-3">`;
+  planHtml += `<p class="font-bold text-slate-800">1. PLAT STAINLESS SS304 3MM (1,2 x 2,4 METER) = ${solidSheets.length} LEMBAR</p>`;
+  solidSheets.forEach(s => {
+    planHtml += `<div class="pl-4"><p class="font-bold text-slate-700">Lembar ${s.id}</p>`;
+    for (const [k,q] of Object.entries(s.cutsSummary)) planHtml += `<p class="pl-4 text-slate-600">- Dipotong menjadi ${k} = ${q} Pcs</p>`;
+    planHtml += `</div>`;
+  });
+  if (perfSheets.length > 0){
+    planHtml += `<p class="font-bold text-slate-800 mt-2">2. PLAT PERFORATED SS304 3MM Ø6MM (1,2 x 2,4 METER) = ${perfSheets.length} LEMBAR</p>`;
+    perfSheets.forEach(s => {
+      planHtml += `<div class="pl-4"><p class="font-bold text-slate-700">Lembar ${s.id}</p>`;
+      for (const [k,q] of Object.entries(s.cutsSummary)) planHtml += `<p class="pl-4 text-slate-600">- Dipotong menjadi ${k} = ${q} Pcs</p>`;
+      planHtml += `</div>`;
+    });
+  }
+  planHtml += `</div>`;
+  printPlan.innerHTML = planHtml;
+}
+
+btnPrintRequisition.addEventListener('click', () => {
+  document.getElementById('printArea').classList.remove('hidden');
+  window.print();
+  document.getElementById('printArea').classList.add('hidden');
+});
+
+btnPrintFull.addEventListener('click', () => {
+  // Ganti konten print area dengan visual mal per lembar
+  const printArea = document.getElementById('printArea');
+  // Panggil fungsi untuk menyusun ulang print area dengan visual
+  // (Untuk sementara, kita pakai konten yang sama tapi tambahkan visual mal)
+  // Di implementasi nyata, ini akan memasukkan SVG ke printArea.
+  // Karena keterbatasan, kita akan menggunakan print area yang sudah ada namun menambahkan gambar mal.
+  // Namun lebih praktis: kita buat print area dinamis.
+  // Untuk kesederhanaan, tombol ini akan mencetak halaman dengan konten yang sama (sudah ada visual di layar).
+  // Tapi user ingin visual mal ikut tercetak. Maka kita akan menyalin SVG dari container ke print area.
+  const allSVGs = cuttingBreakdownContainer.querySelectorAll('svg');
+  const printPlan = document.getElementById('printCuttingPlan');
+  let extraHtml = '<div class="mt-4 border-t border-slate-300 pt-2"><h3 class="text-sm font-bold uppercase mb-2">Visual Mal Per Lembar</h3><div class="space-y-4">';
+  allSVGs.forEach(svg => {
+    extraHtml += svg.outerHTML;
+  });
+  extraHtml += '</div></div>';
+  printPlan.innerHTML += extraHtml;
+  printArea.classList.remove('hidden');
+  window.print();
+  printArea.classList.add('hidden');
+});
+
+// ============================= THREE.JS 3D VIEWER =============================
+let scene, camera, renderer, currentGroup;
+let isDragging = false;
+let previousMousePosition = { x:0, y:0 };
+let activeEntry = { type:'IFD', P:360, L:360, T:300, outletInch:4, immersionDepth:80 };
+
+function init3DViewer(){
+  const container = document.getElementById('canvasContainer');
+  const canvas = document.getElementById('threeCanvas');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0f1d);
+
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
+  camera.position.set(500, 500, 600);
+  camera.lookAt(0, 0, 0);
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight1.position.set(400, 600, 300);
+  scene.add(dirLight1);
+  const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
+  dirLight2.position.set(-400, -200, -300);
+  scene.add(dirLight2);
+
+  const gridHelper = new THREE.GridHelper(2000, 40, 0x334155, 0x1e293b);
+  gridHelper.position.y = -150;
+  scene.add(gridHelper);
+
+  canvas.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x:e.clientX, y:e.clientY }; });
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging || !currentGroup) return;
+    const dX = e.clientX - previousMousePosition.x, dY = e.clientY - previousMousePosition.y;
+    currentGroup.rotation.y += dX * 0.008;
+    currentGroup.rotation.x += dY * 0.008;
+    previousMousePosition = { x:e.clientX, y:e.clientY };
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+
+  canvas.addEventListener('touchstart', (e) => { if (e.touches.length===1){ isDragging=true; previousMousePosition={x:e.touches[0].clientX,y:e.touches[0].clientY}; } });
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isDragging || !currentGroup || e.touches.length!==1) return;
+    const dX = e.touches[0].clientX - previousMousePosition.x, dY = e.touches[0].clientY - previousMousePosition.y;
+    currentGroup.rotation.y += dX * 0.008;
+    currentGroup.rotation.x += dY * 0.008;
+    previousMousePosition = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+  });
+  window.addEventListener('touchend', () => isDragging = false);
+
+  window.addEventListener('resize', () => {
+    if (!container) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  document.getElementById('btnToggleExplode').addEventListener('click', () => {
+    isExploded = !isExploded;
+    document.getElementById('explodeBtnText').textContent = isExploded ? "Mode Terpasang" : "Mode Explode (Lepas)";
+    update3DModel(activeEntry);
+  });
+  document.getElementById('btnToggleWireframe').addEventListener('click', () => {
+    isWireframe = !isWireframe;
+    update3DModel(activeEntry);
+  });
+
+  animate();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  if (currentGroup && !isDragging) currentGroup.rotation.y += 0.002;
+  renderer.render(scene, camera);
+}
+
+// Buat plat berlubang prosedural
+function createPerforatedPlate(width, length, thickness, holeRadius, holeSpacing){
+  const shape = new THREE.Shape();
+  shape.moveTo(-width/2, -length/2);
+  shape.lineTo(width/2, -length/2);
+  shape.lineTo(width/2, length/2);
+  shape.lineTo(-width/2, length/2);
+  shape.closePath();
+  // Tambahkan lubang
+  const holes = [];
+  for (let x = -width/2 + holeSpacing; x < width/2 - holeSpacing; x += holeSpacing){
+    for (let y = -length/2 + holeSpacing; y < length/2 - holeSpacing; y += holeSpacing){
+      const hole = new THREE.Path();
+      hole.absarc(x, y, holeRadius, 0, Math.PI*2, true);
+      holes.push(hole);
+    }
+  }
+  shape.holes = holes;
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+  geo.rotateX(-Math.PI/2); // membuat bidang datar
+  return geo;
+}
+
+function buildGrilleCover(width, length, perfMat, barMat){
+  const group = new THREE.Group();
+  // Alas perforated
+  const perfGeo = createPerforatedPlate(width, length, 4, 3, 15); // Ø6mm => r=3, pitch 15
+  const plate = new THREE.Mesh(perfGeo, perfMat);
+  group.add(plate);
+  // Bilah strip
+  const pitch = 30;
+  const barCount = Math.max(3, Math.floor(width / pitch));
+  for (let i=0;i<barCount;i++){
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(6, 10, Math.max(4, length-6)), barMat);
+    bar.position.set(-(width/2) + (i+0.5)*(width/barCount), 7, 0);
+    group.add(bar);
+  }
+  return group;
+}
+
+function update3DModel(entry){
+  activeEntry = entry;
+  const { type, P, L, T } = entry;
+  document.getElementById('active3DLabel').textContent = `${type} (${P} x ${L} x ${T} mm)`;
+
+  if (currentGroup) scene.remove(currentGroup);
+  currentGroup = new THREE.Group();
+
+  const stainlessMat = new THREE.MeshStandardMaterial({ color:0xcbd5e1, metalness:0.85, roughness:0.25, wireframe:isWireframe });
+  const waterstopMat = new THREE.MeshStandardMaterial({ color:0x737373, metalness:0.7, roughness:0.4, wireframe:isWireframe });
+  const perforatedMat = new THREE.MeshStandardMaterial({ color:0xf59e0b, metalness:0.7, roughness:0.3, wireframe:isWireframe });
+  const barMat = new THREE.MeshStandardMaterial({ color:0xe2e8f0, metalness:0.8, roughness:0.25, wireframe:isWireframe });
+  const pipeMat = new THREE.MeshStandardMaterial({ color:0x38bdf8, metalness:0.8, roughness:0.2, wireframe:isWireframe });
+  const outletMat = new THREE.MeshStandardMaterial({ color:0x3b82f6, metalness:0.8, roughness:0.2, wireframe:isWireframe });
+  const waterMat = new THREE.MeshStandardMaterial({ color:0x7dd3fc, metalness:0.1, roughness:0.05, transparent:true, opacity:0.5 });
+
+  const explodeOffset = isExploded ? 90 : 0;
+
+  if (type === 'IFD'){
+    const outletInch = entry.outletInch || 4;
+    const trapInch = outletInch + 2;
+    const outletR = pipeOD(outletInch) / 2;
+    const trapR = pipeOD(trapInch) / 2;
+
+    // Body box hollow (dinding terpisah)
+    const wallThick = 3;
+    const bodyGroup = new THREE.Group();
+    // Dasar
+    const bottom = new THREE.Mesh(new THREE.BoxGeometry(P, wallThick, L), stainlessMat);
+    bottom.position.y = -T/2 + wallThick/2;
+    bodyGroup.add(bottom);
+    // Dinding depan/belakang
+    const wallFB = new THREE.Mesh(new THREE.BoxGeometry(P, T, wallThick), stainlessMat);
+    wallFB.position.set(0, 0, L/2 - wallThick/2);
+    bodyGroup.add(wallFB);
+    const wallFB2 = wallFB.clone();
+    wallFB2.position.z = -L/2 + wallThick/2;
+    bodyGroup.add(wallFB2);
+    // Dinding kiri/kanan
+    const wallLR = new THREE.Mesh(new THREE.BoxGeometry(wallThick, T, L - 2*wallThick), stainlessMat);
+    wallLR.position.set(P/2 - wallThick/2, 0, 0);
+    bodyGroup.add(wallLR);
+    const wallLR2 = wallLR.clone();
+    wallLR2.position.x = -P/2 + wallThick/2;
+    bodyGroup.add(wallLR2);
+    currentGroup.add(bodyGroup);
+
+    // Kupingan waterstop
+    const waterstopMesh = new THREE.Mesh(new THREE.BoxGeometry(P+60, 10, L+60), waterstopMat);
+    waterstopMesh.position.y = (T/2) - 14;
+    currentGroup.add(waterstopMesh);
+
+    // Water seal trap - pipa utuh + dop
+    const trapHeight = Math.max(80, Math.round(T * 0.55));
+    const trapMesh = new THREE.Mesh(new THREE.CylinderGeometry(trapR, trapR, trapHeight, 32), pipeMat);
+    trapMesh.position.y = -(T/2) + trapHeight/2 + (isExploded ? explodeOffset*0.7 : 0);
+    currentGroup.add(trapMesh);
+    // Dop tutup trap (piringan bulat)
+    const trapDopMesh = new THREE.Mesh(new THREE.CylinderGeometry(trapR+10, trapR+10, 6, 32), stainlessMat);
+    trapDopMesh.position.y = -(T/2) - 5 - (isExploded ? explodeOffset*0.4 : 0);
+    currentGroup.add(trapDopMesh);
+
+    // Cover: alas perforated + bilah grille
+    const coverGroup = buildGrilleCover(P-20, L-20, perforatedMat, barMat);
+    coverGroup.position.y = (T/2) + 8 + (isExploded ? explodeOffset*1.5 : 0);
+    currentGroup.add(coverGroup);
+
+    // Outlet pipe + dop
+    const outletMesh = new THREE.Mesh(new THREE.CylinderGeometry(outletR, outletR, 130, 24), outletMat);
+    outletMesh.position.y = -(T/2) - 65 - (isExploded ? explodeOffset*0.5 : 0);
+    currentGroup.add(outletMesh);
+    const outletDopMesh = new THREE.Mesh(new THREE.CylinderGeometry(outletR+10, outletR+10, 6, 24), stainlessMat);
+    outletDopMesh.position.y = -(T/2) - 135 - (isExploded ? explodeOffset*0.6 : 0);
+    currentGroup.add(outletDopMesh);
+
+  } else {
+    const immersionDepth = entry.immersionDepth || 80;
+    const halfP = P/2;
+    const wallThick = 3;
+
+    // Body hollow
+    const bodyGroup = new THREE.Group();
+    const bottom = new THREE.Mesh(new THREE.BoxGeometry(P, wallThick, L), stainlessMat);
+    bottom.position.y = -T/2 + wallThick/2;
+    bodyGroup.add(bottom);
+    const wallFB = new THREE.Mesh(new THREE.BoxGeometry(P, T, wallThick), stainlessMat);
+    wallFB.position.set(0, 0, L/2 - wallThick/2);
+    bodyGroup.add(wallFB);
+    const wallFB2 = wallFB.clone();
+    wallFB2.position.z = -L/2 + wallThick/2;
+    bodyGroup.add(wallFB2);
+    const wallLR = new THREE.Mesh(new THREE.BoxGeometry(wallThick, T, L - 2*wallThick), stainlessMat);
+    wallLR.position.set(P/2 - wallThick/2, 0, 0);
+    bodyGroup.add(wallLR);
+    const wallLR2 = wallLR.clone();
+    wallLR2.position.x = -P/2 + wallThick/2;
+    bodyGroup.add(wallLR2);
+    currentGroup.add(bodyGroup);
+
+    const waterstopMesh = new THREE.Mesh(new THREE.BoxGeometry(P+60, 10, L+60), waterstopMat);
+    waterstopMesh.position.y = (T/2) - 14;
+    currentGroup.add(waterstopMesh);
+
+    // Sekat tengah
+    const dividerMesh = new THREE.Mesh(new THREE.BoxGeometry(6, Math.max(40, T-immersionDepth), L-20), stainlessMat);
+    dividerMesh.position.y = 0;
+    currentGroup.add(dividerMesh);
+
+    // Genangan air sisi basah (kiri)
+    const waterMesh = new THREE.Mesh(new THREE.BoxGeometry(halfP-20, Math.max(10, T-immersionDepth-20), L-20), waterMat);
+    waterMesh.position.set(-(halfP/2), (T/2) - immersionDepth - 15, 0);
+    currentGroup.add(waterMesh);
+
+    // Lantai sloping sisi kering
+    const slopeMesh = new THREE.Mesh(new THREE.BoxGeometry(halfP-24, 6, L-24), stainlessMat);
+    slopeMesh.rotation.x = 0.06;
+    slopeMesh.position.set((halfP/2), -(T/2)+22, 0);
+    currentGroup.add(slopeMesh);
+
+    // Grille sisi BASAH - lebih rendah
+    const grilleWet = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat);
+    grilleWet.position.set(-(halfP/2), (T/2) - immersionDepth + 6 + (isExploded ? explodeOffset*1.5 : 0), 0);
+    currentGroup.add(grilleWet);
+
+    // Grille sisi KERING - lebih tinggi
+    const grilleDry = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat);
+    grilleDry.position.set((halfP/2), (T/2) + 8 + (isExploded ? explodeOffset*1.7 : 0), 0);
+    currentGroup.add(grilleDry);
+
+    // Outlet pipe + dop
+    const outletMesh = new THREE.Mesh(new THREE.CylinderGeometry(50, 50, 110, 24), outletMat);
+    outletMesh.position.set((halfP/2), -(T/2) - 55 - (isExploded ? explodeOffset*0.5 : 0), 0);
+    currentGroup.add(outletMesh);
+    const outletDopMesh = new THREE.Mesh(new THREE.CylinderGeometry(58, 58, 6, 24), stainlessMat);
+    outletDopMesh.position.set((halfP/2), -(T/2) - 115 - (isExploded ? explodeOffset*0.6 : 0), 0);
+    currentGroup.add(outletDopMesh);
+  }
+
+  const maxDim = Math.max(P, L, T);
+  camera.position.set(maxDim*1.6, maxDim*1.6, maxDim*2.0);
+  camera.lookAt(0,0,0);
+  scene.add(currentGroup);
+}
+</script>
+</body>
+</html>
