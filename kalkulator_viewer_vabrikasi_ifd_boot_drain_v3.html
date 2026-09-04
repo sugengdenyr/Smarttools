@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain — v7</title>
+<title>Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,8 +33,8 @@
           <i class="fa-solid fa-calculator text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-white tracking-wide">Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain <span class="text-cyan-400 text-xs align-top">v7</span></h1>
-          <p class="text-xs text-slate-400">Nesting, Optimasi, Consumables Las Argon, Visual Mal Print Hemat Tinta</p>
+          <h1 class="text-lg font-bold text-white tracking-wide">Perhitungan Material Fabrikasi IFD dan Footbath <span class="text-cyan-400 text-xs align-top">V 1.0</span></h1>
+          <p class="text-xs text-slate-400">Nesting, Optimasi, Consumables Las Argon, Layout Potongan Plat Lembaran</p>
         </div>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
@@ -384,16 +384,30 @@
     <div class="p-8 max-w-4xl mx-auto bg-white text-slate-900 font-sans">
       <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-6">
         <div>
-          <h1 class="text-2xl font-bold uppercase tracking-wider">BON PERMINTAAN MATERIAL FABRIKASI</h1>
+          <h1 class="text-2xl font-bold uppercase tracking-wider">REKOMENDASI PERMINTAAN BARANG</h1>
           <p class="text-sm font-semibold text-slate-600" id="printProjectName">PROYEK: -</p>
           <p class="text-xs text-slate-500">Item: Industrial Floor Drain (IFD) & Boot Drain (Footbath)</p>
         </div>
         <div class="text-right text-xs">
           <p class="font-bold">Tanggal: <span id="printDate"></span></p>
-          <p>No. Requisition: REQ-FAB-<span id="printReqId">001</span></p>
-          <p>Status: APPROVED FOR CUTTING</p>
         </div>
       </div>
+    
+        <div class="mb-6">
+    <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">0. Data Entry Item</h3>
+    <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
+        <thead>
+        <tr class="bg-slate-100 text-left">
+            <th class="border border-slate-300 p-2">No</th>
+            <th class="border border-slate-300 p-2">Jenis Item</th>
+            <th class="border border-slate-300 p-2 text-center">Ukuran (P x L x T)</th>
+            <th class="border border-slate-300 p-2 text-center">Spesifikasi</th>
+            <th class="border border-slate-300 p-2 text-center">Jumlah</th>
+        </tr>
+        </thead>
+        <tbody id="printDataEntryTable"></tbody>
+    </table>
+    </div>
 
       <div class="mb-6">
         <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">1. Summary Rekomendasi Order Material</h3>
@@ -419,11 +433,10 @@
       </div>
 
       <div class="mt-12 pt-6 border-t border-slate-300 grid grid-cols-3 text-center text-xs">
-        <div><p class="mb-12 font-semibold">Dibuat Oleh (Estimator),</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Produksi/Fabrikasi )</p></div>
-        <div><p class="mb-12 font-semibold">Diperiksa Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Supervisor Teknik )</p></div>
-        <div><p class="mb-12 font-semibold">Disetujui Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Manager Logistik )</p></div>
+        <div><p class="mb-12 font-semibold">Dibuat Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">SPV</p></div>
+        <div><p class="mb-12 font-semibold">Diperiksa Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">SM / SE</p></div>
+        <div><p class="mb-12 font-semibold">Disetujui Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">PM</p></div>
       </div>
-      <p class="text-center text-[9px] text-slate-400 mt-8">Kalkulator Fabrikasi &amp; Viewer 3D IFD / Boot Drain &mdash; Sugeng Deny Ramdani 2026</p>
     </div>
   </div>
 
@@ -672,13 +685,13 @@ function estimateWeldLengthFootbath(P, L, T){
 }
 
 // ============================= CONSUMABLES =============================
-function computeConsumables(entries){
+function computeConsumables(projectEntries){
   let totalWeldLength = 0;
   let totalIFD = 0;
   let totalBD = 0;
   const stdIFDLength = estimateWeldLengthIFD(300, 300, 200, 4);
 
-  entries.forEach(entry => {
+  projectEntries.forEach(entry => {
     if (entry.type === 'IFD'){
       const len = estimateWeldLengthIFD(entry.P, entry.L, entry.T, entry.outletInch) * entry.qty;
       totalWeldLength += len;
@@ -898,6 +911,24 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
   document.getElementById('printProjectName').textContent = `PROYEK: ${projectNameInput.value.toUpperCase() || "-"}`;
   document.getElementById('printDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
 
+    // Data entry table
+const printDataBody = document.getElementById('printDataEntryTable');
+if (printDataBody) {
+  printDataBody.innerHTML = projectEntries.map((item, idx) => {
+    const specText = item.type === 'IFD'
+      ? `Outlet ${item.outletInch}" / Trap ${item.outletInch+2}"`
+      : `Selisih rendam ${item.immersionDepth}mm`;
+    return `
+      <tr>
+        <td class="border border-slate-300 p-2">${idx + 1}</td>
+        <td class="border border-slate-300 p-2">${item.type === 'IFD' ? 'IFD (Floor Drain)' : 'Boot Drain / Footbath'}</td>
+        <td class="border border-slate-300 p-2 text-center">${item.P} x ${item.L} x ${item.T} mm</td>
+        <td class="border border-slate-300 p-2 text-center">${specText}</td>
+        <td class="border border-slate-300 p-2 text-center font-bold">${item.qty} Pcs</td>
+      </tr>`;
+  }).join('');
+}
+
   const printTable = document.getElementById('printSummaryTable');
   printTable.innerHTML = `
     <tr>
@@ -953,25 +984,23 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
   planHtml += `</div>`;
   printPlan.innerHTML = planHtml;
 
-  const cons = window.currentConsumables;
-  if (cons){
-    document.getElementById('printConsumables').innerHTML = `
-      <table class="w-full text-xs border-collapse border border-slate-300">
-        <thead><tr class="bg-slate-100 text-left">
-          <th class="border border-slate-300 p-2">Item</th>
-          <th class="border border-slate-300 p-2 text-center">Jumlah</th>
-          <th class="border border-slate-300 p-2">Keterangan</th>
-        </tr></thead>
-        <tbody>
-          <tr><td class="border border-slate-300 p-2">Mata Gerinda Potong 4"</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPotong} bh</td><td class="border border-slate-300 p-2">1 bh / IFD</td></tr>
-          <tr><td class="border border-slate-300 p-2">Mata Gerinda Poles</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 7 IFD</td></tr>
-          <tr><td class="border border-slate-300 p-2">Mata Kain Poles Stainless</td><td class="border border-slate-300 p-2 text-center">${cons.kainPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 2 IFD</td></tr>
-          <tr><td class="border border-slate-300 p-2">Flap Disc A120</td><td class="border border-slate-300 p-2 text-center">${cons.flapDisc} bh</td><td class="border border-slate-300 p-2">1 bh / 4 IFD</td></tr>
-          <tr><td class="border border-slate-300 p-2">Batu Hijau / Langsol 500gr</td><td class="border border-slate-300 p-2 text-center">${cons.batuHijau} bh</td><td class="border border-slate-300 p-2">1 bh / 25 IFD</td></tr>
-          <tr><td class="border border-slate-300 p-2">Kawat Las Argon Ø2.4mm</td><td class="border border-slate-300 p-2 text-center">${cons.kawatLasKg.toFixed(2)} kg (${cons.kawatLas5kg} pack 5kg)</td><td class="border border-slate-300 p-2">Total las ${cons.totalWeldLength.toFixed(2)} m</td></tr>
-        </tbody>
-      </table>`;
-  }
+    const cons = computeConsumables(projectEntries); // selalu hitung ulang
+  document.getElementById('printConsumables').innerHTML = `
+    <table class="w-full text-xs border-collapse border border-slate-300">
+      <thead><tr class="bg-slate-100 text-left">
+        <th class="border border-slate-300 p-2">Item</th>
+        <th class="border border-slate-300 p-2 text-center">Jumlah</th>
+        <th class="border border-slate-300 p-2">Keterangan</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="border border-slate-300 p-2">Mata Gerinda Potong 4"</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPotong} bh</td><td class="border border-slate-300 p-2">1 bh / IFD</td></tr>
+        <tr><td class="border border-slate-300 p-2">Mata Gerinda Poles</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 7 IFD</td></tr>
+        <tr><td class="border border-slate-300 p-2">Mata Kain Poles Stainless</td><td class="border border-slate-300 p-2 text-center">${cons.kainPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 2 IFD</td></tr>
+        <tr><td class="border border-slate-300 p-2">Flap Disc A120</td><td class="border border-slate-300 p-2 text-center">${cons.flapDisc} bh</td><td class="border border-slate-300 p-2">1 bh / 4 IFD</td></tr>
+        <tr><td class="border border-slate-300 p-2">Batu Hijau / Langsol 500gr</td><td class="border border-slate-300 p-2 text-center">${cons.batuHijau} bh</td><td class="border border-slate-300 p-2">1 bh / 25 IFD</td></tr>
+        <tr><td class="border border-slate-300 p-2">Kawat Las Argon Ø2.4mm</td><td class="border border-slate-300 p-2 text-center">${cons.kawatLasKg.toFixed(2)} kg (${cons.kawatLas5kg} pack 5kg)</td><td class="border border-slate-300 p-2">Total las ${cons.totalWeldLength.toFixed(2)} m</td></tr>
+      </tbody>
+    </table>`;
 }
 
 btnPrintRequisition.addEventListener('click', () => {
