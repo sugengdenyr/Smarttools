@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain — v5</title>
+<title>Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain — v7</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,8 +33,8 @@
           <i class="fa-solid fa-calculator text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-white tracking-wide">Kalkulator & Viewer 3D IFD / Boot Drain <span class="text-cyan-400 text-xs align-top">v5</span></h1>
-          <p class="text-xs text-slate-400">Nesting Bin-Packing SS304, Optimasi Plat Strip, Visual Mal Print Hemat Tinta</p>
+          <h1 class="text-lg font-bold text-white tracking-wide">Kalkulator Fabrikasi & Viewer 3D IFD / Boot Drain <span class="text-cyan-400 text-xs align-top">v7</span></h1>
+          <p class="text-xs text-slate-400">Nesting, Optimasi, Consumables Las Argon, Visual Mal Print Hemat Tinta</p>
         </div>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
@@ -95,8 +95,8 @@
               <ul class="list-disc list-inside space-y-1 text-slate-300">
                 <li>Body SS304 3mm + kupingan waterstop step-tanam.</li>
                 <li>Sekat tengah pembatas sisi basah/kering.</li>
-                <li>2x Cover grille (bilah + perforated) dengan tinggi berbeda.</li>
-                <li><strong>Water Seal Trap</strong>: Menggunakan Floor Drain Injak 4" (pipa utuh + dop).</li>
+                <li>2x Cover grille (bilah) dengan tinggi berbeda. <strong>Tidak memakai perforated.</strong></li>
+                <li><strong>Water Seal Trap</strong>: Menggunakan Floor Drain Injak 4" (produk jadi, tidak dihitung pipa terpisah).</li>
               </ul>
             </div>
             <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
@@ -291,6 +291,53 @@
         </div>
       </div>
 
+      <!-- Step 5: CONSUMABLES -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-fire"></i> Step 5: Perhitungan Alat Bantu (Consumables) — Las Argon GTAW</div>
+          <span class="text-[11px] text-slate-400">Berdasarkan panjang las total</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Mata Gerinda Potong 4"</span>
+            <span id="sumGerindaPotong" class="text-lg font-bold text-orange-400 code-font">0 bh</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1 bh / IFD</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Mata Gerinda Poles</span>
+            <span id="sumGerindaPoles" class="text-lg font-bold text-orange-400 code-font">0 bh</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1 bh / 7 IFD</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Mata Kain Poles Stainless</span>
+            <span id="sumKainPoles" class="text-lg font-bold text-orange-400 code-font">0 bh</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1 bh / 2 IFD</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Flap Disc A120</span>
+            <span id="sumFlapDisc" class="text-lg font-bold text-orange-400 code-font">0 bh</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1 bh / 4 IFD</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Batu Hijau / Langsol 500gr</span>
+            <span id="sumBatuHijau" class="text-lg font-bold text-lime-400 code-font">0 bh</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">1 bh / 25 IFD</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Kawat Las Argon Ø2.4mm (kg)</span>
+            <span id="sumKawatLasKg" class="text-lg font-bold text-cyan-400 code-font">0 kg</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">28.2 m / kg</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">Kawat Las Argon (per 5kg)</span>
+            <span id="sumKawatLas5kg" class="text-lg font-bold text-cyan-400 code-font">0 pack</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Dibulatkan ke atas</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- RIGHT -->
@@ -366,6 +413,11 @@
         <div id="printCuttingPlan" class="space-y-3 text-xs code-font"></div>
       </div>
 
+      <div class="mb-6">
+        <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">3. Perhitungan Alat Bantu (Consumables)</h3>
+        <div id="printConsumables" class="space-y-2 text-xs"></div>
+      </div>
+
       <div class="mt-12 pt-6 border-t border-slate-300 grid grid-cols-3 text-center text-xs">
         <div><p class="mb-12 font-semibold">Dibuat Oleh (Estimator),</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Produksi/Fabrikasi )</p></div>
         <div><p class="mb-12 font-semibold">Diperiksa Oleh,</p><p class="font-bold border-t border-slate-400 pt-1 w-32 mx-auto">( Supervisor Teknik )</p></div>
@@ -404,6 +456,15 @@ const sumPlatStrip = document.getElementById('sumPlatStrip');
 const sumPipa = document.getElementById('sumPipa');
 const sumFloorDrain = document.getElementById('sumFloorDrain');
 const cuttingBreakdownContainer = document.getElementById('cuttingBreakdownContainer');
+
+// Consumables DOM
+const sumGerindaPotong = document.getElementById('sumGerindaPotong');
+const sumGerindaPoles = document.getElementById('sumGerindaPoles');
+const sumKainPoles = document.getElementById('sumKainPoles');
+const sumFlapDisc = document.getElementById('sumFlapDisc');
+const sumBatuHijau = document.getElementById('sumBatuHijau');
+const sumKawatLasKg = document.getElementById('sumKawatLasKg');
+const sumKawatLas5kg = document.getElementById('sumKawatLas5kg');
 
 const btnExplanation = document.getElementById('btnExplanation');
 const modalExplanation = document.getElementById('modalExplanation');
@@ -530,18 +591,18 @@ function computeIFDCuts(P, L, T, qty, outletInch){
     solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
     solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
 
-    // Dop tutup TRAP SAJA (bukan outlet)
+    // Dop tutup TRAP SAJA
     solidCuts.push(roundCut(trapOD + 20, `Dop Tutup Trap Ø${(trapOD+20).toFixed(1)}mm (${trapInch}")`));
     dopCount += 1;
 
     // Pipa water seal
     pipeLenTotal += trapHeight;
 
-    // Alas perforated
+    // Alas perforated (hanya IFD)
     const coverW = Math.max(60, P - 15), coverL = Math.max(60, L - 15);
     perfCuts.push(rectCut(coverW, coverL, `Alas Perforated Ø6mm ${coverW}x${coverL}mm (Cover IFD)`));
 
-    // Kebutuhan Plat Strip (Bilah Grille + Rangka Cover + Kupingan Waterstop)
+    // Kebutuhan Plat Strip
     const pitch = 30;
     const numBars = Math.max(3, Math.floor(coverW / pitch));
     stripLen += numBars * coverL; // bilah
@@ -556,7 +617,8 @@ function computeIFDCuts(P, L, T, qty, outletInch){
 
 function computeFootbathCuts(P, L, T, qty, immersionDepth){
   let solidCuts = [], perfCuts = [], stripLen = 0, pipeLenTotal = 0, dopCount = 0, floorDrainQty = 0;
-  const outletOD = 114.3; // 4"
+  // Tidak ada pipa tambahan, tidak ada dop tambahan (karena floor drain injak sudah termasuk)
+  // Namun untuk estimasi las, floor drain injak tetap ada.
 
   for (let q = 0; q < qty; q++){
     solidCuts.push(rectCut(P, L, `Dasar BootDrain (Slope 5%) ${P}x${L}mm`));
@@ -566,17 +628,13 @@ function computeFootbathCuts(P, L, T, qty, immersionDepth){
     solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
     solidCuts.push(rectCut(L, Math.max(60, T - immersionDepth), `Sekat Tengah Basah/Kering ${L}x${Math.max(60,T-immersionDepth)}mm`));
 
-    // Pipa water seal (floor drain injak 4") - pipa utuh
-    const trapHeight = Math.max(80, Math.round(T * 0.55));
-    pipeLenTotal += trapHeight;
-    dopCount += 1; // dop untuk floor drain injak
-    floorDrainQty += 1; // floor drain injak (item beli)
+    // Tidak ada perforated untuk BD
+    // Tidak ada pipeLenTotal, dopCount
+
+    floorDrainQty += 1;
 
     const halfP = Math.max(60, Math.floor(P / 2) - 10);
     const coverL = Math.max(60, L - 10);
-    perfCuts.push(rectCut(halfP, coverL, `Alas Perforated Ø6mm Sisi BASAH ${halfP}x${coverL}mm`));
-    perfCuts.push(rectCut(halfP, coverL, `Alas Perforated Ø6mm Sisi KERING ${halfP}x${coverL}mm`));
-
     // Kebutuhan plat strip
     const pitch = 30;
     const numBars = Math.max(3, Math.floor(coverL / pitch));
@@ -588,6 +646,61 @@ function computeFootbathCuts(P, L, T, qty, immersionDepth){
     stripLen += (outerP * 2) + (outerL * 2);
   }
   return { solidCuts, perfCuts, stripLen, pipeLenTotal, dopCount, floorDrainQty };
+}
+
+// ============================= ESTIMASI PANJANG LAS =============================
+function estimateWeldLengthIFD(P, L, T, outletInch){
+  const trapOD = pipeOD(outletInch + 2);
+  const rTrap = trapOD / 2;
+  const lasDasar = 2*(P + L);
+  const lasSudut = 4*T;
+  const lasKupingan = 2*((P+60) + (L+60));
+  const lasTrap = 2 * Math.PI * rTrap;
+  const totalMM = lasDasar + lasSudut + lasKupingan + lasTrap;
+  return totalMM / 1000; // meter
+}
+
+function estimateWeldLengthFootbath(P, L, T){
+  const rTrap = 114.3 / 2;
+  const lasDasar = 2*(P + L);
+  const lasSudut = 4*T;
+  const lasKupingan = 2*((P+60) + (L+60));
+  const lasSekat = 2 * L;
+  const lasTrap = 2 * Math.PI * rTrap;
+  const totalMM = lasDasar + lasSudut + lasKupingan + lasSekat + lasTrap;
+  return totalMM / 1000;
+}
+
+// ============================= CONSUMABLES =============================
+function computeConsumables(entries){
+  let totalWeldLength = 0;
+  let totalIFD = 0;
+  let totalBD = 0;
+  const stdIFDLength = estimateWeldLengthIFD(300, 300, 200, 4);
+
+  entries.forEach(entry => {
+    if (entry.type === 'IFD'){
+      const len = estimateWeldLengthIFD(entry.P, entry.L, entry.T, entry.outletInch) * entry.qty;
+      totalWeldLength += len;
+      totalIFD += entry.qty;
+    } else {
+      const len = estimateWeldLengthFootbath(entry.P, entry.L, entry.T) * entry.qty;
+      totalWeldLength += len;
+      totalBD += entry.qty;
+    }
+  });
+
+  const equivalentIFD = totalWeldLength / stdIFDLength;
+
+  const gerindaPotong = Math.ceil(equivalentIFD * 1);
+  const gerindaPoles = Math.ceil(equivalentIFD / 7);
+  const kainPoles = Math.ceil(equivalentIFD / 2);
+  const flapDisc = Math.ceil(equivalentIFD / 4);
+  const batuHijau = Math.ceil(equivalentIFD / 25);
+  const kawatLasKg = totalWeldLength / 28.2;
+  const kawatLas5kg = Math.ceil(kawatLasKg / 5);
+
+  return { totalWeldLength, equivalentIFD, gerindaPotong, gerindaPoles, kainPoles, flapDisc, batuHijau, kawatLasKg, kawatLas5kg };
 }
 
 // ============================= NESTING ENGINE =============================
@@ -682,6 +795,13 @@ function updateAllCalculations(){
     sumPlatStrip.textContent = "0 Batang";
     sumPipa.textContent = "0 Batang";
     sumFloorDrain.textContent = "0 Pcs";
+    sumGerindaPotong.textContent = "0 bh";
+    sumGerindaPoles.textContent = "0 bh";
+    sumKainPoles.textContent = "0 bh";
+    sumFlapDisc.textContent = "0 bh";
+    sumBatuHijau.textContent = "0 bh";
+    sumKawatLasKg.textContent = "0 kg";
+    sumKawatLas5kg.textContent = "0 pack";
     cuttingBreakdownContainer.innerHTML = `<div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-500 text-center text-xs">Belum ada item ditambahkan.</div>`;
     return;
   }
@@ -699,10 +819,10 @@ function updateAllCalculations(){
     } else {
       const r = computeFootbathCuts(entry.P, entry.L, entry.T, entry.qty, entry.immersionDepth);
       solidCuts = solidCuts.concat(r.solidCuts);
-      perfCuts = perfCuts.concat(r.perfCuts);
+      // PerfCuts tidak ditambahkan untuk BD
       totalStripLengthMM += r.stripLen;
-      totalPipeLengthMM += r.pipeLenTotal;
-      totalDop += r.dopCount;
+      totalPipeLengthMM += r.pipeLenTotal; // ini 0
+      totalDop += r.dopCount; // ini 0
       totalFloorDrain += r.floorDrainQty;
     }
   });
@@ -710,7 +830,6 @@ function updateAllCalculations(){
   const solidSheets = packNesting2D(solidCuts, 1200, 2400);
   const perfSheets = packNesting2D(perfCuts, 1200, 2400);
 
-  // Hitung kebutuhan strip (total panjang strip) -> konversi ke batang 6m
   const totalStripBars = Math.ceil(totalStripLengthMM / 6000);
   const totalPipeBars = Math.ceil(totalPipeLengthMM / 6000);
 
@@ -721,6 +840,17 @@ function updateAllCalculations(){
   sumFloorDrain.textContent = `${totalFloorDrain} Pcs`;
 
   renderCuttingBreakdown(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop, totalFloorDrain);
+
+  const cons = computeConsumables(projectEntries);
+  sumGerindaPotong.textContent = `${cons.gerindaPotong} bh`;
+  sumGerindaPoles.textContent = `${cons.gerindaPoles} bh`;
+  sumKainPoles.textContent = `${cons.kainPoles} bh`;
+  sumFlapDisc.textContent = `${cons.flapDisc} bh`;
+  sumBatuHijau.textContent = `${cons.batuHijau} bh`;
+  sumKawatLasKg.textContent = `${cons.kawatLasKg.toFixed(2)} kg`;
+  sumKawatLas5kg.textContent = `${cons.kawatLas5kg} pack`;
+
+  window.currentConsumables = cons;
 }
 
 function renderCuttingBreakdown(solidSheets, perfSheets, totalStripBars, totalPipeBars, totalDop, totalFloorDrain){
@@ -780,7 +910,7 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
       <td class="border border-slate-300 p-2 font-semibold">Plat Perforated SS304 3MM Ø6mm</td>
       <td class="border border-slate-300 p-2 text-center">1.2 x 2.4 Meter</td>
       <td class="border border-slate-300 p-2 text-center font-bold">${perfSheets.length} Lembar</td>
-      <td class="border border-slate-300 p-2">Alas Cover IFD & Grille Boot Drain</td>
+      <td class="border border-slate-300 p-2">Alas Cover IFD</td>
     </tr>
     <tr>
       <td class="border border-slate-300 p-2 font-semibold">Plat Strip SS304 30x3mm</td>
@@ -788,12 +918,13 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
       <td class="border border-slate-300 p-2 text-center font-bold">${totalStripBars} Batang</td>
       <td class="border border-slate-300 p-2">Bilah Grille, Rangka Cover & Kupingan Waterstop</td>
     </tr>
+    ${totalPipeBars > 0 ? `
     <tr>
       <td class="border border-slate-300 p-2 font-semibold">Pipa Stainless SS304 (Water Seal Trap)</td>
       <td class="border border-slate-300 p-2 text-center">Sesuai Ø trap per item</td>
       <td class="border border-slate-300 p-2 text-center font-bold">${totalPipeBars} Batang (6m)</td>
       <td class="border border-slate-300 p-2">Water Seal Trap (dipotong 55% T)</td>
-    </tr>
+    </tr>` : ''}
     ${totalFloorDrain > 0 ? `
     <tr>
       <td class="border border-slate-300 p-2 font-semibold">Floor Drain Injak 4"</td>
@@ -821,6 +952,26 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
   }
   planHtml += `</div>`;
   printPlan.innerHTML = planHtml;
+
+  const cons = window.currentConsumables;
+  if (cons){
+    document.getElementById('printConsumables').innerHTML = `
+      <table class="w-full text-xs border-collapse border border-slate-300">
+        <thead><tr class="bg-slate-100 text-left">
+          <th class="border border-slate-300 p-2">Item</th>
+          <th class="border border-slate-300 p-2 text-center">Jumlah</th>
+          <th class="border border-slate-300 p-2">Keterangan</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="border border-slate-300 p-2">Mata Gerinda Potong 4"</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPotong} bh</td><td class="border border-slate-300 p-2">1 bh / IFD</td></tr>
+          <tr><td class="border border-slate-300 p-2">Mata Gerinda Poles</td><td class="border border-slate-300 p-2 text-center">${cons.gerindaPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 7 IFD</td></tr>
+          <tr><td class="border border-slate-300 p-2">Mata Kain Poles Stainless</td><td class="border border-slate-300 p-2 text-center">${cons.kainPoles} bh</td><td class="border border-slate-300 p-2">1 bh / 2 IFD</td></tr>
+          <tr><td class="border border-slate-300 p-2">Flap Disc A120</td><td class="border border-slate-300 p-2 text-center">${cons.flapDisc} bh</td><td class="border border-slate-300 p-2">1 bh / 4 IFD</td></tr>
+          <tr><td class="border border-slate-300 p-2">Batu Hijau / Langsol 500gr</td><td class="border border-slate-300 p-2 text-center">${cons.batuHijau} bh</td><td class="border border-slate-300 p-2">1 bh / 25 IFD</td></tr>
+          <tr><td class="border border-slate-300 p-2">Kawat Las Argon Ø2.4mm</td><td class="border border-slate-300 p-2 text-center">${cons.kawatLasKg.toFixed(2)} kg (${cons.kawatLas5kg} pack 5kg)</td><td class="border border-slate-300 p-2">Total las ${cons.totalWeldLength.toFixed(2)} m</td></tr>
+        </tbody>
+      </table>`;
+  }
 }
 
 btnPrintRequisition.addEventListener('click', () => {
@@ -945,11 +1096,13 @@ function createPerforatedPlate(width, length, thickness, holeRadius, holeSpacing
   return geo;
 }
 
-function buildGrilleCover(width, length, perfMat, barMat){
+function buildGrilleCover(width, length, perfMat, barMat, withPerforated=true){
   const group = new THREE.Group();
-  const perfGeo = createPerforatedPlate(width, length, 4, 3, 15);
-  const plate = new THREE.Mesh(perfGeo, perfMat);
-  group.add(plate);
+  if (withPerforated){
+    const perfGeo = createPerforatedPlate(width, length, 4, 3, 15);
+    const plate = new THREE.Mesh(perfGeo, perfMat);
+    group.add(plate);
+  }
   const pitch = 30;
   const barCount = Math.max(3, Math.floor(width / pitch));
   for (let i=0;i<barCount;i++){
@@ -1003,28 +1156,23 @@ function update3DModel(entry){
     bodyGroup.add(wallLR2);
     currentGroup.add(bodyGroup);
 
-    // Kupingan waterstop: posisi 75% dari tinggi box (dari dasar)
     const waterstopY = -T/2 + 0.75 * T;
     const waterstopMesh = new THREE.Mesh(new THREE.BoxGeometry(P+60, 10, L+60), waterstopMat);
     waterstopMesh.position.y = waterstopY;
     currentGroup.add(waterstopMesh);
 
-    // Water seal trap
     const trapHeight = Math.max(80, Math.round(T * 0.55));
     const trapMesh = new THREE.Mesh(new THREE.CylinderGeometry(trapR, trapR, trapHeight, 32), pipeMat);
     trapMesh.position.y = -(T/2) + trapHeight/2 + (isExploded ? explodeOffset*0.7 : 0);
     currentGroup.add(trapMesh);
-    // Dop trap (hanya satu sisi)
     const trapDopMesh = new THREE.Mesh(new THREE.CylinderGeometry(trapR+10, trapR+10, 6, 32), stainlessMat);
     trapDopMesh.position.y = -(T/2) - 5 - (isExploded ? explodeOffset*0.4 : 0);
     currentGroup.add(trapDopMesh);
 
-    // Cover grille
-    const coverGroup = buildGrilleCover(P-20, L-20, perforatedMat, barMat);
+    const coverGroup = buildGrilleCover(P-20, L-20, perforatedMat, barMat, true);
     coverGroup.position.y = (T/2) + 8 + (isExploded ? explodeOffset*1.5 : 0);
     currentGroup.add(coverGroup);
 
-    // Outlet pipe
     const outletMesh = new THREE.Mesh(new THREE.CylinderGeometry(outletR, outletR, 130, 24), outletMat);
     outletMesh.position.y = -(T/2) - 65 - (isExploded ? explodeOffset*0.5 : 0);
     currentGroup.add(outletMesh);
@@ -1052,39 +1200,33 @@ function update3DModel(entry){
     bodyGroup.add(wallLR2);
     currentGroup.add(bodyGroup);
 
-    // Kupingan waterstop
     const waterstopY = -T/2 + 0.75 * T;
     const waterstopMesh = new THREE.Mesh(new THREE.BoxGeometry(P+60, 10, L+60), waterstopMat);
     waterstopMesh.position.y = waterstopY;
     currentGroup.add(waterstopMesh);
 
-    // Sekat tengah
     const dividerMesh = new THREE.Mesh(new THREE.BoxGeometry(6, Math.max(40, T-immersionDepth), L-20), stainlessMat);
     dividerMesh.position.y = 0;
     currentGroup.add(dividerMesh);
 
-    // Genangan air sisi basah
     const waterMesh = new THREE.Mesh(new THREE.BoxGeometry(halfP-20, Math.max(10, T-immersionDepth-20), L-20), waterMat);
     waterMesh.position.set(-(halfP/2), (T/2) - immersionDepth - 15, 0);
     currentGroup.add(waterMesh);
 
-    // Lantai sloping
     const slopeMesh = new THREE.Mesh(new THREE.BoxGeometry(halfP-24, 6, L-24), stainlessMat);
     slopeMesh.rotation.x = 0.06;
     slopeMesh.position.set((halfP/2), -(T/2)+22, 0);
     currentGroup.add(slopeMesh);
 
-    // Grille sisi BASAH
-    const grilleWet = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat);
+    const grilleWet = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat, false);
     grilleWet.position.set(-(halfP/2), (T/2) - immersionDepth + 6 + (isExploded ? explodeOffset*1.5 : 0), 0);
     currentGroup.add(grilleWet);
 
-    // Grille sisi KERING
-    const grilleDry = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat);
+    const grilleDry = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat, false);
     grilleDry.position.set((halfP/2), (T/2) + 8 + (isExploded ? explodeOffset*1.7 : 0), 0);
     currentGroup.add(grilleDry);
 
-    // Floor Drain Injak 4" (pipa + dop)
+    // Floor Drain Injak 4" (produk jadi, hanya visual)
     const trapHeight = Math.max(80, Math.round(T * 0.55));
     const trapMesh = new THREE.Mesh(new THREE.CylinderGeometry(114.3/2, 114.3/2, trapHeight, 24), pipeMat);
     trapMesh.position.set(0, -(T/2) + trapHeight/2 + (isExploded ? explodeOffset*0.7 : 0), 0);
@@ -1093,7 +1235,6 @@ function update3DModel(entry){
     trapDopMesh.position.set(0, -(T/2) - 5 - (isExploded ? explodeOffset*0.4 : 0), 0);
     currentGroup.add(trapDopMesh);
 
-    // Outlet pipe
     const outletMesh = new THREE.Mesh(new THREE.CylinderGeometry(114.3/2, 114.3/2, 110, 24), outletMat);
     outletMesh.position.set((halfP/2), -(T/2) - 55 - (isExploded ? explodeOffset*0.5 : 0), 0);
     currentGroup.add(outletMesh);
