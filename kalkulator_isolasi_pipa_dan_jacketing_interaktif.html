@@ -50,21 +50,23 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
     <!-- HEADER KHUSUS CETAK (TIDAK MUNCUL DI HALAMAN UTAMA) -->
-<div class="hidden print:block mb-6 border-b-2 border-blue-600 pb-3">
-    <div class="flex justify-between items-start">
-        <div>
-            <h1 class="text-lg font-black tracking-wide text-slate-900 uppercase">Kalkulator Isolasi Lembaran, Alumunium Sheet & Stapping</h1>
-            <p class="text-xs text-slate-600 mt-0.5">Estimasi Kebutuhan Isolasi, Metal Jacketing & Skrup Stapping BPB</p>
-        </div>
-        <div class="text-right text-xs space-y-0.5">
-            <p class="text-slate-700">Tanggal: <span class="font-medium text-slate-900">1 September 2026</span></p>
-            <p class="text-slate-700">Nama Proyek: <span class="border-b border-dotted border-slate-600 inline-block w-36"></span></p>
+    <div class="hidden print:block mb-6 border-b-2 border-blue-600 pb-3">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-lg font-black tracking-wide text-slate-900 uppercase">Kalkulator Isolasi Lembaran, Alumunium Sheet & Stapping</h1>
+                <p class="text-xs text-slate-600 mt-0.5">Estimasi Kebutuhan Isolasi, Metal Jacketing & Skrup Stapping BPB</p>
+            </div>
+            <div class="text-right text-xs space-y-0.5">
+                <p class="text-slate-700">Tanggal: <span class="font-medium text-slate-900">1 September 2026</span></p>
+                <p class="text-slate-700">Nama Proyek: <span class="border-b border-dotted border-slate-600 inline-block w-36"></span></p>
+            </div>
         </div>
     </div>
-</div>
+
     <!-- Header Banner -->
-    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 shadow-inner">
@@ -77,6 +79,13 @@
                     <p class="text-xs text-slate-400">Estimasi Kebutuhan Isolasi, Metal Jacketing & Skrup Stapping BPB (Spesifikasi SPINDO)</p>
                 </div>
             </div>
+
+            <!-- Header Action Button: Panduan Penggunaan -->
+            <button onclick="openGuideModal()" 
+                class="flex items-center gap-2 px-3.5 py-2 bg-blue-600/20 hover:bg-blue-600/30 active:scale-95 border border-blue-500/40 rounded-xl text-xs font-semibold text-blue-300 hover:text-white transition-all shadow-sm">
+                <i data-lucide="help-circle" class="w-4 h-4 text-blue-400"></i>
+                <span>Panduan Penggunaan</span>
+            </button>
         </div>
     </header>
 
@@ -247,7 +256,7 @@
                     </div>
                 </div>
 
-                <!-- Merk Isolasi (tetap) -->
+                <!-- Merk Isolasi -->
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Merk Isolasi (Manual Input)</label>
                     <input type="text" id="inputIsoBrand" value="Armaflex" oninput="calculateAll()" placeholder="Contoh: Armaflex, Superlon, Insulflex, K-Flex"
@@ -255,7 +264,7 @@
                 </div>
             </div>
 
-            <!-- Card 3: Alumunium Sheet & Stapping Specs (Clean & Corrected) -->
+            <!-- Card 3: Alumunium Sheet & Stapping Specs -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
@@ -427,13 +436,12 @@
                         </p>
                     </div>
 
-                    <!-- Step 3: Insulation Requirement & Spare (dinamis) -->
+                    <!-- Step 3: Insulation Requirement & Spare -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1" id="stepIsoDetail">
                         <div class="text-cyan-400 font-bold flex justify-between">
                             <span>• Kebutuhan Isolasi (<span id="dispStepIsoBrandName">Armaflex</span>) & Spare</span>
                             <span id="dispStepFinalSheetHeader" class="text-white">23.25 Lembar</span>
                         </div>
-                        <!-- Konten akan di-update oleh JavaScript -->
                         <div id="dispStepIsoBreakdown"></div>
                     </div>
 
@@ -461,7 +469,7 @@
                     </span>
                 </div>
 
-                <!-- High-Visibility 3D Container -->
+                <!-- 3D Canvas Container -->
                 <div class="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing shadow-inner" id="container3d">
                     <canvas id="canvas3d" class="w-full h-full block"></canvas>
                     <div class="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] text-slate-300 font-mono shadow">
@@ -556,11 +564,6 @@
                     </div>
                 </div>
 
-                <!-- Copy Confirmation Alert -->
-                <div id="bpbCopyMessage" class="hidden p-2.5 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-emerald-300 text-center font-sans no-print">
-                    ✓ Rekapitulasi BPB berhasil disalin ke clipboard!
-                </div>
-
                 <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
                     <span>* Order BPB direkomendasikan dengan pembulatan ke atas (per kelompok material sejenis) untuk menjamin ketersediaan fisik di lapangan.</span>
                 </div>
@@ -571,7 +574,108 @@
 
     </main>
 
-    <!-- Footer (Single Clean Copyright) -->
+    <!-- MODAL POPUP: PANDUAN PENGGUNAAN -->
+    <div id="guideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity no-print">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Panduan Penggunaan Kalkulator</h3>
+                        <p class="text-[11px] text-slate-400">Petunjuk langkah demi langkah & mekanisme perhitungan BPB</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-5 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed">
+                
+                <!-- Step 1 -->
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <h4 class="font-bold text-blue-400 flex items-center gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-mono text-[11px]">1</span>
+                        Pengisian Parameter Utama Pipa
+                    </h4>
+                    <p class="text-slate-400 pl-7 text-[11px]">
+                        Pilih jenis pipa (Galvanis, Black Steel, Stainless Steel, PPR, PVC) dan Schedule/Kelas ketebalan. Sistem secara otomatis mencocokkan standar <strong>OD (Outer Diameter) SPINDO</strong>. Masukkan panjang per batang dan jumlah Qty batang.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <h4 class="font-bold text-cyan-400 flex items-center gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-mono text-[11px]">2</span>
+                        Spesifikasi Isolasi & Merk
+                    </h4>
+                    <p class="text-slate-400 pl-7 text-[11px]">
+                        Pilih antara <strong>NBR Lembaran</strong> (Armaflex/Superlon/K-Flex) atau <strong>Calcium Silicate Set</strong> (panjang standar 610 mm). Tentukan ketebalan isolasi yang digunakan.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <h4 class="font-bold text-indigo-400 flex items-center gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-mono text-[11px]">3</span>
+                        Alumunium Sheet & Skrup Stapping
+                    </h4>
+                    <p class="text-slate-400 pl-7 text-[11px]">
+                        Tentukan ukuran Roll Alumunium Sheet (25m / 50m) dan kerapatan skrup Stapping (standar 10 pcs/meter pipa untuk jarak antar skrup ~10 cm).
+                    </p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <h4 class="font-bold text-emerald-400 flex items-center gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono text-[11px]">4</span>
+                        Menyimpan ke Daftar Entry & Rekapitulasi BPB
+                    </h4>
+                    <p class="text-slate-400 pl-7 text-[11px]">
+                        Klik tombol hijau <strong class="text-emerald-300">"Tambah ke Daftar Entry"</strong> untuk mencatat baris tersebut. Anda dapat memasukkan beberapa ukuran/jenis pipa secara bertahap.
+                    </p>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <h4 class="font-bold text-amber-400 flex items-center gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono text-[11px]">5</span>
+                        Pencetakan & Salin Dokumen BPB
+                    </h4>
+                    <p class="text-slate-400 pl-7 text-[11px]">
+                        Tinjau tabel Rekapitulasi Total. Gunakan tombol <strong class="text-slate-200">"Salin BPB"</strong> untuk menyalin teks format pesan, atau <strong class="text-blue-300">"Cetak / PDF"</strong> untuk mengunduh laporan resmi beserta kolom tanda tangan SPV, SE, dan Project Manager.
+                    </p>
+                </div>
+
+                <!-- Formulas Note -->
+                <div class="p-3 bg-blue-950/40 border border-blue-800/60 rounded-xl text-[11px] text-blue-200/90 space-y-1">
+                    <p class="font-semibold text-blue-300">💡 Formulas & Rumus Utama:</p>
+                    <ul class="list-disc pl-4 space-y-0.5 text-slate-300">
+                        <li>Keliling Pipa = π (3.14) × OD (mm)</li>
+                        <li>Luas Penampang = Keliling (m) × Total Panjang (m)</li>
+                        <li>Faktor Spare/Waste Default = 10% (1.10)</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+                <button onclick="closeGuideModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl transition-all shadow">
+                    Mengerti & Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER (Posisi Kanan Bawah) -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Footer -->
     <footer class="bg-slate-950 border-t border-slate-900 py-4 px-6 text-center text-xs text-slate-500 mt-auto no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>Kalkulator Estimasi Isolasi Pipa Lembaran, Alumunium Sheet & Stapping</span>
@@ -828,7 +932,6 @@
             calculateAll();
         }
 
-        // ========== TOGGLE JENIS ISOLASI ==========
         function toggleIsoType() {
             const selected = document.querySelector('input[name="isoType"]:checked');
             const nbrDiv = document.getElementById('nbrInputs');
@@ -906,7 +1009,6 @@
             let isoBreakdownHTML = '';
 
             if (isoType === 'nbr') {
-                // NBR Lembaran
                 isoRaw = nbrSheetArea_m2 > 0 ? (pipeArea_m2 / nbrSheetArea_m2) : 0;
                 isoExact = isoRaw * spareMultiplier;
                 isoUnit = 'Lembar';
@@ -924,7 +1026,6 @@
                     </p>
                 `;
             } else {
-                // Calcium Silicate Set
                 isoRaw = totalPipeLengthM / calciumSetLen_m;
                 isoExact = isoRaw * spareMultiplier;
                 isoUnit = 'Set';
@@ -960,13 +1061,11 @@
             const jktRawArea_m2 = jktKeliling_m * totalPipeLengthM;
             const jktTotalArea_m2 = jktRawArea_m2 * spareMultiplier;
             const jktExactSheets = jktSheetArea_m2 > 0 ? (jktTotalArea_m2 / jktSheetArea_m2) : 0;
-            const jktBpbOrderSheets = Math.ceil(jktExactSheets);
 
             // Update KPI Dashboard
             document.getElementById('kpiTotalLength').textContent = totalPipeLengthM.toFixed(1);
             document.getElementById('kpiPipeArea').textContent = pipeArea_m2.toFixed(2);
 
-            // Tampilkan unit isolasi di KPI
             const kpiIsoEl = document.getElementById('kpiNbrTotalSheets');
             kpiIsoEl.textContent = isoExact.toFixed(2);
             document.getElementById('kpiIsoUnit').textContent = `${isoUnit} (BPB: ${Math.ceil(isoExact)} ${isoUnit})`;
@@ -1014,11 +1113,9 @@
                 isoExact: isoExact,
                 isoUnit: isoUnit,
                 isoLabelDetail: isoLabelDetail,
-                // NBR specifics
                 nbrLen_m: nbrLen_m,
                 nbrWid_m: nbrWid_m,
                 nbrSheetArea_m2: nbrSheetArea_m2,
-                // Calcium specifics
                 calciumSetLen_m: calciumSetLen_m,
                 sparePercent: sparePercent,
                 spareMultiplier: spareMultiplier,
@@ -1046,6 +1143,9 @@
             renderEntryList();
             renderRecap();
 
+            // Trigger Toast Notification (Automatic 2 sec close)
+            showToast('Data entry berhasil ditambahkan ke daftar!', 'success');
+
             const btn = document.getElementById('btnAddEntry');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i> Tersimpan ke Daftar!';
@@ -1062,14 +1162,22 @@
             entries = entries.filter(e => e.id !== id);
             renderEntryList();
             renderRecap();
+
+            // Trigger Toast Notification
+            showToast('Data entry berhasil dihapus!', 'danger');
         }
 
         function clearAllEntries() {
-            if (entries.length === 0) return;
-            if (!confirm('Hapus semua entry dari daftar? Tindakan ini tidak bisa dibatalkan.')) return;
+            if (entries.length === 0) {
+                showToast('Daftar entry sudah kosong!', 'info');
+                return;
+            }
             entries = [];
             renderEntryList();
             renderRecap();
+
+            // Trigger Toast Notification
+            showToast('Semua data entry berhasil dihapus!', 'danger');
         }
 
         function renderEntryList() {
@@ -1388,7 +1496,7 @@
             pipeMesh.rotation.z = Math.PI / 2;
             pipeGroup.add(pipeMesh);
 
-            // 2. Middle Insulation Layer (Black NBR Foam #111827)
+            // 2. Middle Insulation Layer
             const isoGeo = new THREE.CylinderGeometry(rIso, rIso, pipeLength * 0.75, 32);
             const isoMat = new THREE.MeshStandardMaterial({ 
                 color: 0x111827, 
@@ -1445,10 +1553,61 @@
             }
         }
 
+        // ===================== TOAST NOTIFICATION SYSTEM =====================
+        function showToast(message, type = 'success', duration = 2000) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            
+            let bgStyle = '';
+            let iconName = 'check-circle-2';
+
+            if (type === 'success') {
+                bgStyle = 'bg-emerald-950/90 text-emerald-200 border-emerald-600/50 shadow-emerald-950/50';
+                iconName = 'check-circle-2';
+            } else if (type === 'danger' || type === 'delete') {
+                bgStyle = 'bg-rose-950/90 text-rose-200 border-rose-600/50 shadow-rose-950/50';
+                iconName = 'trash-2';
+            } else if (type === 'info') {
+                bgStyle = 'bg-blue-950/90 text-blue-200 border-blue-600/50 shadow-blue-950/50';
+                iconName = 'info';
+            } else {
+                bgStyle = 'bg-slate-900/90 text-slate-200 border-slate-700 shadow-slate-950/50';
+                iconName = 'bell';
+            }
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border backdrop-blur transition-all duration-300 transform translate-y-4 opacity-0 ${bgStyle}`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Entrance animation
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            });
+
+            // Auto close after specified duration (2000ms / 2 seconds)
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
         // ===================== COPY BPB =====================
         function copyBPBToClipboard() {
             if (entries.length === 0) {
-                alert('Belum ada entry di daftar. Tambahkan minimal 1 entry terlebih dahulu.');
+                showToast('Belum ada entry di daftar untuk disalin.', 'info');
                 return;
             }
             const table = document.getElementById('tableRecapBody');
@@ -1470,9 +1629,7 @@
             });
 
             const finishCopy = () => {
-                const msg = document.getElementById('bpbCopyMessage');
-                msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 3500);
+                showToast('Rekapitulasi BPB berhasil disalin ke clipboard!', 'success');
             };
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1498,6 +1655,36 @@
             document.body.removeChild(ta);
         }
 
+        // ===================== PANDUAN MODAL =====================
+        function openGuideModal() {
+            const modal = document.getElementById('guideModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeGuideModal() {
+            const modal = document.getElementById('guideModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Close modal when clicking backdrop
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('guideModal');
+            if (e.target === modal) {
+                closeGuideModal();
+            }
+        });
+
+        // Close modal on Escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeGuideModal();
+            }
+        });
+
         // ===================== INIT =====================
         window.addEventListener('DOMContentLoaded', () => {
             init3DScene();
@@ -1506,27 +1693,30 @@
             renderEntryList();
             renderRecap();
             lucide.createIcons();
-            // Set default radio
-            document.querySelector('input[name="isoType"][value="nbr"]').checked = true;
+            
+            // Set default radio selection
+            const defaultRadio = document.querySelector('input[name="isoType"][value="nbr"]');
+            if (defaultRadio) defaultRadio.checked = true;
             toggleIsoType();
         });
     </script>
+
     <!-- SIGNATURE KHUSUS CETAK -->
-<div class="hidden print:grid grid-cols-2 gap-16 mt-16 pt-4 text-xs text-center font-sans">
-    <div class="flex flex-col items-center">
-        <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
-        <div class="w-48 border-b border-slate-900 pb-1 mb-1">
-            <span class="opacity-0">.</span>
+    <div class="hidden print:grid grid-cols-2 gap-16 mt-16 pt-4 text-xs text-center font-sans">
+        <div class="flex flex-col items-center">
+            <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
+            <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+                <span class="opacity-0">.</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">SPV / SM / SE</p>
         </div>
-        <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">SPV / SM / SE</p>
-    </div>
-    <div class="flex flex-col items-center">
-        <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
-        <div class="w-48 border-b border-slate-900 pb-1 mb-1">
-            <span class="opacity-0">.</span>
+        <div class="flex flex-col items-center">
+            <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
+            <div class="w-48 border-b border-slate-900 pb-1 mb-1">
+                <span class="opacity-0">.</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">Project Manager</p>
         </div>
-        <p class="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">Project Manager</p>
     </div>
-</div>
 </body>
 </html>
