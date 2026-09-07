@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Isolasi Pipa Dalam Tanah</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest">
+    </script>
     <!-- KaTeX for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">
+    </script>
     <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -37,6 +41,131 @@
         .katex {
             font-size: 1em !important;
         }
+
+        /* ===== MODAL STYLES ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1.5rem;
+            max-width: 560px;
+            width: 100%;
+            padding: 2rem 1.75rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            animation: modalFade 0.25s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box.confirm-box {
+            max-width: 420px;
+            text-align: center;
+        }
+        @keyframes modalFade {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .modal-title .icon {
+            color: #06b6d4;
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        .modal-body {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .modal-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.75rem 0;
+        }
+        .modal-body ul li {
+            padding: 0.4rem 0 0.4rem 1.6rem;
+            position: relative;
+            border-bottom: 1px solid #334155;
+        }
+        .modal-body ul li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #06b6d4;
+            font-weight: 700;
+        }
+        .modal-footer {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .modal-footer .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .modal-footer .btn-primary {
+            background: #06b6d4;
+            color: #fff;
+        }
+        .modal-footer .btn-primary:hover {
+            background: #0891b2;
+        }
+        .modal-footer .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .modal-footer .btn-secondary:hover {
+            background: #475569;
+        }
+        .modal-footer .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .modal-footer .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .modal-footer .btn-ghost {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+        }
+        .modal-footer .btn-ghost:hover {
+            background: #334155;
+        }
+
+        /* Print styles */
         @media print {
             @page {
                 margin: 1.2cm;
@@ -62,7 +191,7 @@
             .print-only {
                 display: block !important;
             }
-            .print\\:hidden {
+            .print\:hidden {
                 display: none !important;
             }
             table th {
@@ -77,27 +206,84 @@
             .print-border {
                 border: 1px solid #e2e8f0 !important;
             }
-            .print\\:bg-transparent {
+            .print\:bg-transparent {
                 background: transparent !important;
             }
-            .print\\:p-0 {
+            .print\:p-0 {
                 padding: 0 !important;
             }
-            .print\\:border-none {
+            .print\:border-none {
                 border: none !important;
             }
-            .print\\:text-black {
+            .print\:text-black {
                 color: black !important;
             }
-            .print\\:text-slate-900 {
+            .print\:text-slate-900 {
                 color: #0f172a !important;
+            }
+            .modal-overlay {
+                display: none !important;
             }
         }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-600 selection:text-white">
 
-    <!-- ====== KOP / HEADER DOKUMEN CETAK (Hanya Muncul Saat Print) ====== -->
+    <!-- ============================================================
+    MODAL: PANDUAN PENGGUNAAN
+    ============================================================ -->
+    <div id="modalGuide" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">
+                <i data-lucide="book-open" class="icon"></i>
+                Panduan Penggunaan Kalkulator
+            </div>
+            <div class="modal-body">
+                <p class="font-medium text-cyan-300 mb-2">📋 Langkah-langkah:</p>
+                <ul>
+                    <li><strong>1. Identitas Proyek</strong> — isi nama user dan proyek untuk kop cetak.</li>
+                    <li><strong>2. Parameter Pipa</strong> — pilih jenis, schedule, ukuran NPS, dan jumlah batang. <br>
+                        <span class="text-slate-400 text-xs">• OD &amp; panjang per batang otomatis terisi sesuai standar.</span>
+                    </li>
+                    <li><strong>3. Spesifikasi Wrapping</strong> — pilih merk, lebar tape, panjang roll, tebal, dan metode overlap.</li>
+                    <li><strong>4. Perhitungan Spiral</strong> — lihat breakdown rumus &amp; hasil kebutuhan tape per meter pipa.</li>
+                    <li><strong>5. Tambah ke Data Entry</strong> — simpan item ke daftar untuk rekap BPB.</li>
+                    <li><strong>6. BPB Summary</strong> — rekap otomatis dikelompokkan berdasarkan spesifikasi tape.</li>
+                </ul>
+                <p class="text-slate-400 text-xs mt-3 border-t border-slate-800 pt-3">
+                    💡 <strong>Tips:</strong> Gunakan tombol <span class="text-cyan-400">"Reset Form"</span> untuk mengosongkan input,
+                    dan <span class="text-cyan-400">"Kosongkan Semua"</span> untuk menghapus semua data entry.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('modalGuide')" class="btn btn-primary">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL: KONFIRMASI KOSONGKAN DATA ENTRY
+    ============================================================ -->
+    <div id="modalConfirmClear" class="modal-overlay">
+        <div class="modal-box confirm-box">
+            <div class="modal-title justify-center">
+                <i data-lucide="alert-triangle" class="icon" style="color:#f59e0b;"></i>
+                Konfirmasi Hapus Data
+            </div>
+            <div class="modal-body">
+                <p class="text-base font-medium text-white">Anda yakin akan menghapus <strong>seluruh</strong> data entry?</p>
+                <p class="text-slate-400 text-sm mt-1">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer justify-center">
+                <button onclick="closeModal('modalConfirmClear')" class="btn btn-secondary">Batal</button>
+                <button onclick="confirmClearAllEntries()" class="btn btn-danger">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    KOP DOKUMEN CETAK (Print Only)
+    ============================================================ -->
     <div class="hidden print:block mb-6 border-b-2 border-slate-800 pb-4 print-only">
         <div class="flex justify-between items-start">
             <div>
@@ -107,13 +293,15 @@
             </div>
             <div class="text-right text-xs space-y-1">
                 <p class="text-slate-700">Tanggal Cetak: <span class="font-bold text-slate-900" id="printDate"></span></p>
-                <p class="text-slate-700">User / Engineer:__________________ <span class="font-bold text-slate-900" id="printUser">-</span></p>
-                <p class="text-slate-700">Nama Proyek:__________________ <span class="font-bold text-slate-900" id="printProject">-</span></p>
+                <p class="text-slate-700">User / Engineer: <span class="font-bold text-slate-900" id="printUser">-</span></p>
+                <p class="text-slate-700">Nama Proyek: <span class="font-bold text-slate-900" id="printProject">-</span></p>
             </div>
         </div>
     </div>
 
-    <!-- Header UI Web -->
+    <!-- ============================================================
+    HEADER WEB
+    ============================================================ -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
@@ -128,27 +316,33 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <button onclick="openModal('modalGuide')" class="bg-emerald-900 hover:bg-emerald-700 text-emerald-200 border border-emerald-700 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Panduan Penggunaan
+                </button>
             </div>
         </div>
     </header>
 
+    <!-- ============================================================
+    MAIN
+    ============================================================ -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <!-- ===== PANEL KIRI: INPUT ===== -->
         <section class="lg:col-span-5 flex flex-col gap-5 no-print">
 
-            <!-- Identitas Proyek (untuk kop cetak) -->
+            <!-- Identitas Proyek -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-100 mb-3 flex items-center gap-2 border-b border-slate-800 pb-2">
                     <i data-lucide="clipboard-signature" class="w-4 h-4"></i> Identitas Proyek
                 </h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">User </label>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">User</label>
                         <input type="text" id="inputUser" oninput="syncIdentity()" placeholder="Nama" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Proyek </label>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Proyek</label>
                         <input type="text" id="inputProject" oninput="syncIdentity()" placeholder="Proyek - Area" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors">
                     </div>
                 </div>
@@ -166,7 +360,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Jenis Pipa & Panjang Standar Per Batang</label>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Jenis Pipa &amp; Panjang Standar Per Batang</label>
                     <select id="selectPipeMaterial" onchange="onPipeMaterialChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors">
                         <option value="galvanis" selected>Pipa Galvanis (6.0 Meter / Batang)</option>
                         <option value="blacksteel">Pipa Black Steel (6.0 Meter / Batang)</option>
@@ -191,24 +385,24 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Diameter Luar / OD (mm)</label>
-                        <input type="number" id="inputCustomOD" value="114.3" min="1" step="0.1" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                        <input type="number" id="inputCustomOD" value="" min="1" step="0.1" oninput="calculateAll()" placeholder="—" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Panjang / Batang (m)</label>
-                        <input type="number" id="inputLengthPerJoint" value="6.0" min="0.5" step="0.5" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                        <input type="number" id="inputLengthPerJoint" value="" min="0.5" step="0.5" oninput="calculateAll()" placeholder="—" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Batang Pipa (Qty)</label>
-                        <input type="number" id="inputJointCount" value="4" min="1" step="1" oninput="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
+                        <input type="number" id="inputJointCount" value="" min="1" step="1" oninput="calculateAll()" placeholder="—" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
                     <span class="text-slate-400 font-sans">Total Panjang Pipa Item Ini:</span>
-                    <span id="dispTotalLengthHeader" class="font-mono text-emerald-400 font-bold text-sm">24.0 Meter</span>
+                    <span id="dispTotalLengthHeader" class="font-mono text-emerald-400 font-bold text-sm">—</span>
                 </div>
             </div>
 
@@ -226,7 +420,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Merk / Tipe Wrapping</label>
-                        <input type="text" id="inputBitumenBrand" value="" oninput="calculateAll()" placeholder="Contoh: Denso Tape, Densopol 60, Densoclad 70" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="inputBitumenBrand" value="" oninput="calculateAll()" placeholder="Contoh: Denso Tape" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Tape (mm)</label>
@@ -256,15 +450,15 @@
                         <label class="block text-xs font-medium text-slate-300 mb-1">Tebal Wrapping (mm)</label>
                         <select id="selectTapeThickness" onchange="calculateAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500">
                             <option value="1.15" selected>1.15 mm</option>
-                            <option value="1.25">1.25 mm </option>
-                            <option value="1.50">1.50 mm </option>
-                            <option value="1.65">1.65 mm </option>
-                            <option value="2.00">2.00 mm </option>
-                            <option value="2.50">2.50 mm </option>
-                            <option value="3.00">3.00 mm </option>
-                            <option value="4.00">4.00 mm </option>
-                            <option value="5.00">5.00 mm </option>
-                            <option value="6.00">6.00 mm </option>
+                            <option value="1.25">1.25 mm</option>
+                            <option value="1.50">1.50 mm</option>
+                            <option value="1.65">1.65 mm</option>
+                            <option value="2.00">2.00 mm</option>
+                            <option value="2.50">2.50 mm</option>
+                            <option value="3.00">3.00 mm</option>
+                            <option value="4.00">4.00 mm</option>
+                            <option value="5.00">5.00 mm</option>
+                            <option value="6.00">6.00 mm</option>
                         </select>
                     </div>
                 </div>
@@ -308,22 +502,22 @@
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Panjang Pipa</span>
                     <div class="my-1">
-                        <span id="kpiTotalLength" class="text-xl font-black text-cyan-400 font-mono">24.0</span>
-                        <span id="kpiTotalLengthSub" class="text-[10px] text-slate-400 block">Meter (4 btg @ 6m)</span>
+                        <span id="kpiTotalLength" class="text-xl font-black text-cyan-400 font-mono">—</span>
+                        <span id="kpiTotalLengthSub" class="text-[10px] text-slate-400 block">—</span>
                     </div>
                 </div>
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luas Penampang Pipa</span>
                     <div class="my-1">
-                        <span id="kpiPipeArea" class="text-xl font-black text-emerald-400 font-mono">8.62</span>
+                        <span id="kpiPipeArea" class="text-xl font-black text-emerald-400 font-mono">—</span>
                         <span class="text-[10px] text-slate-400 block">m² (Keliling × Panjang)</span>
                     </div>
                 </div>
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Denso Tape Required</span>
                     <div class="my-1">
-                        <span id="kpiTotalRolls" class="text-xl font-black text-cyan-400 font-mono">18</span>
-                        <span id="kpiTotalRollsSub" class="text-[10px] text-slate-400 block">Roll (@ 10m)</span>
+                        <span id="kpiTotalRolls" class="text-xl font-black text-cyan-400 font-mono">—</span>
+                        <span id="kpiTotalRollsSub" class="text-[10px] text-slate-400 block">—</span>
                     </div>
                 </div>
             </div>
@@ -345,19 +539,19 @@
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
                         <div class="text-cyan-400 font-bold flex justify-between">
                             <span>• 1. Keliling Pipa &amp; Langkah Pitch Lilitan (Effective Pitch)</span>
-                            <span id="dispStep1Header" class="text-white">C = 0.359m | Pitch = 50mm</span>
+                            <span id="dispStep1Header" class="text-white">—</span>
                         </div>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep1">
                             <span class="math-inline">C = \pi \times D</span> dengan
-                            <span class="math-inline">D = <span id="dispStepDiaPipa">114.3</span> \text{ mm}</span>
-                            &rarr; <span class="math-inline">C = <span id="dispStepKelilingMm">358.90</span> \text{ mm}</span>
-                            = <span class="math-inline"><span id="dispStepKelilingM">0.359</span> \text{ m}</span>
+                            <span class="math-inline">D = <span id="dispStepDiaPipa">—</span> \text{ mm}</span>
+                            &rarr; <span class="math-inline">C = <span id="dispStepKelilingMm">—</span> \text{ mm}</span>
+                            = <span class="math-inline"><span id="dispStepKelilingM">—</span> \text{ m}</span>
                         </p>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep1b">
                             <span class="math-inline">P = W - O</span> dengan
-                            <span class="math-inline">W = <span id="dispStepTapeWidth">100</span> \text{ mm}</span>,
-                            <span class="math-inline">O = <span id="dispStepOverlapVal">50</span> \text{ mm}</span>
-                            &rarr; <span class="math-inline">P = <span id="dispStepPitch" class="text-emerald-400 font-bold">50</span> \text{ mm}</span>
+                            <span class="math-inline">W = <span id="dispStepTapeWidth">—</span> \text{ mm}</span>,
+                            <span class="math-inline">O = <span id="dispStepOverlapVal">—</span> \text{ mm}</span>
+                            &rarr; <span class="math-inline">P = <span id="dispStepPitch" class="text-emerald-400 font-bold">—</span> \text{ mm}</span>
                         </p>
                     </div>
 
@@ -365,17 +559,17 @@
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
                         <div class="text-emerald-400 font-bold flex justify-between">
                             <span>• 2. Kebutuhan Panjang Denso Tape Per Meter Pipa</span>
-                            <span id="dispStep2Header" class="text-white">7.25 m Tape / m Pipa</span>
+                            <span id="dispStep2Header" class="text-white">—</span>
                         </div>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep2">
                             <span class="math-inline">L_{\text{turn}} = \sqrt{C^2 + P^2}</span>
-                            = <span class="math-inline">\sqrt{<span id="dispStepC2">358.9</span>^2 + <span id="dispStepP2">50</span>^2}</span>
-                            = <span class="math-inline"><span id="dispStepLturn">362.37</span> \text{ mm}</span>
+                            = <span class="math-inline">\sqrt{<span id="dispStepC2">—</span>^2 + <span id="dispStepP2">—</span>^2}</span>
+                            = <span class="math-inline"><span id="dispStepLturn">—</span> \text{ mm}</span>
                         </p>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep2b">
                             <span class="math-inline">F = L_{\text{turn}} / P</span>
-                            = <span class="math-inline"><span id="dispStepLturn2">362.37</span> / <span id="dispStepPitch2">50</span></span>
-                            = <span class="math-inline"><span id="dispStepRatio" class="text-emerald-400 font-bold">7.25</span></span>
+                            = <span class="math-inline"><span id="dispStepLturn2">—</span> / <span id="dispStepPitch2">—</span></span>
+                            = <span class="math-inline"><span id="dispStepRatio" class="text-emerald-400 font-bold">—</span></span>
                             &nbsp;meter tape / meter pipa
                         </p>
                     </div>
@@ -384,17 +578,17 @@
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 space-y-1">
                         <div class="text-cyan-400 font-bold flex justify-between">
                             <span>• 3. Total Kebutuhan Denso Tape &amp; Kebutuhan Roll Order</span>
-                            <span id="dispStep3Header" class="text-white">173.9 Meter | 18 Roll</span>
+                            <span id="dispStep3Header" class="text-white">—</span>
                         </div>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep3">
                             <span class="math-inline">L_{\text{total}} = L_{\text{pipa}} \times F</span>
-                            = <span class="math-inline"><span id="dispStepTotalLenPipe">24</span> \times <span id="dispStepRatio2">7.25</span></span>
-                            = <span class="math-inline"><span id="dispStepTapeFinalM" class="text-emerald-400 font-bold">173.9</span> \text{ m}</span>
+                            = <span class="math-inline"><span id="dispStepTotalLenPipe">—</span> \times <span id="dispStepRatio2">—</span></span>
+                            = <span class="math-inline"><span id="dispStepTapeFinalM" class="text-emerald-400 font-bold">—</span> \text{ m}</span>
                         </p>
                         <p class="text-[11px] text-slate-400 font-sans" id="mathStep3b">
                             <span class="math-inline">\text{Roll Order} = \lceil L_{\text{total}} / L_{\text{roll}} \rceil</span>
-                            = <span class="math-inline">\lceil <span id="dispStepTapeFinalM2">173.9</span> / <span id="dispStepRollLen">10</span> \rceil</span>
-                            = <span class="math-inline" style="font-weight:700;color:#34d399;"><span id="dispStepBpbRolls">18</span> \text{ Roll}</span>
+                            = <span class="math-inline">\lceil <span id="dispStepTapeFinalM2">—</span> / <span id="dispStepRollLen">—</span> \rceil</span>
+                            = <span class="math-inline" style="font-weight:700;color:#34d399;"><span id="dispStepBpbRolls">—</span> \text{ Roll}</span>
                         </p>
                     </div>
 
@@ -414,7 +608,7 @@
                 <div class="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing shadow-inner" id="container3d">
                     <canvas id="canvas3d" class="w-full h-full block"></canvas>
                     <div class="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] text-slate-300 font-mono shadow">
-                         Putar dengan drag mouse / sentuhan jari
+                        🔄 Putar dengan drag mouse / sentuhan jari
                     </div>
                 </div>
                 <div class="flex flex-wrap justify-center gap-4 text-[11px] mt-3">
@@ -442,7 +636,7 @@
                             Daftar item pipa yang dimasukkan. Anda dapat memasukkan beberapa ukuran berbeda (seperti 2", 4", 6").
                         </p>
                     </div>
-                    <button onclick="clearAllDataEntries()" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 rounded-lg border border-red-500/20 transition-all">
+                    <button onclick="confirmClearEntries()" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 rounded-lg border border-red-500/20 transition-all">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Kosongkan Semua
                     </button>
                 </div>
@@ -460,6 +654,9 @@
                             </tr>
                         </thead>
                         <tbody id="tableDataEntryBody" class="divide-y divide-slate-800/70 text-slate-200">
+                            <tr>
+                                <td colspan="7" class="py-4 text-center text-slate-500 italic font-sans">Belum ada data entry ditambahkan. Klik tombol "+ Tambah ke Data Entry" di panel kiri.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -503,6 +700,7 @@
                             </tr>
                         </thead>
                         <tbody id="tableBpbSummaryBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <tr><td colspan="6" class="py-4 text-center text-slate-500">Kosong</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -512,7 +710,7 @@
                 </div>
 
                 <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 print-text">
-                    <span>* Catatan: Saat input, Periksa kembali merk, lebar dan ketebalan Wrapping menyesuaikan spesifikasi yang berlaku di proyek. </span>
+                    <span>* Catatan: Saat input, Periksa kembali merk, lebar dan ketebalan Wrapping menyesuaikan spesifikasi yang berlaku di proyek.</span>
                 </div>
             </div>
 
@@ -521,7 +719,7 @@
                 <div class="flex flex-col items-center">
                     <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
                     <div class="w-48 border-b border-slate-900 pb-1 mb-1"><span class="opacity-0">.</span></div>
-                    <p class="text-[11px] font-bold text-slate-900 uppercase" id="signUser">SPV / SM / SE </p>
+                    <p class="text-[11px] font-bold text-slate-900 uppercase" id="signUser">SPV / SM / SE</p>
                 </div>
                 <div class="flex flex-col items-center">
                     <p class="mb-20 text-slate-800">Diperiksa Oleh,</p>
@@ -534,12 +732,18 @@
 
     </main>
 
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
     <footer class="bg-slate-950 border-t border-slate-900 py-4 px-6 text-center text-xs text-slate-500 mt-auto no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <span class="font-medium text-slate-400"> Sugeng Deny Ramdani - 2026</span>
+            <span class="font-medium text-slate-400">Sugeng Deny Ramdani - 2026</span>
         </div>
     </footer>
 
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
     <script>
         // ============================================================
         //  DATABASE
@@ -568,20 +772,34 @@
         ];
 
         const SPINDO_OD_MATRIX = {
-            '1/2"': { 'Class Light': 21.4, 'Class Medium': 21.3, 'Class Heavy': 21.3, 'Sch 40': 21.3, 'PN 10': 20.0, 'Kelas AW': 22.0 },
-            '3/4"': { 'Class Light': 26.8, 'Class Medium': 26.9, 'Class Heavy': 26.8, 'Sch 40': 26.7, 'PN 10': 25.0, 'Kelas AW': 26.0 },
-            '1"': { 'Class Light': 33.6, 'Class Medium': 33.7, 'Class Heavy': 33.8, 'Sch 40': 33.4, 'PN 10': 32.0, 'Kelas AW': 32.0 },
-            '1 1/4"': { 'Class Light': 42.3, 'Class Medium': 42.4, 'Class Heavy': 42.5, 'Sch 40': 42.2, 'PN 10': 40.0, 'Kelas AW': 38.0 },
-            '1 1/2"': { 'Class Light': 48.2, 'Class Medium': 48.3, 'Class Heavy': 48.4, 'Sch 40': 48.3, 'PN 10': 50.0, 'Kelas AW': 48.0 },
-            '2"': { 'Class Light': 60.2, 'Class Medium': 60.3, 'Class Heavy': 60.3, 'Sch 40': 60.3, 'PN 10': 63.0, 'Kelas AW': 60.0 },
-            '2 1/2"': { 'Class Light': 76.0, 'Class Medium': 76.1, 'Class Heavy': 76.0, 'Sch 40': 73.0, 'PN 10': 75.0, 'Kelas AW': 76.0 },
-            '3"': { 'Class Light': 88.8, 'Class Medium': 88.9, 'Class Heavy': 88.8, 'Sch 40': 88.9, 'PN 10': 90.0, 'Kelas AW': 89.0 },
-            '4"': { 'Class Light': 114.1, 'Class Medium': 114.3, 'Class Heavy': 114.1, 'Sch 40': 114.3, 'PN 10': 110.0, 'Kelas AW': 114.0 },
-            '5"': { 'Class Light': 139.7, 'Class Medium': 139.7, 'Class Heavy': 139.7, 'Sch 40': 141.3, 'PN 10': 140.0, 'Kelas AW': 140.0 },
-            '6"': { 'Class Light': 165.1, 'Class Medium': 165.1, 'Class Heavy': 168.3, 'Sch 40': 168.3, 'PN 10': 160.0, 'Kelas AW': 165.0 },
-            '8"': { 'Class Light': 219.1, 'Class Medium': 219.1, 'Class Heavy': 219.1, 'Sch 40': 219.1, 'PN 10': 225.0, 'Kelas AW': 216.0 },
-            '10"': { 'Class Light': 273.0, 'Class Medium': 273.0, 'Class Heavy': 273.0, 'Sch 40': 273.1, 'PN 10': 280.0, 'Kelas AW': 267.0 },
-            '12"': { 'Class Light': 323.8, 'Class Medium': 323.8, 'Class Heavy': 323.8, 'Sch 40': 323.9, 'PN 10': 315.0, 'Kelas AW': 318.0 },
+            '1/2"': { 'Class Light': 21.4, 'Class Medium': 21.3, 'Class Heavy': 21.3, 'Sch 40': 21.3, 'PN 10': 20.0,
+                'Kelas AW': 22.0 },
+            '3/4"': { 'Class Light': 26.8, 'Class Medium': 26.9, 'Class Heavy': 26.8, 'Sch 40': 26.7, 'PN 10': 25.0,
+                'Kelas AW': 26.0 },
+            '1"': { 'Class Light': 33.6, 'Class Medium': 33.7, 'Class Heavy': 33.8, 'Sch 40': 33.4, 'PN 10': 32.0,
+                'Kelas AW': 32.0 },
+            '1 1/4"': { 'Class Light': 42.3, 'Class Medium': 42.4, 'Class Heavy': 42.5, 'Sch 40': 42.2, 'PN 10': 40.0,
+                'Kelas AW': 38.0 },
+            '1 1/2"': { 'Class Light': 48.2, 'Class Medium': 48.3, 'Class Heavy': 48.4, 'Sch 40': 48.3, 'PN 10': 50.0,
+                'Kelas AW': 48.0 },
+            '2"': { 'Class Light': 60.2, 'Class Medium': 60.3, 'Class Heavy': 60.3, 'Sch 40': 60.3, 'PN 10': 63.0,
+                'Kelas AW': 60.0 },
+            '2 1/2"': { 'Class Light': 76.0, 'Class Medium': 76.1, 'Class Heavy': 76.0, 'Sch 40': 73.0, 'PN 10': 75.0,
+                'Kelas AW': 76.0 },
+            '3"': { 'Class Light': 88.8, 'Class Medium': 88.9, 'Class Heavy': 88.8, 'Sch 40': 88.9, 'PN 10': 90.0,
+                'Kelas AW': 89.0 },
+            '4"': { 'Class Light': 114.1, 'Class Medium': 114.3, 'Class Heavy': 114.1, 'Sch 40': 114.3, 'PN 10': 110.0,
+                'Kelas AW': 114.0 },
+            '5"': { 'Class Light': 139.7, 'Class Medium': 139.7, 'Class Heavy': 139.7, 'Sch 40': 141.3, 'PN 10': 140.0,
+                'Kelas AW': 140.0 },
+            '6"': { 'Class Light': 165.1, 'Class Medium': 165.1, 'Class Heavy': 168.3, 'Sch 40': 168.3, 'PN 10': 160.0,
+                'Kelas AW': 165.0 },
+            '8"': { 'Class Light': 219.1, 'Class Medium': 219.1, 'Class Heavy': 219.1, 'Sch 40': 219.1, 'PN 10': 225.0,
+                'Kelas AW': 216.0 },
+            '10"': { 'Class Light': 273.0, 'Class Medium': 273.0, 'Class Heavy': 273.0, 'Sch 40': 273.1, 'PN 10': 280.0,
+                'Kelas AW': 267.0 },
+            '12"': { 'Class Light': 323.8, 'Class Medium': 323.8, 'Class Heavy': 323.8, 'Sch 40': 323.9, 'PN 10': 315.0,
+                'Kelas AW': 318.0 },
             '14"': { 'Class Light': 355.6, 'Class Medium': 355.6, 'Class Heavy': 355.6, 'Sch 40': 355.6 },
             '16"': { 'Class Light': 406.4, 'Class Medium': 406.4, 'Class Heavy': 406.4, 'Sch 40': 406.4 },
             '18"': { 'Class Light': 457.0, 'Class Medium': 457.0, 'Class Heavy': 457.0, 'Sch 40': 457.2 },
@@ -612,6 +830,37 @@
         // ============================================================
         let dataEntries = [];
         let currentCalcResult = null;
+
+        // ============================================================
+        //  MODAL CONTROLS
+        // ============================================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Click outside modal to close (only for guide, not for confirm)
+        document.addEventListener('click', function(e) {
+            const guide = document.getElementById('modalGuide');
+            if (guide.classList.contains('active')) {
+                const box = guide.querySelector('.modal-box');
+                if (!box.contains(e.target) && e.target.closest('.modal-overlay')) {
+                    closeModal('modalGuide');
+                }
+            }
+            const confirm = document.getElementById('modalConfirmClear');
+            if (confirm.classList.contains('active')) {
+                const box = confirm.querySelector('.modal-box');
+                if (!box.contains(e.target) && e.target.closest('.modal-overlay')) {
+                    closeModal('modalConfirmClear');
+                }
+            }
+        });
 
         // ============================================================
         //  IDENTITAS (untuk kop cetak)
@@ -701,13 +950,19 @@
             const lengthInput = document.getElementById('inputLengthPerJoint');
             populateScheduleDropdown();
             populateSizeDropdown();
-            if (mat === 'ppr' || mat === 'pvc') {
-                lengthInput.value = 4.0;
-                lengthInput.readOnly = true;
-            } else if (mat === 'galvanis' || mat === 'blacksteel' || mat === 'stainless') {
+
+            // Auto-fill length based on material type, but only if user hasn't manually changed it
+            const isStandard = (mat === 'galvanis' || mat === 'blacksteel' || mat === 'stainless');
+            const isPprPvc = (mat === 'ppr' || mat === 'pvc');
+
+            if (isStandard) {
                 lengthInput.value = 6.0;
                 lengthInput.readOnly = true;
+            } else if (isPprPvc) {
+                lengthInput.value = 4.0;
+                lengthInput.readOnly = true;
             } else {
+                lengthInput.value = '';
                 lengthInput.readOnly = false;
             }
             syncPipeODFromSelection();
@@ -733,6 +988,11 @@
             if (selectedPipe.inch > 0) {
                 const exactOD = getODForSizeAndSchedule(selectedPipe.name, currentSched);
                 document.getElementById('inputCustomOD').value = exactOD;
+            } else {
+                // Custom size: don't auto-fill OD
+                if (!document.getElementById('inputCustomOD').value) {
+                    document.getElementById('inputCustomOD').value = '';
+                }
             }
         }
 
@@ -775,10 +1035,12 @@
             const pipeSizeIdx = parseInt(document.getElementById('selectPipeSize').value);
             const pipeSizeObj = PIPE_SIZES_LIST[pipeSizeIdx] || {};
             const pipeSizeName = pipeSizeObj.name ? pipeSizeObj.name : '';
+
             const jointLen = parseFloat(document.getElementById('inputLengthPerJoint').value) || 0;
             const jointCount = parseFloat(document.getElementById('inputJointCount').value) || 0;
             const totalPipeLengthM = jointLen * jointCount;
-            const pipeDia_mm = parseFloat(document.getElementById('inputCustomOD').value) || 114.3;
+
+            const pipeDia_mm = parseFloat(document.getElementById('inputCustomOD').value);
             const phi = 3.14159265;
 
             const bitumenBrand = document.getElementById('inputBitumenBrand').value.trim() || 'Denso Tape';
@@ -800,13 +1062,16 @@
             }
 
             const pitch_mm = Math.max(1, tapeWidth_mm - overlap_mm);
-            const keliling_mm = phi * pipeDia_mm;
+            const keliling_mm = isNaN(pipeDia_mm) || pipeDia_mm <= 0 ? 0 : phi * pipeDia_mm;
             const keliling_m = keliling_mm / 1000.0;
             const pipeArea_m2 = keliling_m * totalPipeLengthM;
+
             const tapeLenPerTurn_mm = Math.sqrt(Math.pow(keliling_mm, 2) + Math.pow(pitch_mm, 2));
-            const spiralFactor = tapeLenPerTurn_mm / pitch_mm;
+            const spiralFactor = pitch_mm > 0 ? (tapeLenPerTurn_mm / pitch_mm) : 0;
             const tapeFinalLengthM = totalPipeLengthM * spiralFactor;
-            const bpbRollCount = Math.ceil(tapeFinalLengthM / rollLen_m);
+            const bpbRollCount = tapeFinalLengthM > 0 ? Math.ceil(tapeFinalLengthM / rollLen_m) : 0;
+
+            const hasValidData = totalPipeLengthM > 0 && !isNaN(pipeDia_mm) && pipeDia_mm > 0;
 
             currentCalcResult = {
                 pipeMatKey,
@@ -814,7 +1079,7 @@
                 pipeSched,
                 pipeSizeName,
                 pipeFullName: `${pipeMatName} ${pipeSched} ${pipeSizeName}`.trim(),
-                pipeDia_mm,
+                pipeDia_mm: pipeDia_mm || 0,
                 jointLen,
                 jointCount,
                 totalPipeLengthM,
@@ -830,46 +1095,61 @@
                 pipeArea_m2,
                 spiralFactor,
                 tapeFinalLengthM,
-                bpbRollCount
+                bpbRollCount,
+                hasValidData
             };
 
-            // Update UI
-            document.getElementById('dispTotalLengthHeader').textContent = `${totalPipeLengthM.toFixed(1)} Meter`;
-            document.getElementById('kpiTotalLength').textContent = totalPipeLengthM.toFixed(1);
-            document.getElementById('kpiTotalLengthSub').textContent = `Meter (${jointCount} btg @ ${jointLen}m)`;
-            document.getElementById('kpiPipeArea').textContent = pipeArea_m2.toFixed(2);
-            document.getElementById('kpiTotalRolls').textContent = bpbRollCount;
-            document.getElementById('kpiTotalRollsSub').textContent =
-                `Roll (@ ${rollLen_m}m • ${tapeWidth_mm}mm • t=${tapeThick_mm}mm)`;
+            // --- Update UI ---
 
-            document.getElementById('dispStep1Header').textContent = `C = ${keliling_m.toFixed(3)}m | Pitch = ${pitch_mm.toFixed(0)}mm`;
-            document.getElementById('dispStepDiaPipa').textContent = pipeDia_mm.toFixed(1);
-            document.getElementById('dispStepKelilingMm').textContent = keliling_mm.toFixed(2);
-            document.getElementById('dispStepKelilingM').textContent = keliling_m.toFixed(3);
-            document.getElementById('dispStepTapeWidth').textContent = tapeWidth_mm;
-            document.getElementById('dispStepOverlapVal').textContent = overlap_mm;
-            document.getElementById('dispStepPitch').textContent = pitch_mm.toFixed(0);
+            // Helper: format number or dash
+            const fmt = (val, decimals = 1) => {
+                if (val === undefined || val === null || isNaN(val) || val <= 0) return '—';
+                return val.toFixed(decimals);
+            };
+            const fmtInt = (val) => {
+                if (val === undefined || val === null || isNaN(val) || val <= 0) return '—';
+                return Math.ceil(val);
+            };
 
-            document.getElementById('dispStep2Header').textContent = `${spiralFactor.toFixed(2)} m Tape / m Pipa`;
-            document.getElementById('dispStepC2').textContent = keliling_mm.toFixed(1);
-            document.getElementById('dispStepP2').textContent = pitch_mm.toFixed(0);
-            document.getElementById('dispStepLturn').textContent = tapeLenPerTurn_mm.toFixed(2);
-            document.getElementById('dispStepLturn2').textContent = tapeLenPerTurn_mm.toFixed(2);
-            document.getElementById('dispStepPitch2').textContent = pitch_mm.toFixed(0);
-            document.getElementById('dispStepRatio').textContent = spiralFactor.toFixed(2);
+            document.getElementById('dispTotalLengthHeader').textContent = hasValidData ? `${totalPipeLengthM.toFixed(1)} Meter` :
+                '—';
+            document.getElementById('kpiTotalLength').textContent = hasValidData ? totalPipeLengthM.toFixed(1) : '—';
+            document.getElementById('kpiTotalLengthSub').textContent = hasValidData ?
+                `Meter (${jointCount} btg @ ${jointLen}m)` : '—';
+            document.getElementById('kpiPipeArea').textContent = hasValidData ? pipeArea_m2.toFixed(2) : '—';
+            document.getElementById('kpiTotalRolls').textContent = hasValidData ? bpbRollCount : '—';
+            document.getElementById('kpiTotalRollsSub').textContent = hasValidData ?
+                `Roll (@ ${rollLen_m}m • ${tapeWidth_mm}mm • t=${tapeThick_mm}mm)` : '—';
 
-            document.getElementById('dispStep3Header').textContent = `${tapeFinalLengthM.toFixed(1)} Meter | ${bpbRollCount} Roll`;
-            document.getElementById('dispStepTotalLenPipe').textContent = totalPipeLengthM.toFixed(1);
-            document.getElementById('dispStepRatio2').textContent = spiralFactor.toFixed(2);
-            document.getElementById('dispStepTapeFinalM').textContent = tapeFinalLengthM.toFixed(1);
-            document.getElementById('dispStepTapeFinalM2').textContent = tapeFinalLengthM.toFixed(1);
-            document.getElementById('dispStepRollLen').textContent = rollLen_m;
-            document.getElementById('dispStepBpbRolls').textContent = `${bpbRollCount} Roll`;
+            document.getElementById('dispStep1Header').textContent = hasValidData ?
+                `C = ${keliling_m.toFixed(3)}m | Pitch = ${pitch_mm.toFixed(0)}mm` : '—';
+            document.getElementById('dispStepDiaPipa').textContent = hasValidData ? pipeDia_mm.toFixed(1) : '—';
+            document.getElementById('dispStepKelilingMm').textContent = hasValidData ? keliling_mm.toFixed(2) : '—';
+            document.getElementById('dispStepKelilingM').textContent = hasValidData ? keliling_m.toFixed(3) : '—';
+            document.getElementById('dispStepTapeWidth').textContent = hasValidData ? tapeWidth_mm : '—';
+            document.getElementById('dispStepOverlapVal').textContent = hasValidData ? overlap_mm : '—';
+            document.getElementById('dispStepPitch').textContent = hasValidData ? pitch_mm.toFixed(0) : '—';
 
-            // Render ulang KaTeX pada blok math
+            document.getElementById('dispStep2Header').textContent = hasValidData ? `${spiralFactor.toFixed(2)} m Tape / m Pipa` :
+                '—';
+            document.getElementById('dispStepC2').textContent = hasValidData ? keliling_mm.toFixed(1) : '—';
+            document.getElementById('dispStepP2').textContent = hasValidData ? pitch_mm.toFixed(0) : '—';
+            document.getElementById('dispStepLturn').textContent = hasValidData ? tapeLenPerTurn_mm.toFixed(2) : '—';
+            document.getElementById('dispStepLturn2').textContent = hasValidData ? tapeLenPerTurn_mm.toFixed(2) : '—';
+            document.getElementById('dispStepPitch2').textContent = hasValidData ? pitch_mm.toFixed(0) : '—';
+            document.getElementById('dispStepRatio').textContent = hasValidData ? spiralFactor.toFixed(2) : '—';
+
+            document.getElementById('dispStep3Header').textContent = hasValidData ?
+                `${tapeFinalLengthM.toFixed(1)} Meter | ${bpbRollCount} Roll` : '—';
+            document.getElementById('dispStepTotalLenPipe').textContent = hasValidData ? totalPipeLengthM.toFixed(1) : '—';
+            document.getElementById('dispStepRatio2').textContent = hasValidData ? spiralFactor.toFixed(2) : '—';
+            document.getElementById('dispStepTapeFinalM').textContent = hasValidData ? tapeFinalLengthM.toFixed(1) : '—';
+            document.getElementById('dispStepTapeFinalM2').textContent = hasValidData ? tapeFinalLengthM.toFixed(1) : '—';
+            document.getElementById('dispStepRollLen').textContent = hasValidData ? rollLen_m : '—';
+            document.getElementById('dispStepBpbRolls').textContent = hasValidData ? `${bpbRollCount} Roll` : '—';
+
             renderMath();
-
-            update3dModel(pipeMatKey, pipeDia_mm, tapeWidth_mm, pitch_mm);
+            update3dModel(pipeMatKey, pipeDia_mm || 60, tapeWidth_mm, pitch_mm);
             renderBpbSummary();
         }
 
@@ -877,21 +1157,10 @@
         //  RENDER KATEX
         // ============================================================
         function renderMath() {
-            if (typeof renderMathInElement === 'undefined') {
-                // fallback: render manual tiap .math-inline
-                document.querySelectorAll('.math-inline').forEach(el => {
-                    try {
-                        katex.render(el.textContent, el, { throwOnError: false, displayMode: false });
-                    } catch (e) { /* ignore */ }
-                });
-                return;
-            }
-            renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '\\(', right: '\\)', display: false },
-                    { left: '$', right: '$', display: false }
-                ]
+            document.querySelectorAll('.math-inline').forEach(el => {
+                try {
+                    katex.render(el.textContent, el, { throwOnError: false, displayMode: false });
+                } catch (e) { /* ignore */ }
             });
         }
 
@@ -917,7 +1186,10 @@
         //  DATA ENTRY
         // ============================================================
         function addCurrentItemToTable() {
-            if (!currentCalcResult) return;
+            if (!currentCalcResult || !currentCalcResult.hasValidData) {
+                alert('⚠️ Silakan isi data pipa terlebih dahulu (OD, panjang, dan jumlah batang) sebelum menambahkan ke data entry.');
+                return;
+            }
             dataEntries.push({ ...currentCalcResult, id: Date.now() });
             renderDataEntryTable();
             renderBpbSummary();
@@ -929,20 +1201,61 @@
             renderBpbSummary();
         }
 
-        function clearAllDataEntries() {
+        function confirmClearEntries() {
+            if (dataEntries.length === 0) {
+                alert('ℹ️ Tidak ada data entry yang perlu dihapus.');
+                return;
+            }
+            openModal('modalConfirmClear');
+        }
+
+        function confirmClearAllEntries() {
             dataEntries = [];
+            closeModal('modalConfirmClear');
             renderDataEntryTable();
             renderBpbSummary();
         }
 
         function resetInputForm() {
+            // Reset all number inputs to empty
+            document.getElementById('inputCustomOD').value = '';
+            document.getElementById('inputLengthPerJoint').value = '';
+            document.getElementById('inputJointCount').value = '';
+            document.getElementById('inputBitumenBrand').value = '';
+
+            // Reset dropdowns to defaults
             document.getElementById('selectPipeMaterial').value = 'galvanis';
-            onPipeMaterialChange();
-            document.getElementById('inputJointCount').value = 4;
+            document.getElementById('selectPipeSchedule').value = 'Class Medium';
+            document.getElementById('selectTapeWidth').value = '100';
+            document.getElementById('selectRollLength').value = '10';
+            document.getElementById('selectTapeThickness').value = '1.15';
             document.getElementById('selectOverlapMode').value = 'half';
-            document.getElementById('inputBitumenBrand').value = 'Denso Tape';
-            onOverlapModeChange();
+
+            // Hide custom overlap
+            document.getElementById('wrapperCustomOverlap').classList.add('hidden');
+
+            // Repopulate dependent dropdowns
+            populateScheduleDropdown();
+            populateSizeDropdown();
+
+            // Reset badge
+            document.getElementById('badgeBitumenRule').textContent = 'Wrapping Tape';
+
+            // Clear the 3D model to default
+            update3dModel('galvanis', 60, 100, 50);
+
+            // Recalculate (will show empty state)
             calculateAll();
+
+            // Re-render tables
+            renderDataEntryTable();
+            renderBpbSummary();
+
+            // Sync identity
+            syncIdentity();
+
+            // Re-init lucide icons
+            lucide.createIcons();
         }
 
         function renderDataEntryTable() {
@@ -972,13 +1285,15 @@
 
         function renderBpbSummary() {
             const tbody = document.getElementById('tableBpbSummaryBody');
-            const itemsToSummarize = dataEntries.length > 0 ? dataEntries : (currentCalcResult ? [currentCalcResult] : []);
-            if (itemsToSummarize.length === 0) {
+            const itemsToSummarize = dataEntries.length > 0 ? dataEntries : (currentCalcResult && currentCalcResult
+                .hasValidData ? [currentCalcResult] : []);
+            if (itemsToSummarize.length === 0 || !itemsToSummarize.some(i => i.hasValidData !== false)) {
                 tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500">Kosong</td></tr>`;
                 return;
             }
             const groupsMap = {};
             itemsToSummarize.forEach(item => {
+                if (!item.hasValidData) return;
                 const groupKey =
                     `${item.bitumenBrand}_${item.tapeWidth_mm}mm_t${item.tapeThick_mm}mm_L${item.rollLen_m}m`;
                 if (!groupsMap[groupKey]) {
@@ -997,6 +1312,10 @@
                 groupsMap[groupKey].totalRolls += item.bpbRollCount;
             });
             const groupsArray = Object.values(groupsMap);
+            if (groupsArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500">Kosong</td></tr>`;
+                return;
+            }
             tbody.innerHTML = groupsArray.map((grp, idx) => `
                     <tr class="hover:bg-slate-800/40 print-text">
                         <td class="py-2.5 px-3 font-sans text-slate-400">${idx + 1}</td>
@@ -1017,15 +1336,21 @@
             text += "ISOLASI WRAPPING DENSO TAPE PIPA DALAM TANAH\n";
             text += "===============================================\n\n";
             const rows = table.querySelectorAll('tr');
+            let hasData = false;
             rows.forEach((r) => {
                 const cols = r.querySelectorAll('td');
-                if (cols.length >= 6) {
+                if (cols.length >= 6 && !cols[0].innerText.includes('Kosong')) {
+                    hasData = true;
                     text += `${cols[0].innerText}. ${cols[1].innerText}\n`;
                     text += `   Spesifikasi : ${cols[2].innerText}\n`;
                     text += `   Vol. Metrik : ${cols[3].innerText} ${cols[4].innerText}\n`;
                     text += `   ORDER BPB   : ${cols[5].innerText}\n\n`;
                 }
             });
+            if (!hasData) {
+                alert('⚠️ Belum ada data BPB yang dapat disalin. Tambahkan data entry terlebih dahulu.');
+                return;
+            }
             navigator.clipboard.writeText(text).then(() => {
                 const msg = document.getElementById('bpbCopyMessage');
                 msg.classList.remove('hidden');
@@ -1125,7 +1450,7 @@
                 pipeGroup.remove(child);
             }
             const pipeLength = 8.5;
-            const rPipe = Math.max(0.6, Math.min(1.4, (pipeDia / 120.0)));
+            const rPipe = Math.max(0.4, Math.min(1.6, (pipeDia / 120.0) * 0.9 + 0.2));
             let pipeColor = 0x1e293b,
                 pipeMetal = 0.7,
                 pipeRough = 0.4,
@@ -1157,7 +1482,8 @@
             const sleeveLength = pipeLength * 0.72;
             const rTapeSleeve = rPipe + 0.015;
             const sleeveGeo = new THREE.CylinderGeometry(rTapeSleeve, rTapeSleeve, sleeveLength, 48);
-            const tapeMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.2, bumpScale: 0.02 });
+            const tapeMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.2,
+                bumpScale: 0.02 });
             const tapeSleeveMesh = new THREE.Mesh(sleeveGeo, tapeMat);
             tapeSleeveMesh.rotation.z = Math.PI / 2;
             tapeSleeveMesh.position.x = 0.3;
@@ -1209,24 +1535,40 @@
         //  INIT
         // ============================================================
         window.addEventListener('DOMContentLoaded', () => {
+            // Populate dropdowns
+            populateScheduleDropdown();
+            populateSizeDropdown();
+
+            // Set initial empty state for number inputs
+            document.getElementById('inputCustomOD').value = '';
+            document.getElementById('inputLengthPerJoint').value = '';
+            document.getElementById('inputJointCount').value = '';
+            document.getElementById('inputBitumenBrand').value = '';
+
+            // Init 3D
             init3DScene();
-            onPipeMaterialChange();
             syncCanvasSize();
+
+            // Initial calc (will show empty state)
+            calculateAll();
+
+            // Icons
             lucide.createIcons();
+
+            // Identity
             syncIdentity();
-            // render math setelah semua elemen siap
+
+            // Render math after a delay
             setTimeout(() => {
-                if (typeof renderMathInElement !== 'undefined') {
-                    renderMathInElement(document.body, {
-                        delimiters: [
-                            { left: '$$', right: '$$', display: true },
-                            { left: '\\(', right: '\\)', display: false },
-                            { left: '$', right: '$', display: false }
-                        ]
-                    });
-                }
-            }, 500);
+                renderMath();
+            }, 600);
+        });
+
+        // Re-run icons after dynamic updates
+        document.addEventListener('lucide-load', function() {
+            lucide.createIcons();
         });
     </script>
+
 </body>
 </html>
