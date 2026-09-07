@@ -37,6 +37,23 @@
             .text-blue-400, .text-emerald-400, .text-cyan-400, .text-cyan-400 { color: #0f172a !important; font-weight: bold !important; }
             body.print-bpb-only-mode #materialListSection { display: none !important; }
         }
+                /* Animasi Modal */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-box {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        .modal-overlay:not(.hidden) .modal-box {
+            transform: scale(1);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -61,7 +78,10 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
+                <button onclick="openGuideModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition border border-emerald-700">
+                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i> Panduan Penggunaan
+                </button>
+                <button onclick="confirmReset()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
                     <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Data
                 </button>
             </div>
@@ -273,7 +293,66 @@
     <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
         Sugeng Deny Ramdani 2026
     </footer>
+    <!-- Modal Panduan Penggunaan -->
+<div id="guideModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-950">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i> Panduan Penggunaan Kalkulator Lem PVC
+            </h2>
+            <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-2xl leading-none p-1 rounded-lg hover:bg-slate-800 transition">&times;</button>
+        </div>
+        <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+                <h3 class="text-md font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4"></i> 1. Cara Menambah Material</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Pilih kategori material (Pipa / Fitting).</li>
+                    <li>Pilih jenis, ukuran, dan jumlah.</li>
+                    <li>Klik tombol <strong>Tambahkan ke Daftar Input</strong>.</li>
+                    <li>Data akan muncul di tabel data entry.</li>
+                </ul>
+            </div>
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+                <h3 class="text-md font-bold text-emerald-400 mb-2 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> 2. Metode Perhitungan</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Pilih metode acuan dari dropdown.</li>
+                    <li>Atur spare factor (ceceran) sesuai kebutuhan.</li>
+                    <li>Hasil perhitungan otomatis muncul di tabel summary.</li>
+                </ul>
+            </div>
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+                <h3 class="text-md font-bold text-purple-400 mb-2 flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> 3. Mencetak Laporan</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Klik <strong>Cetak Bon BPB Saja</strong> untuk mencetak rekomendasi pembelian lem.</li>
+                    <li>Klik <strong>Cetak Laporan Keseluruhan</strong> untuk mencetak semua data.</li>
+                </ul>
+            </div>
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+                <h3 class="text-md font-bold text-rose-400 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 4. Reset Data</h3>
+                <p>Klik tombol <strong>Reset Data</strong> akan muncul konfirmasi. Jika Anda yakin, klik "Ya, Reset" untuk menghapus semua data entry.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
+    <!-- Modal Konfirmasi Reset -->
+    <div id="resetConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 bg-slate-950 flex items-center gap-3">
+                <div class="bg-rose-500/20 p-2 rounded-lg text-rose-400">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-base font-bold text-white">Konfirmasi Reset</h2>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-300 mb-4">Apakah Anda yakin ingin menghapus seluruh data entry? Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="flex justify-end gap-2">
+                    <button onclick="closeResetConfirm()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">Batal</button>
+                    <button onclick="doReset()" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-lg shadow-rose-600/20">Ya, Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         // Database Gram Lem per Sambungan (Joint) Berdasarkan Ukuran & Metode
         // Nilai dikonversi ke gram per 1 sambungan
@@ -491,6 +570,50 @@
             renderMaterialTable();
             calculateSummary();
         }
+        // Modal Panduan
+function openGuideModal() {
+    document.getElementById('guideModal').classList.remove('hidden');
+}
+function closeGuideModal() {
+    document.getElementById('guideModal').classList.add('hidden');
+}
+
+// Modal Konfirmasi Reset
+function confirmReset() {
+    document.getElementById('resetConfirmModal').classList.remove('hidden');
+}
+function closeResetConfirm() {
+    document.getElementById('resetConfirmModal').classList.add('hidden');
+}
+function doReset() {
+    // Reset data sesuai fungsi asli
+    resetAllData();
+    closeResetConfirm();
+}
+
+    // Tutup modal jika klik di luar area modal
+    document.addEventListener('DOMContentLoaded', () => {
+        const guideModal = document.getElementById('guideModal');
+        const resetModal = document.getElementById('resetConfirmModal');
+        
+        guideModal.addEventListener('click', (e) => {
+            if (e.target === guideModal) closeGuideModal();
+        });
+        resetModal.addEventListener('click', (e) => {
+            if (e.target === resetModal) closeResetConfirm();
+        });
+        
+        // Tombol Esc untuk menutup
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!guideModal.classList.contains('hidden')) closeGuideModal();
+                if (!resetModal.classList.contains('hidden')) closeResetConfirm();
+            }
+        });
+        
+        // Inisialisasi ulang ikon lucide
+        lucide.createIcons();
+    });
 
         function printBPBOnly() {
             document.body.classList.add('print-bpb-only-mode');
