@@ -117,15 +117,115 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition border border-rose-500/20">
+                <button onclick="openResetConfirm()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition border border-rose-500/20">
                     <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Data
                 </button>
                 <button onclick="scrollToSPKPD()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak SPKPD / Laporan
                 </button>
+                <button onclick="openUsageGuide()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1.5 transition border border-emerald-500/20">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Panduan Penggunaan
+                </button>
             </div>
         </div>
     </header>
+            <!-- Usage Guide Modal -->
+        <div id="modalUsageGuide" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print" onclick="if(event.target===this) closeUsageGuide()">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i> Panduan Penggunaan & Dasar Perhitungan
+            </h2>
+            <button onclick="closeUsageGuide()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-5 text-sm text-slate-300 leading-relaxed">
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-emerald-400 mb-2 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4"></i> A. Cara Menggunakan Tools</h3>
+                <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
+                <li><strong>Isi Informasi Proyek & Header SPKPD</strong> (Card 0): nama proyek, pekerjaan, no. BPB, lokasi, tanggal, referensi gambar, merk seng, dan spec note. Logo bisa diupload dan tersimpan otomatis di browser.</li>
+                <li><strong>Input Ducting & Fitting</strong> (Card 1): pilih Jenis Ducting (Spiral/Round/BJLS Kotak/PU/SS Kotak/Round SS), Tipe Sambungan, dan Tipe Shape/Fitting (lurus, elbow, tee, reducer, dll). Isi dimensi yang muncul otomatis sesuai jenis & fitting, lalu Panjang (m) dan Jumlah (pcs).</li>
+                <li><strong>Input Isolasi</strong> (Card 2, opsional): pilih "Ya" jika perlu isolasi peredam/thermal, tentukan bahan (NBR/XLPE), merk, dan ukuran lembar (panjang, lebar, tebal). Bisa juga aktifkan isolasi tambahan di bagian sambungan (khusus Ducting Kotak & PU).</li>
+                <li>Klik <strong>"Tambahkan Item Ke Daftar Entry"</strong> — item akan muncul di tabel "Daftar Data Entry" lengkap dengan gambar fitting dan luasnya.</li>
+                <li><strong>Atur Spare/Waste Factor</strong> (Card 3): geser slider untuk toleransi material sisa — terpisah untuk Ducting/Seng, Isolasi, Lem, dan Aksesoris.</li>
+                <li>Ulangi langkah 2-4 untuk setiap item ducting yang berbeda. Item bisa dihapus lewat ikon tempat sampah di tabel.</li>
+                <li>Cek hasil di <strong>"Ringkasan Luas & Lembar Material"</strong> dan <strong>"Estimasi Aksesoris, Lem, Baut & Material Bantu"</strong> — semua terhitung otomatis.</li>
+                <li>Gunakan tombol <strong>"Cetak SPKPD Saja"</strong> atau <strong>"Cetak Paket Lengkap"</strong> untuk mencetak laporan.</li>
+                </ol>
+            </div>
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="square-function" class="w-4 h-4"></i> B. Dasar Perhitungan Luas Ducting</h3>
+                <ul class="list-disc list-inside space-y-1.5 text-xs text-slate-300">
+                <li><strong>Ducting Bulat</strong> (Spiral / Round Duct / Round SS): Luas = π × (diameter + 2×tebal isolasi, dalam meter) × Panjang(m) × Jumlah.</li>
+                <li><strong>Ducting Kotak</strong> (BJLS / SS Kotak / PU): Luas = Keliling luar [2×((lebar+2×tebal isolasi)+(tinggi+2×tebal isolasi))] dalam meter × Panjang(m) × Jumlah.</li>
+                <li>Tebal isolasi otomatis ikut menambah dimensi luar hanya jika item memakai isolasi.</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-amber-400 mb-2 flex items-center gap-2"><i data-lucide="link" class="w-4 h-4"></i> C. Dasar Perhitungan Sambungan (Ducting Bulat)</h3>
+                <p class="mb-2 text-xs">Tiap fitting memiliki jumlah ujung koneksi berbeda: Lurus/Elbow/Sock/Dop-end = 2 ujung (Dop hanya 1 ujung aktif), Tee/Y-Way = 3 ujung, 4-Way = 4 ujung, Reducer = 2 ujung beda diameter.</p>
+                <p class="mb-2 text-xs">Pipa/duct dengan diameter ≤700mm punya panjang standar pabrik maksimal 4m, dan >700mm maksimal 2m. Item yang lebih panjang dari itu otomatis dipecah jadi beberapa segmen, menambah sambungan internal.</p>
+                <p class="text-xs">Semua ujung dikelompokkan per diameter, lalu dipasangkan 2 ujung menjadi 1 join sambungan (sisa ganjil tetap dihitung 1 join). Roofing Screw dihitung dari keliling pipa (π×diameter) ÷ 120mm per join.</p>
+            </div>
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-rose-400 mb-2 flex items-center gap-2"><i data-lucide="box" class="w-4 h-4"></i> D. Dasar Perhitungan Ducting Kotak (BJLS / SS Kotak)</h3>
+                <p class="mb-2 text-xs">Plat datang dalam modul panjang tetap tergantung metode sambungan: <strong>Sisip (C-Cleat) = 1,22m/modul</strong>, <strong>Flange = 1,13m/modul</strong>. Jumlah join per piece = Panjang ÷ panjang modul (dibulatkan ke atas).</p>
+                <p class="mb-2 text-xs">Jika lebar ≥450mm dan koneksi Flange: hardware (Corner 4pcs/join, Siku Flange Strip sepanjang keliling, Mur & Baut 4 pasang/join, Karet Packing sepanjang keliling) dihitung per join.</p>
+                <p class="text-xs">Jika koneksi Sisip: dihitung Strip Sisip/C-Cleat sepanjang keliling × jumlah join (tanpa syarat ukuran minimum).</p>
+            </div>
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-cyan-400 mb-2 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i> E. Dasar Perhitungan Ducting PU (Polyurethane)</h3>
+                <p class="mb-2 text-xs">Semua aksesoris PU dihitung dari total luas PU dan jumlah sisi/cabang fitting, mengikuti formula referensi perusahaan:</p>
+                <ul class="list-disc list-inside space-y-1 text-xs text-slate-300">
+                <li>Invisible Flange = Σ(keliling × jumlah sisi fitting) ÷ 4m per batang; Bayonet = 50% dari Invisible Flange.</li>
+                <li>Covering Angle = Σ((jumlah sisi + sambungan internal >1,2m) × 4).</li>
+                <li>Ball Joint Damper = Σ(jumlah cabang fitting); Longdrat = Σ((lebar inlet/2 + 150mm) × jumlah cabang).</li>
+                <li>TD Glue & Sealant Neutral = formula berbasis luas per 100m² + spare tambahan bawaan formula.</li>
+                <li>Reinforcement Bar & Shaped Disk hanya untuk duct dengan sisi ≥700mm.</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-fuchsia-400 mb-2 flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4"></i> F. Dasar Perhitungan Isolasi & Spare Factor</h3>
+                <ul class="list-disc list-inside space-y-1.5 text-xs text-slate-300">
+                <li>Kebutuhan lembar isolasi dikelompokkan per bahan+merk+tebal+ukuran lembar: Total Luas (m²) ÷ Luas per lembar (panjang × lebar).</li>
+                <li>Lem Isolasi NBR/XLPE: 1 kg lem mengcover 4 m² isolasi.</li>
+                <li>Isolasi Sambungan (Joint Strip): (2×lebar + 2×tinggi + 360mm)/1000 × 0,15m lebar strip × jumlah join.</li>
+                <li>Semua hasil akhir aksesoris/material = nilai dasar × (1 + persen spare sesuai kategorinya: Ducting/Seng, Isolasi, Lem, atau Aksesoris).</li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Reset Confirmation Modal -->
+        <div id="modalResetConfirm" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print" onclick="if(event.target===this) closeResetConfirm()">
+        <div class="bg-slate-900 border border-rose-500/30 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden">
+            <div class="p-5 flex flex-col items-center text-center gap-3">
+            <div class="p-3 bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <h2 class="text-sm font-bold text-white">Hapus Seluruh Data Entry?</h2>
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Apakah Anda yakin ingin menghapus seluruh data entry? Semua item ducting, isolasi, informasi proyek, dan pengaturan spare yang sudah diinput akan hilang dan tidak bisa dikembalikan.
+            </p>
+            <div class="flex gap-2 w-full mt-2">
+                <button onclick="closeResetConfirm()" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">
+                Batal
+                </button>
+                <button onclick="confirmResetData()" class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition shadow-lg shadow-rose-600/20">
+                Ya, Hapus Semua
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
 
     <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 no-print flex-grow">
         
@@ -1809,6 +1909,18 @@
             entryList = [];
             renderAllTables();
         }
+        function openResetConfirm() {
+            const el = document.getElementById('modalResetConfirm');
+            if (el) el.classList.remove('hidden');
+        }
+        function closeResetConfirm() {
+            const el = document.getElementById('modalResetConfirm');
+            if (el) el.classList.add('hidden');
+        }
+        function confirmResetData() {
+            resetAllData();
+            closeResetConfirm();
+        }
 
         // Representative width/height for a box (rectangular) item. Simple fittings store
         // {lebar,tinggi} directly. Branching fittings (Tee/Y/4-way) store per-opening
@@ -2498,6 +2610,14 @@
         function scrollToSPKPD() {
             const el = document.getElementById('spkpdPrintSection');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+        function openUsageGuide() {
+            const el = document.getElementById('modalUsageGuide');
+            if (el) el.classList.remove('hidden');
+        }
+        function closeUsageGuide() {
+            const el = document.getElementById('modalUsageGuide');
+            if (el) el.classList.add('hidden');
         }
 
         // DOM Initialization
