@@ -23,10 +23,13 @@
   }
 </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col relative">
+
+  <!-- Toast Notification Container (Kanan Bawah) -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Header -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-lg">
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
       <div class="flex items-center gap-3">
         <div class="p-2.5 bg-blue-600/20 border border-blue-500/40 rounded-xl text-blue-400">
@@ -54,7 +57,7 @@
     </div>
   </header>
 
-  <!-- Explanation Modal -->
+  <!-- Explanation Modal (Panduan Teknikal) -->
   <div id="modalExplanation" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
@@ -116,16 +119,17 @@
       </div>
     </div>
   </div>
-        <!-- Usage Guide Modal -->
-    <div id="modalUsageGuide" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+
+  <!-- Usage Guide Modal (Panduan Penggunaan) -->
+  <div id="modalUsageGuide" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
             <i class="fa-solid fa-book-open text-emerald-400"></i> Panduan Penggunaan & Dasar Perhitungan
         </h2>
         <button id="btnCloseUsageModal" class="text-slate-400 hover:text-white p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
+      </div>
+      <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
 
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
             <h3 class="text-md font-bold text-emerald-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-list-ol"></i> A. Cara Menggunakan Tools</h3>
@@ -161,9 +165,9 @@
             <p class="text-xs">Dari IFD Ekuivalen tersebut, consumables dihitung dengan rasio: mata gerinda potong (1 per IFD), mata gerinda poles (1 per 7 IFD), kain poles (1 per 2 IFD), flap disc (1 per 4 IFD), batu hijau (1 per 25 IFD) — semua dibulatkan ke atas. Kawat las argon dihitung dari total panjang las (meter) ÷ 28,2 meter/kg, lalu dibulatkan ke pack 5kg terdekat (ke atas).</p>
         </div>
 
-        </div>
+      </div>
     </div>
-    </div>
+  </div>
 
   <!-- Main -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -444,21 +448,21 @@
         </div>
       </div>
     
-        <div class="mb-6">
-    <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">0. Data Entry Item</h3>
-    <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
-        <thead>
-        <tr class="bg-slate-100 text-left">
-            <th class="border border-slate-300 p-2">No</th>
-            <th class="border border-slate-300 p-2">Jenis Item</th>
-            <th class="border border-slate-300 p-2 text-center">Ukuran (P x L x T)</th>
-            <th class="border border-slate-300 p-2 text-center">Spesifikasi</th>
-            <th class="border border-slate-300 p-2 text-center">Jumlah</th>
-        </tr>
-        </thead>
-        <tbody id="printDataEntryTable"></tbody>
-    </table>
-    </div>
+      <div class="mb-6">
+        <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">0. Data Entry Item</h3>
+        <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
+            <thead>
+            <tr class="bg-slate-100 text-left">
+                <th class="border border-slate-300 p-2">No</th>
+                <th class="border border-slate-300 p-2">Jenis Item</th>
+                <th class="border border-slate-300 p-2 text-center">Ukuran (P x L x T)</th>
+                <th class="border border-slate-300 p-2 text-center">Spesifikasi</th>
+                <th class="border border-slate-300 p-2 text-center">Jumlah</th>
+            </tr>
+            </thead>
+            <tbody id="printDataEntryTable"></tbody>
+        </table>
+      </div>
 
       <div class="mb-6">
         <h3 class="text-sm font-bold uppercase mb-2 border-b border-slate-300 pb-1">1. Summary Rekomendasi Order Material</h3>
@@ -536,13 +540,65 @@ const btnCloseModal = document.getElementById('btnCloseModal');
 const btnPrintRequisition = document.getElementById('btnPrintRequisition');
 const btnPrintFull = document.getElementById('btnPrintFull');
 
-btnExplanation.addEventListener('click', () => modalExplanation.classList.remove('hidden'));
-btnCloseModal.addEventListener('click', () => modalExplanation.classList.add('hidden'));
+// Usage Modal Refs
 const btnUsageGuide = document.getElementById('btnUsageGuide');
 const modalUsageGuide = document.getElementById('modalUsageGuide');
 const btnCloseUsageModal = document.getElementById('btnCloseUsageModal');
+
+// Event Listeners Modal
+btnExplanation.addEventListener('click', () => modalExplanation.classList.remove('hidden'));
+btnCloseModal.addEventListener('click', () => modalExplanation.classList.add('hidden'));
+
 btnUsageGuide.addEventListener('click', () => modalUsageGuide.classList.remove('hidden'));
 btnCloseUsageModal.addEventListener('click', () => modalUsageGuide.classList.add('hidden'));
+
+// Tutup modal ketika klik area luar modal (backdrop)
+window.addEventListener('click', (e) => {
+  if (e.target === modalExplanation) modalExplanation.classList.add('hidden');
+  if (e.target === modalUsageGuide) modalUsageGuide.classList.add('hidden');
+});
+
+// ============================= TOAST NOTIFICATION ENGINE =============================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  
+  let bgStyle = 'bg-slate-900/95 border-emerald-500/50 text-emerald-300 shadow-emerald-950/40';
+  let icon = '<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>';
+
+  if (type === 'danger') {
+    bgStyle = 'bg-slate-900/95 border-rose-500/50 text-rose-300 shadow-rose-950/40';
+    icon = '<i class="fa-solid fa-trash-can text-rose-400 text-sm"></i>';
+  } else if (type === 'warning') {
+    bgStyle = 'bg-slate-900/95 border-amber-500/50 text-amber-300 shadow-amber-950/40';
+    icon = '<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i>';
+  } else if (type === 'info') {
+    bgStyle = 'bg-slate-900/95 border-cyan-500/50 text-cyan-300 shadow-cyan-950/40';
+    icon = '<i class="fa-solid fa-circle-info text-cyan-400 text-sm"></i>';
+  }
+
+  toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border ${bgStyle} shadow-xl backdrop-blur-md transform transition-all duration-300 translate-y-4 opacity-0 text-xs font-semibold max-w-xs`;
+  toast.innerHTML = `${icon}<span>${message}</span>`;
+
+  container.appendChild(toast);
+
+  // Animasi Masuk (Slide up & Fade in)
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-4', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+  });
+
+  // Otomatis Tutup setelah 2 Detik (2000ms)
+  setTimeout(() => {
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('translate-y-2', 'opacity-0');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }, 2000);
+}
 
 function refreshExtraFieldsVisibility(){
   if (itemTypeSelect.value === 'IFD'){
@@ -579,7 +635,11 @@ btnAddEntry.addEventListener('click', () => {
   const L = parseInt(dimLInput.value) || 0;
   const T = parseInt(dimTInput.value) || 0;
   const qty = parseInt(itemQtyInput.value) || 1;
-  if (P === 0 || L === 0 || T === 0) { alert("Ukuran P, L, T tidak boleh 0!"); return; }
+
+  if (P === 0 || L === 0 || T === 0) { 
+    showToast("Ukuran P, L, T tidak boleh 0!", 'warning');
+    return; 
+  }
   let extra = {};
   if (type === 'IFD') extra.outletInch = parseInt(outletInchSelect.value) || 4;
   else extra.immersionDepth = parseInt(immersionDepthInput.value) || 80;
@@ -587,6 +647,10 @@ btnAddEntry.addEventListener('click', () => {
   const entry = addProjectItem(type, P, L, T, qty, extra);
   updateAllCalculations();
   update3DModel(entry);
+
+  // Notifikasi toast saat klik Data Entry
+  const itemLabel = type === 'IFD' ? 'IFD' : 'Boot Drain';
+  showToast(`Item ${itemLabel} (${P}x${L}x${T}mm) x${qty} ditambahkan!`, 'success');
 });
 
 function addProjectItem(type, P, L, T, qty, extra){
@@ -597,10 +661,15 @@ function addProjectItem(type, P, L, T, qty, extra){
 }
 
 function removeProjectItem(id){
+  const deletedItem = projectEntries.find(i => i.id === id);
   projectEntries = projectEntries.filter(i => i.id !== id);
   updateAllCalculations();
   renderTable();
   if (projectEntries.length > 0) update3DModel(projectEntries[projectEntries.length - 1]);
+
+  // Notifikasi toast saat hapus data
+  const itemLabel = deletedItem ? (deletedItem.type === 'IFD' ? 'IFD' : 'Boot Drain') : 'Item';
+  showToast(`Data ${itemLabel} berhasil dihapus`, 'danger');
 }
 
 function renderTable(){
@@ -638,7 +707,10 @@ function renderTable(){
 
 function previewItem3D(id){
   const item = projectEntries.find(i => i.id === id);
-  if (item) update3DModel(item);
+  if (item) {
+    update3DModel(item);
+    showToast(`Menampilkan model 3D: ${item.type}`, 'info');
+  }
 }
 
 // ============================= CUT HELPERS =============================
@@ -686,8 +758,6 @@ function computeIFDCuts(P, L, T, qty, outletInch){
 
 function computeFootbathCuts(P, L, T, qty, immersionDepth){
   let solidCuts = [], perfCuts = [], stripLen = 0, pipeLenTotal = 0, dopCount = 0, floorDrainQty = 0;
-  // Tidak ada pipa tambahan, tidak ada dop tambahan (karena floor drain injak sudah termasuk)
-  // Namun untuk estimasi las, floor drain injak tetap ada.
 
   for (let q = 0; q < qty; q++){
     solidCuts.push(rectCut(P, L, `Dasar BootDrain (Slope 5%) ${P}x${L}mm`));
@@ -697,19 +767,14 @@ function computeFootbathCuts(P, L, T, qty, immersionDepth){
     solidCuts.push(rectCut(L, T, `Dinding Lebar ${L}x${T}mm`));
     solidCuts.push(rectCut(L, Math.max(60, T - immersionDepth), `Sekat Tengah Basah/Kering ${L}x${Math.max(60,T-immersionDepth)}mm`));
 
-    // Tidak ada perforated untuk BD
-    // Tidak ada pipeLenTotal, dopCount
-
     floorDrainQty += 1;
 
     const halfP = Math.max(60, Math.floor(P / 2) - 10);
     const coverL = Math.max(60, L - 10);
-    // Kebutuhan plat strip
     const pitch = 30;
     const numBars = Math.max(3, Math.floor(coverL / pitch));
     stripLen += numBars * halfP * 2; // dua sisi grille
     stripLen += 6 * halfP; // rib support
-    // Kupingan waterstop
     const outerP = P + 60;
     const outerL = L + 60;
     stripLen += (outerP * 2) + (outerL * 2);
@@ -726,7 +791,7 @@ function estimateWeldLengthIFD(P, L, T, outletInch){
   const lasKupingan = 2*((P+60) + (L+60));
   const lasTrap = 2 * Math.PI * rTrap;
   const totalMM = lasDasar + lasSudut + lasKupingan + lasTrap;
-  return totalMM / 1000; // meter
+  return totalMM / 1000;
 }
 
 function estimateWeldLengthFootbath(P, L, T){
@@ -832,7 +897,7 @@ function packNesting2D(items, sheetW, sheetH){
   return sheets;
 }
 
-// ============================= NESTING VISUAL (SVG) - Hitam Putih =============================
+// ============================= NESTING VISUAL (SVG) =============================
 function buildNestingSVG(sheet, title){
   const svgW = 2400, svgH = 1200;
   let inner = '';
@@ -888,10 +953,9 @@ function updateAllCalculations(){
     } else {
       const r = computeFootbathCuts(entry.P, entry.L, entry.T, entry.qty, entry.immersionDepth);
       solidCuts = solidCuts.concat(r.solidCuts);
-      // PerfCuts tidak ditambahkan untuk BD
       totalStripLengthMM += r.stripLen;
-      totalPipeLengthMM += r.pipeLenTotal; // ini 0
-      totalDop += r.dopCount; // ini 0
+      totalPipeLengthMM += r.pipeLenTotal;
+      totalDop += r.dopCount;
       totalFloorDrain += r.floorDrainQty;
     }
   });
@@ -967,23 +1031,22 @@ function populatePrintModal(solidSheets, perfSheets, totalStripBars, totalPipeBa
   document.getElementById('printProjectName').textContent = `PROYEK: ${projectNameInput.value.toUpperCase() || "-"}`;
   document.getElementById('printDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
 
-    // Data entry table
-const printDataBody = document.getElementById('printDataEntryTable');
-if (printDataBody) {
-  printDataBody.innerHTML = projectEntries.map((item, idx) => {
-    const specText = item.type === 'IFD'
-      ? `Outlet ${item.outletInch}" / Trap ${item.outletInch+2}"`
-      : `Selisih rendam ${item.immersionDepth}mm`;
-    return `
-      <tr>
-        <td class="border border-slate-300 p-2">${idx + 1}</td>
-        <td class="border border-slate-300 p-2">${item.type === 'IFD' ? 'IFD (Floor Drain)' : 'Boot Drain / Footbath'}</td>
-        <td class="border border-slate-300 p-2 text-center">${item.P} x ${item.L} x ${item.T} mm</td>
-        <td class="border border-slate-300 p-2 text-center">${specText}</td>
-        <td class="border border-slate-300 p-2 text-center font-bold">${item.qty} Pcs</td>
-      </tr>`;
-  }).join('');
-}
+  const printDataBody = document.getElementById('printDataEntryTable');
+  if (printDataBody) {
+    printDataBody.innerHTML = projectEntries.map((item, idx) => {
+      const specText = item.type === 'IFD'
+        ? `Outlet ${item.outletInch}" / Trap ${item.outletInch+2}"`
+        : `Selisih rendam ${item.immersionDepth}mm`;
+      return `
+        <tr>
+          <td class="border border-slate-300 p-2">${idx + 1}</td>
+          <td class="border border-slate-300 p-2">${item.type === 'IFD' ? 'IFD (Floor Drain)' : 'Boot Drain / Footbath'}</td>
+          <td class="border border-slate-300 p-2 text-center">${item.P} x ${item.L} x ${item.T} mm</td>
+          <td class="border border-slate-300 p-2 text-center">${specText}</td>
+          <td class="border border-slate-300 p-2 text-center font-bold">${item.qty} Pcs</td>
+        </tr>`;
+    }).join('');
+  }
 
   const printTable = document.getElementById('printSummaryTable');
   printTable.innerHTML = `
@@ -1040,7 +1103,7 @@ if (printDataBody) {
   planHtml += `</div>`;
   printPlan.innerHTML = planHtml;
 
-    const cons = computeConsumables(projectEntries); // selalu hitung ulang
+  const cons = computeConsumables(projectEntries);
   document.getElementById('printConsumables').innerHTML = `
     <table class="w-full text-xs border-collapse border border-slate-300">
       <thead><tr class="bg-slate-100 text-left">
@@ -1311,7 +1374,7 @@ function update3DModel(entry){
     grilleDry.position.set((halfP/2), (T/2) + 8 + (isExploded ? explodeOffset*1.7 : 0), 0);
     currentGroup.add(grilleDry);
 
-    // Floor Drain Injak 4" (produk jadi, hanya visual)
+    // Floor Drain Injak 4"
     const trapHeight = Math.max(80, Math.round(T * 0.55));
     const trapMesh = new THREE.Mesh(new THREE.CylinderGeometry(114.3/2, 114.3/2, trapHeight, 24), pipeMat);
     trapMesh.position.set(0, -(T/2) + trapHeight/2 + (isExploded ? explodeOffset*0.7 : 0), 0);
