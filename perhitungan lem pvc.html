@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Model Interaktif Perhitungan Lem PVC</title>
+    <title>Model Interaktif Perhitungan Lem PVC & Panduan</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Inter & Lucide Icons -->
@@ -34,29 +34,20 @@
             th, td { border: 1px solid #94a3b8 !important; color: #000000 !important; padding: 6px 8px !important; font-size: 11px !important; }
             th { background-color: #f1f5f9 !important; }
             .text-white, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400 { color: #000000 !important; }
-            .text-blue-400, .text-emerald-400, .text-cyan-400, .text-cyan-400 { color: #0f172a !important; font-weight: bold !important; }
+            .text-blue-400, .text-emerald-400, .text-cyan-400 { color: #0f172a !important; font-weight: bold !important; }
             body.print-bpb-only-mode #materialListSection { display: none !important; }
         }
-                /* Animasi Modal */
-        .modal-overlay {
-            transition: opacity 0.3s ease;
+
+        /* Modal & Toast Animations */
+        .modal-backdrop {
+            transition: opacity 0.25s ease-in-out;
         }
-        .modal-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .modal-box {
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform: scale(0.95);
-            opacity: 0;
-        }
-        .modal-overlay:not(.hidden) .modal-box {
-            transform: scale(1);
-            opacity: 1;
+        .modal-content {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
 
     <!-- Header Print Mode -->
     <div class="hidden print-header p-4 border-b border-slate-300 mb-4">
@@ -65,7 +56,7 @@
     </div>
 
     <!-- App Header -->
-    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-cyan-500/20 p-2.5 rounded-xl border border-cyan-500/30 text-cyan-400">
@@ -78,11 +69,11 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="openGuideModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition border border-emerald-700">
-                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i> Panduan Penggunaan
+                <button onclick="openGuideModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-semibold flex items-center gap-2 transition border border-emerald-500/30 shadow-lg shadow-emerald-950/30 active:scale-95">
+                    <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> Panduan Penggunaan
                 </button>
-                <button onclick="confirmReset()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Data
+                <button onclick="confirmResetAll()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2 transition border border-slate-700 active:scale-95">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-400"></i> Reset Data
                 </button>
             </div>
         </div>
@@ -90,7 +81,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT PANEL: Settings & Inputs -->
+        <!-- LEFT PANEL: Settings & Form Inputs -->
         <section class="lg:col-span-5 flex flex-col gap-5 no-print">
 
             <!-- Card 1: Select Method & Waste Factor -->
@@ -184,7 +175,7 @@
                 </div>
 
                 <button onclick="addMaterialItem()" 
-                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-blue-600/20 mt-2">
+                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-blue-600/20 active:scale-[0.98]">
                     <i data-lucide="plus" class="w-4 h-4"></i> Tambahkan ke Daftar Input
                 </button>
             </div>
@@ -221,7 +212,7 @@
                                 </tr>
                             </thead>
                             <tbody id="materialTableBody" class="divide-y divide-slate-800/60 text-slate-300 font-mono">
-                                <!-- Dynamic -->
+                                <!-- Dynamic JS Output -->
                             </tbody>
                         </table>
                     </div>
@@ -258,7 +249,7 @@
                             </tr>
                         </thead>
                         <tbody id="bpbTableBody" class="divide-y divide-slate-800 text-slate-200 font-mono">
-                            <!-- Dynamic -->
+                            <!-- Dynamic JS Output -->
                         </tbody>
                     </table>
                 </div>
@@ -290,149 +281,233 @@
 
     </main>
 
-    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
-        Sugeng Deny Ramdani 2026
-    </footer>
-    <!-- Modal Panduan Penggunaan -->
-<div id="guideModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        <div class="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-950">
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                <i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i> Panduan Penggunaan Kalkulator Lem PVC
-            </h2>
-            <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-2xl leading-none p-1 rounded-lg hover:bg-slate-800 transition">&times;</button>
-        </div>
-        <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
-            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
-                <h3 class="text-md font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4"></i> 1. Cara Menambah Material</h3>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Pilih kategori material (Pipa / Fitting).</li>
-                    <li>Pilih jenis, ukuran, dan jumlah.</li>
-                    <li>Klik tombol <strong>Tambahkan ke Daftar Input</strong>.</li>
-                    <li>Data akan muncul di tabel data entry.</li>
-                </ul>
+    <!-- MODAL 1: Panduan Penggunaan Pop-Up -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden modal-content scale-95 opacity-0 transition-all duration-300">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-950/80 sticky top-0 z-10">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400 border border-emerald-500/30">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-white leading-tight">Panduan Penggunaan Aplikasi</h2>
+                        <p class="text-xs text-slate-400">Petunjuk langkah demi langkah kalkulasi kebutuhan lem PVC & BPB</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
-            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
-                <h3 class="text-md font-bold text-emerald-400 mb-2 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> 2. Metode Perhitungan</h3>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Pilih metode acuan dari dropdown.</li>
-                    <li>Atur spare factor (ceceran) sesuai kebutuhan.</li>
-                    <li>Hasil perhitungan otomatis muncul di tabel summary.</li>
-                </ul>
+
+            <!-- Modal Content Body -->
+            <div class="p-5 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed">
+                
+                <!-- Step 1 -->
+                <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-500/30">
+                        1
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm mb-1">Mengisi Form Input Material</h3>
+                        <p class="text-slate-400 mb-2">Pilih kategori material (Pipa PVC Batang atau Fitting PVC), tentukan jenis fitting, ukuran diameter inch, dan jumlah unit.</p>
+                        <span class="inline-flex items-center gap-1 text-[11px] text-cyan-400 font-medium bg-cyan-950/60 px-2 py-1 rounded border border-cyan-800/50">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Notifikasi pop-up hijau akan mengonfirmasi entry berhasil!
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/30">
+                        2
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm mb-1">Memilih Metode & Waste Factor</h3>
+                        <p class="text-slate-400">Pilih salah satu metode acuan standar (RUGlue, Quart, Perplexity, atau Tim Project). Geser slider <strong>Spare / Waste Factor</strong> (0% - 30%) untuk memperhitungkan ceceran atau sisa kerja di lapangan.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs shrink-0 border border-rose-500/30">
+                        3
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm mb-1">Pengelolaan Data & Pop-Up Konfirmasi</h3>
+                        <p class="text-slate-400 mb-2">Gunakan tombol sampah pada baris tabel untuk menghapus item tertentu. Sistem akan menampilkan **pop-up konfirmasi** sebelum item dihapus.</p>
+                        <span class="inline-flex items-center gap-1 text-[11px] text-rose-400 font-medium bg-rose-950/60 px-2 py-1 rounded border border-rose-800/50">
+                            <i data-lucide="bell" class="w-3.5 h-3.5"></i> Notifikasi merah akan tayang selama 2 detik di sudut kanan bawah.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs shrink-0 border border-purple-500/30">
+                        4
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm mb-1">Cetak Laporan & Bon Pembelian (BPB)</h3>
+                        <p class="text-slate-400">Gunakan tombol <strong>Cetak Bon BPB Saja</strong> untuk mencetak ringkasan rekomendasi kaleng lem @400g, atau <strong>Cetak Laporan Keseluruhan</strong> untuk melampirkan seluruh rincian material.</p>
+                    </div>
+                </div>
+
             </div>
-            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
-                <h3 class="text-md font-bold text-purple-400 mb-2 flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> 3. Mencetak Laporan</h3>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Klik <strong>Cetak Bon BPB Saja</strong> untuk mencetak rekomendasi pembelian lem.</li>
-                    <li>Klik <strong>Cetak Laporan Keseluruhan</strong> untuk mencetak semua data.</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
-                <h3 class="text-md font-bold text-rose-400 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 4. Reset Data</h3>
-                <p>Klik tombol <strong>Reset Data</strong> akan muncul konfirmasi. Jika Anda yakin, klik "Ya, Reset" untuk menghapus semua data entry.</p>
+
+            <!-- Modal Footer -->
+            <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex justify-end">
+                <button onclick="closeGuideModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs transition">
+                    Saya Mengerti
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-    <!-- Modal Konfirmasi Reset -->
-    <div id="resetConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
-            <div class="p-5 border-b border-slate-800 bg-slate-950 flex items-center gap-3">
-                <div class="bg-rose-500/20 p-2 rounded-lg text-rose-400">
+    <!-- MODAL 2: Pop-Up Konfirmasi Hapus Single Item -->
+    <div id="deleteItemConfirmModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden modal-content scale-95 opacity-0 transition-all duration-250">
+            <div class="p-5 border-b border-slate-800 bg-slate-950/80 flex items-center gap-3">
+                <div class="bg-rose-500/20 p-2.5 rounded-xl text-rose-400 border border-rose-500/30">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Konfirmasi Hapus Data</h3>
+                    <p class="text-[11px] text-slate-400">Tindakan ini memerlukan persetujuan Anda</p>
+                </div>
+            </div>
+            <div class="p-5 text-xs text-slate-300">
+                <p>Apakah Anda yakin ingin menghapus item material ini dari daftar perhitungan?</p>
+            </div>
+            <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex justify-end gap-2">
+                <button onclick="closeDeleteItemModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                    Batal
+                </button>
+                <button onclick="executeDeleteItem()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-lg shadow-rose-600/20">
+                    Ya, Hapus Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Pop-Up Konfirmasi Reset All Data -->
+    <div id="resetConfirmModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden modal-content scale-95 opacity-0 transition-all duration-250">
+            <div class="p-5 border-b border-slate-800 bg-slate-950/80 flex items-center gap-3">
+                <div class="bg-amber-500/20 p-2.5 rounded-xl text-amber-400 border border-amber-500/30">
                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-base font-bold text-white">Konfirmasi Reset</h2>
-            </div>
-            <div class="p-6">
-                <p class="text-sm text-slate-300 mb-4">Apakah Anda yakin ingin menghapus seluruh data entry? Tindakan ini tidak dapat dibatalkan.</p>
-                <div class="flex justify-end gap-2">
-                    <button onclick="closeResetConfirm()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">Batal</button>
-                    <button onclick="doReset()" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-lg shadow-rose-600/20">Ya, Reset</button>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Konfirmasi Reset Total</h3>
+                    <p class="text-[11px] text-slate-400">Kosongkan seluruh tabel input</p>
                 </div>
+            </div>
+            <div class="p-5 text-xs text-slate-300">
+                <p>Apakah Anda yakin ingin menghapus <strong>seluruh data entry</strong> yang ada? Seluruh tabel material akan dikosongkan kembali.</p>
+            </div>
+            <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex justify-end gap-2">
+                <button onclick="closeResetConfirmModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                    Batal
+                </button>
+                <button onclick="executeResetAll()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-bold transition shadow-lg shadow-amber-600/20">
+                    Ya, Reset Semua
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- TOAST CONTAINER (Bottom Right - Fixed) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-2.5 pointer-events-none max-w-xs w-full">
+        <!-- Toast items appended dynamically via JS -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto no-print">
+        Sugeng Deny Ramdani 2026 • Kalkulator Kebutuhan Lem PVC Interaktif
+    </footer>
+
     <script>
         // Database Gram Lem per Sambungan (Joint) Berdasarkan Ukuran & Metode
-        // Nilai dikonversi ke gram per 1 sambungan
         const GLUE_PARAMS = {
-            // Metode 1: RUGlue (1 Kaleng 400g / Jumlah Sambungan)
             ruglue: {
-                0.5: 400 / 142,
-                0.75: 400 / 108,
-                1: 400 / 77,
-                1.25: 400 / 48,
-                1.5: 400 / 38,
-                2: 400 / 25,
-                2.5: 400 / 16,
-                3: 400 / 12,
-                4: 400 / 8,
-                5: 400 / 5,
-                6: 400 / 4,
-                8: 400 / 2,
-                10: 400 / 2,
-                12: 400 / 1
+                0.5: 400 / 142, 0.75: 400 / 108, 1: 400 / 77, 1.25: 400 / 48, 1.5: 400 / 38,
+                2: 400 / 25, 2.5: 400 / 16, 3: 400 / 12, 4: 400 / 8, 5: 400 / 5,
+                6: 400 / 4, 8: 400 / 2, 10: 400 / 2, 12: 400 / 1
             },
-            // Metode 2: Quart Solvent Cement (~870 gram / Jumlah Sambungan)
             quart: {
-                0.5: 870 / 300,
-                0.75: 870 / 200,
-                1: 870 / 125,
-                1.25: 870 / 90,
-                1.5: 870 / 90,
-                2: 870 / 60,
-                2.5: 870 / 50,
-                3: 870 / 40,
-                4: 870 / 30,
-                5: 870 / 18,
-                6: 870 / 10,
-                8: 870 / 5,
-                10: 870 / 2.5,
-                12: 870 / 1.5
+                0.5: 870 / 300, 0.75: 870 / 200, 1: 870 / 125, 1.25: 870 / 90, 1.5: 870 / 90,
+                2: 870 / 60, 2.5: 870 / 50, 3: 870 / 40, 4: 870 / 30, 5: 870 / 18,
+                6: 870 / 10, 8: 870 / 5, 10: 870 / 2.5, 12: 870 / 1.5
             },
-            // Metode 3: Perplexity AI (Gram teoritis per socket)
             perplexity: {
-                0.5: 5.8,
-                0.75: 7.7,
-                1: 7.7,
-                1.25: 11.5,
-                1.5: 11.5,
-                2: 11.5,
-                2.5: 15.3,
-                3: 15.3,
-                4: 23.0,
-                5: 38.3,
-                6: 38.3,
-                8: 70.0,
-                10: 110.0,
-                12: 150.0
+                0.5: 5.8, 0.75: 7.7, 1: 7.7, 1.25: 11.5, 1.5: 11.5,
+                2: 11.5, 2.5: 15.3, 3: 15.3, 4: 23.0, 5: 38.3,
+                6: 38.3, 8: 70.0, 10: 110.0, 12: 150.0
             },
-            // Metode 4: Tim Project (5g x Inci Pipa)
             tim_project: {
-                0.5: 0.5 * 5,
-                0.75: 0.75 * 5,
-                1: 1 * 5,
-                1.25: 1.25 * 5,
-                1.5: 1.5 * 5,
-                2: 2 * 5,
-                2.5: 2.5 * 5,
-                3: 3 * 5,
-                4: 4 * 5,
-                5: 5 * 5,
-                6: 6 * 5,
-                8: 8 * 5,
-                10: 10 * 5,
-                12: 12 * 5
+                0.5: 0.5 * 5, 0.75: 0.75 * 5, 1: 1 * 5, 1.25: 1.25 * 5, 1.5: 1.5 * 5,
+                2: 2 * 5, 2.5: 2.5 * 5, 3: 3 * 5, 4: 4 * 5, 5: 5 * 5,
+                6: 6 * 5, 8: 8 * 5, 10: 10 * 5, 12: 12 * 5
             }
         };
 
-        // State Daftar Material
+        // State Array Material
         let materialList = [
-            { id: 1, category: 'pipa', itemDesc: 'Pipa PVC Utama', size: 2, qty: 15, jointsPerUnit: 1, totalJoints: 15 },
+            { id: 1, category: 'pipa', itemDesc: 'Pipa PVC (Batang)', size: 2, qty: 15, jointsPerUnit: 1, totalJoints: 15 },
             { id: 2, category: 'fitting', itemDesc: 'Elbow / Knee 90°', size: 2, qty: 10, jointsPerUnit: 2, totalJoints: 20 },
             { id: 3, category: 'fitting', itemDesc: 'Tee Equal', size: 2, qty: 5, jointsPerUnit: 3, totalJoints: 15 }
         ];
+
+        let pendingDeleteId = null;
+
+        /**
+         * Function Toast Notification Pop-Up (Sudut Kanan Bawah - 2 Detik)
+         * @param {string} message - Pesan notifikasi
+         * @param {string} type - 'success' | 'danger' | 'info'
+         */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let borderClass = 'border-emerald-500/50 bg-slate-900/95 text-emerald-300';
+            let iconName = 'check-circle-2';
+            let iconBg = 'bg-emerald-500/20 text-emerald-400';
+
+            if (type === 'danger') {
+                borderClass = 'border-rose-500/50 bg-slate-900/95 text-rose-300';
+                iconName = 'trash-2';
+                iconBg = 'bg-rose-500/20 text-rose-400';
+            } else if (type === 'info') {
+                borderClass = 'border-cyan-500/50 bg-slate-900/95 text-cyan-300';
+                iconName = 'info';
+                iconBg = 'bg-cyan-500/20 text-cyan-400';
+            }
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-3.5 py-3 rounded-xl border ${borderClass} shadow-2xl backdrop-blur-md transform transition-all duration-300 translate-y-4 opacity-0 text-xs font-semibold`;
+            
+            toast.innerHTML = `
+                <div class="p-1.5 rounded-lg ${iconBg} shrink-0">
+                    <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                </div>
+                <span class="flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Trigger Animation In
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+
+            // Auto Remove Toast After Exactly 2 Seconds (2000ms)
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 2000);
+        }
 
         function onCategoryChange() {
             const cat = document.getElementById('selectCategory').value;
@@ -460,7 +535,7 @@
 
             if (category === 'pipa') {
                 itemDesc = "Pipa PVC (Batang)";
-                jointsPerUnit = 1; // Asumsi 1 socket/sambungan per batang pipa
+                jointsPerUnit = 1;
             } else {
                 const fitSelect = document.getElementById('selectFittingType');
                 itemDesc = fitSelect.value;
@@ -480,12 +555,69 @@
             materialList.push(newItem);
             renderMaterialTable();
             calculateSummary();
+
+            // POP-UP NOTIFIKASI: Data berhasil di entry
+            showToast("Data berhasil di entry", "success");
         }
 
-        function deleteMaterialItem(id) {
-            materialList = materialList.filter(item => item.id !== id);
+        // Request Hapus Single Item -> Tampilkan Modal Konfirmasi
+        function requestDeleteItem(id) {
+            pendingDeleteId = id;
+            const modal = document.getElementById('deleteItemConfirmModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeDeleteItemModal() {
+            const modal = document.getElementById('deleteItemConfirmModal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                pendingDeleteId = null;
+            }, 200);
+        }
+
+        function executeDeleteItem() {
+            if (pendingDeleteId !== null) {
+                materialList = materialList.filter(item => item.id !== pendingDeleteId);
+                renderMaterialTable();
+                calculateSummary();
+                closeDeleteItemModal();
+
+                // POP-UP NOTIFIKASI: Data entry berhasil dihapus (Merah)
+                showToast("Data entry berhasil di hapus", "danger");
+            }
+        }
+
+        // Request Reset Semua -> Tampilkan Modal Konfirmasi Reset
+        function confirmResetAll() {
+            const modal = document.getElementById('resetConfirmModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeResetConfirmModal() {
+            const modal = document.getElementById('resetConfirmModal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function executeResetAll() {
+            materialList = [];
             renderMaterialTable();
             calculateSummary();
+            closeResetConfirmModal();
+
+            // POP-UP NOTIFIKASI: Notifikasi reset
+            showToast("Seluruh data entry telah dibersihkan", "info");
         }
 
         function renderMaterialTable() {
@@ -493,31 +625,41 @@
             tbody.innerHTML = '';
             let grandTotalJoints = 0;
 
-            materialList.forEach((item, idx) => {
-                grandTotalJoints += item.totalJoints;
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/40 transition";
-
-                const catBadge = (item.category === 'pipa')
-                    ? '<span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">Pipa</span>'
-                    : '<span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">Fitting</span>';
-
-                tr.innerHTML = `
-                    <td class="py-2.5 px-2 text-slate-400 text-center">${idx + 1}</td>
-                    <td class="py-2.5 px-2">${catBadge}</td>
-                    <td class="py-2.5 px-2 font-medium text-white">${item.itemDesc}</td>
-                    <td class="py-2.5 px-2 text-center text-cyan-300 font-bold">${item.size}"</td>
-                    <td class="py-2.5 px-2 text-center text-slate-200">${item.qty} pcs</td>
-                    <td class="py-2.5 px-2 text-center text-slate-400">${item.jointsPerUnit} samb/pcs</td>
-                    <td class="py-2.5 px-2 text-right font-bold text-cyan-400">${item.totalJoints}</td>
-                    <td class="py-2.5 px-2 text-center no-print">
-                        <button onclick="deleteMaterialItem(${item.id})" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition" title="Hapus">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
+            if (materialList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-6 text-center text-slate-500 font-normal">
+                            Belum ada material yang ditambahkan. Silakan isi form di sebelah kiri.
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            } else {
+                materialList.forEach((item, idx) => {
+                    grandTotalJoints += item.totalJoints;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition";
+
+                    const catBadge = (item.category === 'pipa')
+                        ? '<span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20 font-sans">Pipa</span>'
+                        : '<span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20 font-sans">Fitting</span>';
+
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-2 text-slate-400 text-center">${idx + 1}</td>
+                        <td class="py-2.5 px-2">${catBadge}</td>
+                        <td class="py-2.5 px-2 font-medium text-white">${item.itemDesc}</td>
+                        <td class="py-2.5 px-2 text-center text-cyan-300 font-bold">${item.size}"</td>
+                        <td class="py-2.5 px-2 text-center text-slate-200">${item.qty} pcs</td>
+                        <td class="py-2.5 px-2 text-center text-slate-400">${item.jointsPerUnit} samb/pcs</td>
+                        <td class="py-2.5 px-2 text-right font-bold text-cyan-400">${item.totalJoints}</td>
+                        <td class="py-2.5 px-2 text-center no-print">
+                            <button onclick="requestDeleteItem(${item.id})" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition active:scale-90" title="Hapus Item">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
             document.getElementById('totalJointsVal').textContent = `${grandTotalJoints} Sambungan`;
             document.getElementById('badgeItemCount').textContent = `${materialList.length} Item`;
@@ -565,55 +707,22 @@
             lucide.createIcons();
         }
 
-        function resetAllData() {
-            materialList = [];
-            renderMaterialTable();
-            calculateSummary();
+        function openGuideModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 10);
         }
-        // Modal Panduan
-function openGuideModal() {
-    document.getElementById('guideModal').classList.remove('hidden');
-}
-function closeGuideModal() {
-    document.getElementById('guideModal').classList.add('hidden');
-}
 
-// Modal Konfirmasi Reset
-function confirmReset() {
-    document.getElementById('resetConfirmModal').classList.remove('hidden');
-}
-function closeResetConfirm() {
-    document.getElementById('resetConfirmModal').classList.add('hidden');
-}
-function doReset() {
-    // Reset data sesuai fungsi asli
-    resetAllData();
-    closeResetConfirm();
-}
-
-    // Tutup modal jika klik di luar area modal
-    document.addEventListener('DOMContentLoaded', () => {
-        const guideModal = document.getElementById('guideModal');
-        const resetModal = document.getElementById('resetConfirmModal');
-        
-        guideModal.addEventListener('click', (e) => {
-            if (e.target === guideModal) closeGuideModal();
-        });
-        resetModal.addEventListener('click', (e) => {
-            if (e.target === resetModal) closeResetConfirm();
-        });
-        
-        // Tombol Esc untuk menutup
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (!guideModal.classList.contains('hidden')) closeGuideModal();
-                if (!resetModal.classList.contains('hidden')) closeResetConfirm();
-            }
-        });
-        
-        // Inisialisasi ulang ikon lucide
-        lucide.createIcons();
-    });
+        function closeGuideModal() {
+            const modal = document.getElementById('guideModal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
 
         function printBPBOnly() {
             document.body.classList.add('print-bpb-only-mode');
@@ -626,10 +735,20 @@ function doReset() {
             window.print();
         }
 
+        // Window Event Listeners & Initial Load
         window.addEventListener('DOMContentLoaded', () => {
             onCategoryChange();
             renderMaterialTable();
             calculateSummary();
+
+            // ESC Key Handler untuk menutup Modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeGuideModal();
+                    closeDeleteItemModal();
+                    closeResetConfirmModal();
+                }
+            });
         });
     </script>
 </body>
