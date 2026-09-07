@@ -30,6 +30,42 @@
             background: #475569;
         }
 
+        /* Keyframes Animation for Toast & Modals */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-slide-in {
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-out {
+            animation: fadeOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-modal-in {
+            animation: fadeInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         /* PRINT STYLES FOR CRISP PDF / PRINTING */
         @media print {
             body {
@@ -75,17 +111,10 @@
             body.print-bpb-only-mode #materialListSection {
                 display: none !important;
             }
-            <!-- Contoh pembungkus bagian input di index.html Anda -->
-            <div class="no-print space-y-4 mb-6">
-            <!-- Semua elemen form, dropdown kemasan, dan tombol pengisian Anda ada di sini -->
-            </div>
-            <div class="no-print">
-            <!-- Masukkan seluruh form input, tombol Reset, dan pilihan parameter Anda di sini -->
-            </div> 
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
 
     <!-- HEADER KHUSUS CETAK (TIDAK MUNCUL DI HALAMAN UTAMA) -->
     <div class="hidden print:block mb-6 border-b-2 border-blue-600 pb-3">
@@ -101,7 +130,7 @@
         </div>
     </div>
 
-    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6 no-print">
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400">
@@ -114,6 +143,10 @@
             </div>
             
             <div class="flex items-center gap-2">
+                <!-- Tombol Panduan Penggunaan -->
+                <button onclick="openGuideModal()" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-semibold flex items-center gap-1.5 transition border border-blue-500/30">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-blue-400"></i> Panduan Penggunaan
+                </button>
                 <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
                     <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset Awal
                 </button>
@@ -190,7 +223,7 @@
                     <p class="text-[10px] text-slate-400 mt-1">Estimasi tambahan cadangan cat untuk sisa wadah & ceceran.</p>
                 </div>
 
-                <!-- Spare Thinner Slider (NEW REVISION) -->
+                <!-- Spare Thinner Slider -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="text-xs font-medium text-slate-300 flex items-center gap-1">
@@ -399,7 +432,116 @@
         </section>
 
     </main>
-     <!-- SIGNATURE KHUSUS CETAK -->
+
+    <!-- POP-UP 1: PANDUAN PENGGUNAAN MODAL -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col animate-modal-in">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-blue-500/20 border border-blue-500/30 rounded-xl text-blue-400">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Panduan Penggunaan Aplikasi</h3>
+                        <p class="text-xs text-slate-400">Tata cara kalkulasi kebutuhan cat, thinner, & pembulatan BPB</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="overflow-y-auto space-y-4 text-xs text-slate-300 pr-1">
+                <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-400 shrink-0 mt-0.5"></i>
+                    <p class="text-blue-200 leading-relaxed">
+                        Aplikasi ini mempermudah estimasi luas permukaan pipa / support baja, serta secara otomatis menghitung jumlah kaleng / pail cat & thinner yang direkomendasikan untuk Bon Permintaan Barang (BPB).
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
+                        <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">1</div>
+                        <div>
+                            <h4 class="font-bold text-white mb-0.5">Pengaturan Rasio & Kemasan</h4>
+                            <p class="text-slate-400 leading-relaxed">
+                                Tentukan metode aplikasi (Kuas/Roller/Spray) untuk menetapkan persentase pengenceran thinner. Atur jenis kemasan (Pail/Kaleng) serta slider spare cadangan cat & thinner (pembersih kuas/ceceran).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
+                        <div class="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center shrink-0 border border-blue-500/30">2</div>
+                        <div>
+                            <h4 class="font-bold text-white mb-0.5">Form Entry Material & Spesifikasi Cat</h4>
+                            <p class="text-slate-400 leading-relaxed">
+                                Pilih profil material (Pipa Galvanis, UNP, Siku, atau Luas Custom), masukkan dimensi/jumlah, lalu pilih jenis cat (Finish atau Zinchromate Primer), merk, serta kode warna. Tekan tombol <strong class="text-blue-300">+ Tambahkan ke Daftar Material</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
+                        <div class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center shrink-0 border border-amber-500/30">3</div>
+                        <div>
+                            <h4 class="font-bold text-white mb-0.5">Daftar Entry & Hapus Data</h4>
+                            <p class="text-slate-400 leading-relaxed">
+                                Seluruh material yang dimasukkan akan terdaftar pada tabel. Anda dapat menghapus data tertentu dengan menekan tombol sampah (sistem akan menampilkan konfirmasi sebelum menghapus).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
+                        <div class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center shrink-0 border border-cyan-500/30">4</div>
+                        <div>
+                            <h4 class="font-bold text-white mb-0.5">Rekomendasi BPB & Cetak Laporan</h4>
+                            <p class="text-slate-400 leading-relaxed">
+                                Tabel Rekomendasi BPB akan mengelompokkan cat berdasarkan merk/warna, menghitung kebutuhan netto & gross, thinner campuran & spare, serta pembulatan kemasan. Gunakan tombol cetak untuk mencetak BPB saja atau laporan penuh.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeGuideModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs transition">
+                    Saya Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POP-UP 2: KONFIRMASI HAPUS DATA MODAL -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-center animate-modal-in">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            
+            <div>
+                <h3 class="text-sm font-bold text-white">Konfirmasi Hapus Data</h3>
+                <p class="text-xs text-slate-400 mt-1">Apakah Anda yakin ingin menghapus data entry material ini dari tabel?</p>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button onclick="closeDeleteModal()" class="w-1/2 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition border border-slate-700">
+                    Batal
+                </button>
+                <button onclick="confirmDeleteMaterialItem()" class="w-1/2 py-2 px-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl text-xs transition shadow-lg shadow-rose-600/20">
+                    Hapus Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER (POJOK KANAN BAWAH) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none no-print">
+        <!-- Dynamic Toast Notifications inserted by JS -->
+    </div>
+
+    <!-- SIGNATURE KHUSUS CETAK -->
     <div class="hidden print:grid grid-cols-2 gap-16 mt-16 pt-4 text-xs text-center font-sans">
         <div class="flex flex-col items-center">
             <p class="mb-20 text-slate-800">Dibuat Oleh,</p>
@@ -548,6 +690,9 @@
                 colorCode: '141-113 Green (Zinc Chromate Primer)'
             }
         ];
+
+        // State pending delete item id
+        let itemToDeleteId = null;
 
         // Packaging Definitions
         const PACKAGING_SPECS = {
@@ -796,13 +941,78 @@
             materialList.push(newItem);
             renderMaterialTable();
             calculateSummary();
+
+            // NOTIFIKASI TOAST: Data berhasil di entry
+            showToast("Data berhasil di entry", "success");
         }
 
-        // Delete item from table
+        // Toast Notification Generator (Bottom-Right, 2 Seconds Duration)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const isSuccess = type === 'success';
+            const bgBorderClass = isSuccess 
+                ? 'bg-slate-900 border-emerald-500/40 text-emerald-300' 
+                : 'bg-slate-900 border-rose-500/40 text-rose-300';
+            const iconName = isSuccess ? 'check-circle-2' : 'trash-2';
+            const badgeBg = isSuccess ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400';
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-2xl text-xs font-semibold backdrop-blur-md pointer-events-auto animate-slide-in ${bgBorderClass}`;
+            toast.innerHTML = `
+                <div class="p-1 rounded-lg ${badgeBg}">
+                    <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                </div>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Auto Dismiss after 2 seconds (2000ms)
+            setTimeout(() => {
+                toast.classList.remove('animate-slide-in');
+                toast.classList.add('animate-slide-out');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 2000);
+        }
+
+        // Open & Close Guide Modal
+        function openGuideModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeGuideModal() {
+            document.getElementById('guideModal').classList.add('hidden');
+        }
+
+        // Trigger Deletion Confirmation Pop-up
         function deleteMaterialItem(id) {
-            materialList = materialList.filter(item => item.id !== id);
-            renderMaterialTable();
-            calculateSummary();
+            itemToDeleteId = id;
+            const modal = document.getElementById('deleteModal');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Close Delete Confirmation Modal
+        function closeDeleteModal() {
+            itemToDeleteId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        // Confirm Delete Execution
+        function confirmDeleteMaterialItem() {
+            if (itemToDeleteId !== null) {
+                materialList = materialList.filter(item => item.id !== itemToDeleteId);
+                renderMaterialTable();
+                calculateSummary();
+                closeDeleteModal();
+                // NOTIFIKASI TOAST: Data entry berhasil di hapus
+                showToast("Data entry berhasil dihapus", "delete");
+            }
         }
 
         // Render Table Rows
@@ -913,11 +1123,8 @@
             });
 
             /* 
-              REVISED THINNER CALCULATION FORMULA:
+              THINNER CALCULATION FORMULA:
               1 Cat + (thinnerMixRatio x Cat) + (spareThinnerPct x Cat)
-              - Mix Thinner (Application) = totalGrossPaintAcrossAll * thinnerMixRatio (e.g. 0.5 = 50%)
-              - Spare Thinner (Cleaning/Spills) = totalGrossPaintAcrossAll * (spareThinnerPct / 100) (e.g. 0.2 = 20%)
-              - Total Thinner Volume = Mix Thinner + Spare Thinner
             */
             const mixThinnerLt = totalGrossPaintAcrossAll * thinnerMixRatio;
             const spareThinnerLt = totalGrossPaintAcrossAll * (spareThinnerPct / 100);
@@ -956,58 +1163,30 @@
             materialList = [];
             renderMaterialTable();
             calculateSummary();
+            showToast("Seluruh data telah di-reset", "delete");
         }
 
-       // Print Handler 1: BPB Only
+        // Cetak hanya Rekomendasi BPB
         function printBPBOnly() {
-        window.print();
-        }       
-
-// Print Handler 2: Full Report (BPB + Material Entries)
-        function printFullReport() {
-            window.print();
-        }
-
-        // DOM Initialization
-        window.addEventListener('DOMContentLoaded', () => {
-            onMaterialTypeChange();
-            onPaintTypeChange();
-            onThinnerRatioChange();
-            renderMaterialTable();
-            calculateSummary();
-        });
-                // ... (semua kode sebelumnya tetap sama, hanya ganti bagian print handler di bawah)
-
-        // ============================================================
-        // PRINT HANDLERS - DIPERBAIKI
-        // ============================================================
-
-        // Cetak hanya Rekomendasi BPB (sembunyikan daftar material)
-        function printBPBOnly() {
-            // Tambahkan class ke body agar CSS menyembunyikan #materialListSection
             document.body.classList.add('print-bpb-only-mode');
-            // Jalankan print
             window.print();
-            // Hapus class setelah print selesai (fallback jika afterprint tidak terpicu)
             setTimeout(function() {
                 document.body.classList.remove('print-bpb-only-mode');
             }, 1000);
         }
 
-        // Cetak Laporan Keseluruhan (material + BPB)
+        // Cetak Laporan Keseluruhan
         function printFullReport() {
-            // Pastikan class BPB-only tidak aktif
             document.body.classList.remove('print-bpb-only-mode');
-            // Jalankan print
             window.print();
         }
 
-        // Bersihkan class setelah print dialog ditutup (event global)
+        // Bersihkan class setelah print dialog ditutup
         window.addEventListener('afterprint', function() {
             document.body.classList.remove('print-bpb-only-mode');
         });
 
-        // DOM Initialization (tetap sama)
+        // DOM Initialization
         window.addEventListener('DOMContentLoaded', () => {
             onMaterialTypeChange();
             onPaintTypeChange();
