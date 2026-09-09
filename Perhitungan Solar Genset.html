@@ -191,7 +191,7 @@
                     <div id="method3Card" class="method-card rounded-xl p-3 bg-slate-800/30 border-slate-700/50" data-method="3">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-xs font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">#3</span>
-                            <span class="text-xs font-semibold text-white">Wikipedia</span>
+                            <span class="text-xs font-semibold text-white">Data Internal</span>
                         </div>
                         <p class="text-[10px] text-slate-400 leading-relaxed">Data konsumsi spesifik (g/Kw/hr) + berat jenis bahan bakar.</p>
                         <div class="mt-1.5 text-[10px] text-emerald-300/70 font-mono">g/Kw/hr ÷ BJ</div>
@@ -219,8 +219,8 @@
                         <div class="flex items-start gap-2">
                             <i data-lucide="info" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
                             <div>
-                                <span class="font-semibold text-white">Cara 3 – Wikipedia :</span>
-                                <span class="text-slate-400">Menggunakan data konsumsi spesifik dari Wikipedia (194 g/Kw/hr untuk solar, 250 g/Kw/hr untuk bensin) dengan konversi berat jenis. Paling akurat untuk membandingkan jenis bahan bakar.</span>
+                                <span class="font-semibold text-white">Cara 3 – Data Internal :</span>
+                                <span class="text-slate-400">Menggunakan data konsumsi spesifik dari Data Internal (194 g/Kw/hr untuk solar, 250 g/Kw/hr untuk bensin) dengan konversi berat jenis. Paling akurat untuk membandingkan jenis bahan bakar.</span>
                             </div>
                         </div>
                     </div>
@@ -242,7 +242,7 @@
                                     </li>
                                     <li class="flex items-start gap-1.5">
                                         <span class="text-amber-400 font-bold">⚠</span>
-                                        <span><strong class="text-white">Metode 3 (Wikipedia)</strong> menghasilkan angka konsumsi paling tinggi (overestimate) karena mengabaikan faktor daya genset. Cocok untuk <span class="text-amber-300">anggaran worst-case</span> atau jika Anda ingin memastikan tidak kekurangan BBM, tetapi tidak untuk estimasi aktual.</span>
+                                        <span><strong class="text-white">Metode 3 (Data Internal)</strong> menghasilkan angka konsumsi paling tinggi (overestimate) karena mengabaikan faktor daya genset. Cocok untuk <span class="text-amber-300">anggaran worst-case</span> atau jika Anda ingin memastikan tidak kekurangan BBM, tetapi tidak untuk estimasi aktual.</span>
                                     </li>
                                     <li class="flex items-start gap-1.5 pt-1 border-t border-amber-500/20 mt-1">
                                         <span class="text-yellow-300 font-bold">★</span>
@@ -394,7 +394,7 @@
                     </div>
                     <div class="bg-slate-950/60 rounded-xl border border-slate-800/80 p-2.5 text-center">
                         <span class="text-emerald-400 font-bold block">Cara 3</span>
-                        <span class="text-slate-400">Wikipedia</span>
+                        <span class="text-slate-400">Data Internal</span>
                         <span id="compare3" class="text-white font-mono block mt-0.5">0.00 L</span>
                     </div>
                 </div>
@@ -467,7 +467,7 @@
                 const labels = {
                     1: 'Cara 1 · Beban ' + state.loadFactor + '%',
                     2: 'Cara 2 · Faktor Tetap 0,21',
-                    3: 'Cara 3 · Wikipedia (' + (state.fuelType === 'diesel' ? 'Solar' : 'Bensin') + ')'
+                    3: 'Cara 3 · Data Internal (' + (state.fuelType === 'diesel' ? 'Solar' : 'Bensin') + ')'
                 };
                 elMethodLabel.textContent = labels[state.method];
 
