@@ -180,7 +180,8 @@
                     • 1 Batang struktur standar dihitung 6 meter (pembulatan ke atas).<br>
                     • U-Bolt: tebal mengacu ukuran nominal pipa, bukan OD aktual (s/d 1"→6mm, 1 1/4"-4"→8mm, 5"-12"→10mm, 14"-20"→12mm, ≥24"→16mm). Setiap 1 set U-Bolt sudah termasuk 2 Mur & 2 Ring, ditampilkan dalam satu baris ringkas.<br>
                     • Saddle Steam: 1 batang IWF 300 (300mm) dibelah jadi 2 saddle (150mm/pcs); pipa bantalan black steel dibelah 1/3 diameter sepanjang 300mm/pcs, sesuai ukuran pipa yang disupport.<br>
-                    • PU Block mengikuti tabel katalog: dipisah Pipa Besi vs Pipa PPR, dengan pilihan diameter & tebal insulasi sesuai stok yang tersedia.
+                    • PU Block mengikuti tabel katalog: dipisah Pipa Besi vs Pipa PPR, dengan pilihan diameter & tebal insulasi sesuai stok yang tersedia.<br>
+                    • <strong>Pipa Isolasi Ricwill:</strong> U-Bolt dikonversi ke ukuran pipa GI ekuivalen (diameter luar pipa + 2× tebal isolasi → dibulatkan ke ukuran pipa standar terdekat) sehingga otomatis <em>merge</em> dengan U-Bolt GI ukuran sama. Bantalan pipa black steel (dibelah 3, panjang 150mm per titik) mengikuti ukuran pipa ekuivalen tersebut. Penopang memakai Siku 40×40 panjang 150mm × 2 (kiri-kanan), tanpa IWF.
                 </div>
             </div>
  
@@ -272,6 +273,7 @@
                             <li><strong class="text-amber-300">Pipa dgn U-Bolt:</strong> Pilih ukuran pipa. Otomatis menghitung ketebalan U-Bolt standar nominal dan menyertakan 2 Mur + 2 Ring secara otomatis.</li>
                             <li><strong class="text-amber-300">Pipa dgn Saddle Steam:</strong> Otomatis mengkalkulasi kebutuhan dudukan IWF 300 & bantalan pipa black steel setebal 1/3 OD pipa.</li>
                             <li><strong class="text-amber-300">Pipa dgn PU Block:</strong> Pilih material pipa (Pipa Besi vs Pipa PPR), Diameter, dan Tebal Insulasi sesuai katalog resmi.</li>
+                            <li><strong class="text-amber-300">Pipa Isolasi Ricwill:</strong> Pilih ukuran pipa & tebal isolasi (25/50/75mm). U-Bolt otomatis dikonversi ke ukuran pipa GI ekuivalen (sehingga bisa merge dengan U-Bolt GI biasa), plus bantalan pipa black steel 150mm dan Siku 40×40 2×150mm per titik.</li>
                         </ul>
                     </div>
                 </div>
@@ -406,6 +408,21 @@
             if (dn <= 500) return 12;  // 14" s/d 20"
             return 16;                 // 24" ke atas
         }
+
+        // ================= Logika Ricwill =================
+        // Hitung diameter luar pipa + 2x tebal isolasi (hasil = diameter luar efektif setelah isolasi)
+        function getRicwillOuterDia(pipeSize, insulation) {
+            const od = PIPE_OD[pipeSize] || 0;
+            return od + (2 * (Number(insulation) || 0));
+        }
+
+        // Cari ukuran pipa GI standar terdekat dari sebuah diameter luar (OD).
+        // Dipakai untuk konversi otomatis: Ricwill (2" + 50mm) -> OD 160.3mm -> pipa 6".
+        function getClosestPipeSizeByOD(od) {
+            return PIPE_SIZES.reduce((best, size) => {
+                return Math.abs(PIPE_OD[size] - od) < Math.abs(PIPE_OD[best] - od) ? size : best;
+            }, PIPE_SIZES[0]);
+        }
  
         // ================= Manajemen Data =================
         function generateId() { return Math.random().toString(36).substr(2, 9); }
@@ -444,7 +461,7 @@
         function addAccessory(supportId) {
             const support = supports.find(s => s.id === supportId);
             if (support) {
-                support.accessories.push({ id: generateId(), type: 'ubolt', pipeSize: '2"', qty: 1 });
+                support.accessories.push({ id: generateId(), type: 'ubolt', pipeSize: '2"', qty: 1, ricwillThk: 50 });
                 renderUI();
             }
         }
@@ -492,6 +509,9 @@
                     const dias = sortedDia('besi');
                     acc.dia = dias[0];
                     acc.thk = PU_BLOCK_TABLE.besi[dias[0]][0];
+                } else if (value === 'ricwill') {
+                    acc.pipeSize = acc.pipeSize || '2"';
+                    acc.ricwillThk = acc.ricwillThk || 50;
                 } else {
                     acc.pipeSize = '2"';
                 }
@@ -499,6 +519,7 @@
                 return;
             }
             if (field === 'pipeSize') { acc.pipeSize = value; calculateSummary(); return; }
+            if (field === 'ricwillThk') { acc.ricwillThk = Number(value); calculateSummary(); return; }
             if (field === 'material') {
                 acc.material = value;
                 const dias = sortedDia(value);
@@ -597,6 +618,7 @@
                         <option value="ubolt" ${acc.type === 'ubolt' ? 'selected' : ''}>Pipa dgn U-Bolt</option>
                         <option value="saddle" ${acc.type === 'saddle' ? 'selected' : ''}>Pipa dgn Saddle Steam</option>
                         <option value="publock" ${acc.type === 'publock' ? 'selected' : ''}>Pipa dgn PU Block</option>
+                        <option value="ricwill" ${acc.type === 'ricwill' ? 'selected' : ''}>Pipa Isolasi Ricwill</option>
                     `;
  
                     html += `<div class="flex flex-wrap items-center gap-2 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">`;
@@ -604,11 +626,19 @@
                                 ${accTypeOptions}
                             </select>`;
  
-                    if (acc.type === 'ubolt' || acc.type === 'saddle') {
+                    if (acc.type === 'ubolt' || acc.type === 'saddle' || acc.type === 'ricwill') {
                         const pipeSizeOptions = PIPE_SIZES.map(s => `<option value='${s}' ${acc.pipeSize === s ? 'selected' : ''}>Pipa ${s}</option>`).join('');
                         html += `<select onchange="updateAccessoryData('${support.id}', '${acc.id}', 'pipeSize', this.value)" class="w-28 bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500 font-mono">
                                 ${pipeSizeOptions}
                             </select>`;
+
+                        if (acc.type === 'ricwill') {
+                            const ricwillThk = Number(acc.ricwillThk) || 50;
+                            const thkOptions = [25, 50, 75].map(t => `<option value='${t}' ${ricwillThk === t ? 'selected' : ''}>Isolasi ${t} mm</option>`).join('');
+                            html += `<select onchange="updateAccessoryData('${support.id}', '${acc.id}', 'ricwillThk', this.value)" class="w-28 bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500 font-mono">
+                                ${thkOptions}
+                            </select>`;
+                        }
                     } else {
                         const matOptions = Object.keys(PU_MATERIAL_LABEL).map(m => `<option value='${m}' ${acc.material === m ? 'selected' : ''}>${PU_MATERIAL_LABEL[m]}</option>`).join('');
                         const diaOptions = sortedDia(acc.material).map(d => `<option value='${d}' ${acc.dia === d ? 'selected' : ''}>DIA ${d} mm</option>`).join('');
@@ -695,6 +725,11 @@
                     let label;
                     if (ac.type === 'ubolt') label = `U-Bolt - Pipa ${ac.pipeSize}`;
                     else if (ac.type === 'saddle') label = `Saddle Steam - Pipa ${ac.pipeSize}`;
+                    else if (ac.type === 'ricwill') {
+                        const outerDia = getRicwillOuterDia(ac.pipeSize, ac.ricwillThk);
+                        const equivSize = getClosestPipeSizeByOD(outerDia);
+                        label = `Pipa Isolasi Ricwill - Pipa ${ac.pipeSize} + Isolasi ${ac.ricwillThk}mm (≈ U-Bolt ${equivSize})`;
+                    }
                     else label = `PU Block ${PU_MATERIAL_LABEL[ac.material]} - DIA ${ac.dia}mm x Tebal ${ac.thk}mm`;
                     detailHTML += `<li>${label} - ${ac.qty} pcs <span class="text-slate-500">(@1 set)</span></li>`;
                 });
@@ -757,6 +792,37 @@
                         if (!totalStructs[bantalanKey]) totalStructs[bantalanKey] = 0;
                         totalStructs[bantalanKey] += 300 * totalQty;
                     }
+                    else if (ac.type === 'ricwill') {
+                        const thk = Number(ac.ricwillThk) || 50;
+                        const outerDia = getRicwillOuterDia(ac.pipeSize, thk);
+                        const equivSize = getClosestPipeSizeByOD(outerDia);
+                        const thickness = getUboltThickness(equivSize);
+
+                        // U-Bolt: konversi ke ukuran pipa GI ekuivalen -> otomatis merge dengan U-Bolt GI biasa
+                        const uboltKey = `ubolt_${equivSize}`;
+                        if (!totalAccs[uboltKey]) {
+                            totalAccs[uboltKey] = {
+                                groupType: 'ubolt',
+                                name: `U-Bolt`,
+                                desc: `Dia. ${equivSize} Tebal ${thickness}mm c/w 2 Mur + 2 Ring`,
+                                qtyUbolt: 0, qtyMur: 0, qtyRing: 0
+                            };
+                        }
+                        totalAccs[uboltKey].qtyUbolt += totalQty;
+                        totalAccs[uboltKey].qtyMur += totalQty * 2;
+                        totalAccs[uboltKey].qtyRing += totalQty * 2;
+
+                        // Bantalan pipa black steel: dibelah 3, panjang 150mm per titik support
+                        // Ukuran mengikuti pipa ekuivalen agar mudah dipesan (mis. 6")
+                        const bantalanKey = `Pipa Black Steel ${equivSize} (Bantalan Ricwill)`;
+                        if (!totalStructs[bantalanKey]) totalStructs[bantalanKey] = 0;
+                        totalStructs[bantalanKey] += 150 * totalQty;
+
+                        // Siku 40x40 penopang kiri-kanan, panjang 150mm x 2
+                        const sikuKey = "Siku 40x40 (Penopang Ricwill)";
+                        if (!totalStructs[sikuKey]) totalStructs[sikuKey] = 0;
+                        totalStructs[sikuKey] += 2 * 150 * totalQty;
+                    }
                     else if (ac.type === 'publock') {
                         const key = `publock_${ac.material}_${ac.dia}_${ac.thk}`;
                         if (!totalAccs[key]) {
@@ -794,7 +860,7 @@
             }
             tableStruct.innerHTML = trStruct;
  
-            // 4. Render Tabel Aksesoris (U-Bolt ditampilkan dalam satu baris ringkas, sudah termasuk Mur & Ring)
+            // 4. Render Tabel Aksesoris (U-Bolt sudah tergabung berdasarkan ukuran ekuivalen)
             let trAcc = '';
             const accKeys = Object.keys(totalAccs).sort();
             if (accKeys.length === 0) {
