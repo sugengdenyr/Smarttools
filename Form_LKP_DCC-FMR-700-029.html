@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Ketidaksesuaian Produk (LKP) - DCC/FMR/700/029</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: { colors: { brand: { 500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } } } }
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{font-family:'Inter',sans-serif;}
+  .font-mono{font-family:'JetBrains Mono',monospace;}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:#0f172a;}
+  ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px;}
+  ::-webkit-scrollbar-thumb:hover{background:#475569;}
+
+  textarea{resize:vertical;}
+
+  @media print{
+    body{background:#ffffff !important;color:#000 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+    .no-print{display:none !important;}
+    .page-break{page-break-before:always !important;break-before:page !important;}
+    .lkp-page{width:100% !important;margin:0 !important;padding:0 !important;background:#fff !important;color:#000 !important;box-shadow:none !important;}
+    @page{size:A4;margin:10mm;}
+  }
+</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
+          <i data-lucide="clipboard-x" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white">Form Laporan Ketidaksesuaian Produk</h1>
+          <p class="text-xs text-slate-400">LKP &middot; No. Form DCC/FMR/700/029</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="resetForm()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition border border-rose-500/20">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+        </button>
+        <button onclick="scrollToPreview()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> Lihat Preview
+        </button>
+        <button onclick="window.print()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Laporan
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- INPUT FORM -->
+  <main class="max-w-6xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-5 no-print flex-grow">
+
+    <!-- Card: Informasi Umum -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-blue-500 lg:col-span-2">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-blue-400"></i> Informasi Umum
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Jenis Produk / Pekerjaan</label>
+          <input type="text" id="inJenisProduk" placeholder="Contoh: Ducting BJLS" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">No. Referensi</label>
+          <input type="text" id="inNoReferensi" placeholder="Contoh: LKP-001/IX/2026" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Proyek / Konsumen</label>
+          <input type="text" id="inProyek" placeholder="Contoh: PT Jayanti" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Tanggal</label>
+          <input type="date" id="inTanggal" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Supplier / Subkontraktor</label>
+          <input type="text" id="inSupplier" placeholder="Nama supplier / subkontraktor" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Rincian & Analisa -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-amber-500">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Rincian Ketidaksesuaian
+      </h2>
+      <div>
+        <label class="block text-[11px] font-medium text-slate-300 mb-1">Rincian Ketidaksesuaian</label>
+        <textarea id="inRincian" rows="6" placeholder="Jelaskan ketidaksesuaian yang ditemukan..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Pelapor</label>
+          <input type="text" id="inPelapor" placeholder="Nama pelapor" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Pengendali Mutu</label>
+          <input type="text" id="inPengendaliMutu" placeholder="Nama pengendali mutu" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Analisa Penyebab -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-amber-500">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="search" class="w-4 h-4 text-amber-400"></i> Analisa Penyebab
+      </h2>
+      <div>
+        <label class="block text-[11px] font-medium text-slate-300 mb-1">Analisa Penyebab</label>
+        <textarea id="inAnalisa" rows="9" placeholder="Jelaskan analisa penyebab ketidaksesuaian..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+      </div>
+    </div>
+
+    <!-- Card: Penanganan -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-purple-500">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="list-checks" class="w-4 h-4 text-purple-400"></i> Penanganan Ketidaksesuaian
+      </h2>
+      <div class="space-y-2" id="penangananList">
+        <!-- checkboxes generated by JS -->
+      </div>
+    </div>
+
+    <!-- Card: Catatan -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-purple-500">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="sticky-note" class="w-4 h-4 text-purple-400"></i> Catatan
+      </h2>
+      <textarea id="inCatatan" rows="9" placeholder="Catatan tambahan..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+    </div>
+
+    <!-- Card: Tindakan Perbaikan -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-emerald-500 lg:col-span-2">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="wrench" class="w-4 h-4 text-emerald-400"></i> Tindakan Perbaikan
+      </h2>
+      <textarea id="inTindakan" rows="5" placeholder="Jelaskan tindakan perbaikan yang dilakukan..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Kepala Bagian</label>
+          <input type="text" id="inKepalaBagian" placeholder="Nama" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Petugas Pelaksana</label>
+          <input type="text" id="inPetugasPelaksana" placeholder="Nama" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Batas Waktu</label>
+          <input type="date" id="inBatasWaktu" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Verifikasi -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-sky-500 lg:col-span-2">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="badge-check" class="w-4 h-4 text-sky-400"></i> Verifikasi Penanganan &amp; Tindakan Perbaikan
+      </h2>
+      <textarea id="inVerifikasi" rows="4" placeholder="Catatan hasil verifikasi..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Manajer Proyek</label>
+          <input type="text" id="inManajerProyek" placeholder="Nama" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Tanggal</label>
+          <input type="date" id="inTanggalVerifikasi" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Lampiran Foto -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 border-l-4 border-l-rose-500 lg:col-span-2">
+      <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <i data-lucide="camera" class="w-4 h-4 text-rose-400"></i> Lampiran Foto
+      </h2>
+      <label for="photoInput" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl py-6 cursor-pointer transition text-slate-400 hover:text-blue-400">
+        <i data-lucide="upload" class="w-6 h-6"></i>
+        <span class="text-xs font-semibold">Klik untuk upload foto (bisa lebih dari satu)</span>
+        <span class="text-[10px] text-slate-500">Foto akan otomatis ditambahkan sebagai halaman lampiran saat dicetak</span>
+      </label>
+      <input type="file" id="photoInput" accept="image/*" multiple class="hidden" onchange="handlePhotoUpload(event)">
+      <div id="photoThumbs" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+    </div>
+
+  </main>
+
+  <!-- PRINT / PREVIEW SECTION -->
+  <section id="previewSection" class="max-w-6xl w-full mx-auto p-4 sm:p-6 my-4">
+
+    <div class="no-print mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="printer" class="w-5 h-5 text-blue-400"></i> Preview Cetak
+        </h2>
+        <p class="text-xs text-slate-400">Tampilan di bawah ini akan sama persis dengan hasil cetak / PDF.</p>
+      </div>
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition shadow-lg shadow-blue-600/20">
+        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan
+      </button>
+    </div>
+
+    <!-- HALAMAN 1: FORM LKP -->
+    <div id="lkpPrintPage" class="lkp-page bg-white text-black border-2 border-black font-sans shadow-2xl">
+
+      <!-- Judul -->
+      <div class="border-b-2 border-black py-2 text-center font-bold text-sm sm:text-base uppercase">
+        Laporan Ketidaksesuaian Produk (LKP)
+      </div>
+
+      <!-- Info umum -->
+      <div class="grid grid-cols-2 border-b-2 border-black text-[11px]">
+        <div class="border-r-2 border-black p-2 space-y-1">
+          <div>Jenis Produk / Pekerjaan : <b><span id="dispJenisProduk">&nbsp;</span></b></div>
+          <div>Proyek / Konsumen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <b><span id="dispProyek">&nbsp;</span></b></div>
+          <div>Supplier / Subkontraktor&nbsp;&nbsp;: <b><span id="dispSupplier">&nbsp;</span></b></div>
+        </div>
+        <div class="p-2 space-y-1">
+          <div>No. Referensi : <b><span id="dispNoReferensi">&nbsp;</span></b></div>
+          <div>Tanggal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <b><span id="dispTanggal">&nbsp;</span></b></div>
+        </div>
+      </div>
+
+      <!-- Rincian & Analisa -->
+      <div class="grid grid-cols-2 border-b-2 border-black text-[11px] min-h-[220px]">
+        <div class="border-r-2 border-black p-2 flex flex-col justify-between">
+          <div>
+            <div class="font-bold mb-1">Rincian Ketidaksesuaian :</div>
+            <div class="whitespace-pre-wrap leading-snug" id="dispRincian">&nbsp;</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-2">
+            <div>
+              <div>Pelapor : <b><span id="dispPelapor">&nbsp;</span></b></div>
+              <div class="mt-4">Paraf:</div>
+            </div>
+            <div>
+              <div>Pengendali Mutu : <b><span id="dispPengendaliMutu">&nbsp;</span></b></div>
+              <div class="mt-4">Paraf :</div>
+            </div>
+          </div>
+        </div>
+        <div class="p-2">
+          <div class="font-bold mb-1">Analisa Penyebab :</div>
+          <div class="whitespace-pre-wrap leading-snug" id="dispAnalisa">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- Penanganan & Catatan -->
+      <div class="grid grid-cols-2 border-b-2 border-black text-[11px] min-h-[150px]">
+        <div class="border-r-2 border-black p-2">
+          <div class="font-bold mb-1.5">Penanganan Ketidaksesuaian :</div>
+          <div id="dispPenanganan" class="space-y-1"></div>
+        </div>
+        <div class="p-2">
+          <div class="font-bold mb-1">Catatan :</div>
+          <div class="whitespace-pre-wrap leading-snug" id="dispCatatan">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- Tindakan Perbaikan -->
+      <div class="border-b-2 border-black text-[11px] p-2 min-h-[180px] flex flex-col justify-between">
+        <div>
+          <div class="font-bold mb-1">Tindakan Perbaikan :</div>
+          <div class="whitespace-pre-wrap leading-snug" id="dispTindakan">&nbsp;</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-3 pt-2">
+          <div>
+            <div>Kepala Bagian : <b><span id="dispKepalaBagian">&nbsp;</span></b></div>
+            <div class="mt-4">Paraf :</div>
+          </div>
+          <div>
+            <div>Petugas Pelaksana : <b><span id="dispPetugasPelaksana">&nbsp;</span></b></div>
+            <div class="mt-4">Paraf :</div>
+          </div>
+          <div>
+            <div>Batas Waktu : <b><span id="dispBatasWaktu">&nbsp;</span></b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verifikasi -->
+      <div class="text-[11px] p-2 min-h-[130px] flex flex-col justify-between">
+        <div>
+          <div class="font-bold mb-1">Verifikasi Penanganan &amp; Tindakan perbaikan</div>
+          <div class="whitespace-pre-wrap leading-snug" id="dispVerifikasi">&nbsp;</div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-3 pt-2">
+          <div>
+            <div>Manajer Proyek : <b><span id="dispManajerProyek">&nbsp;</span></b></div>
+            <div class="mt-4">Paraf :</div>
+          </div>
+          <div>
+            <div>Tanggal : <b><span id="dispTanggalVerifikasi">&nbsp;</span></b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-black text-white text-[9px] px-2 py-1 border-t-2 border-black">
+        No. Form : DCC/FMR/700/029
+      </div>
+    </div>
+
+    <!-- HALAMAN 2: LAMPIRAN FOTO (muncul hanya jika ada foto) -->
+    <div id="photoPrintPage" class="lkp-page page-break bg-white text-black border-2 border-black font-sans shadow-2xl mt-6 hidden">
+      <div class="border-b-2 border-black py-2 text-center font-bold text-sm sm:text-base uppercase">
+        Lampiran Foto - LKP <span id="dispNoReferensiLampiran" class="normal-case font-mono"></span>
+      </div>
+      <div id="photoPrintGrid" class="grid grid-cols-2 gap-3 p-3"></div>
+    </div>
+
+  </section>
+
+  <footer class="no-print text-center text-[11px] text-slate-600 py-4">
+    Form Laporan Ketidaksesuaian Produk &middot; DCC/FMR/700/029
+  </footer>
+
+<script>
+  lucide.createIcons();
+
+  // ---------- Data Penanganan Ketidaksesuaian ----------
+  const penangananItems = [
+    'Ditolak, dikembalikan ke supplier/subkontraktor',
+    'Penurunan peringkat / penggunaan alternatif',
+    'Pekerjaan ulang',
+    'Perbaikan tanpa konsesi',
+    'Perbaikan dengan konsesi',
+    'Diterima seperti apa adanya',
+    'Dibongkar dan diganti'
+  ];
+
+  const penangananListEl = document.getElementById('penangananList');
+  penangananItems.forEach((label, idx) => {
+    const wrap = document.createElement('label');
+    wrap.className = 'flex items-center gap-2 text-xs text-slate-200 cursor-pointer';
+    wrap.innerHTML = `
+      <input type="checkbox" class="penangananCheck w-4 h-4 rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-blue-500" data-idx="${idx}">
+      <span>${label}</span>
+    `;
+    penangananListEl.appendChild(wrap);
+  });
+
+  // ---------- Sinkronisasi field teks / textarea sederhana ----------
+  const fieldMap = [
+    ['inJenisProduk','dispJenisProduk'],
+    ['inNoReferensi','dispNoReferensi'],
+    ['inProyek','dispProyek'],
+    ['inSupplier','dispSupplier'],
+    ['inRincian','dispRincian'],
+    ['inAnalisa','dispAnalisa'],
+    ['inPelapor','dispPelapor'],
+    ['inPengendaliMutu','dispPengendaliMutu'],
+    ['inCatatan','dispCatatan'],
+    ['inTindakan','dispTindakan'],
+    ['inKepalaBagian','dispKepalaBagian'],
+    ['inPetugasPelaksana','dispPetugasPelaksana'],
+    ['inManajerProyek','dispManajerProyek'],
+    ['inVerifikasi','dispVerifikasi'],
+  ];
+
+  function formatDateID(value){
+    if(!value) return '';
+    const [y,m,d] = value.split('-');
+    return `${d}-${m}-${y}`;
+  }
+
+  function syncAll(){
+    fieldMap.forEach(([inputId, dispId]) => {
+      const val = document.getElementById(inputId).value.trim();
+      document.getElementById(dispId).textContent = val === '' ? '\u00A0' : val;
+    });
+
+    document.getElementById('dispTanggal').textContent = formatDateID(document.getElementById('inTanggal').value) || '\u00A0';
+    document.getElementById('dispBatasWaktu').textContent = formatDateID(document.getElementById('inBatasWaktu').value) || '\u00A0';
+    document.getElementById('dispTanggalVerifikasi').textContent = formatDateID(document.getElementById('inTanggalVerifikasi').value) || '\u00A0';
+
+    const noRef = document.getElementById('inNoReferensi').value.trim();
+    document.getElementById('dispNoReferensiLampiran').textContent = noRef ? '- ' + noRef : '';
+
+    // Penanganan checkboxes
+    const dispPenanganan = document.getElementById('dispPenanganan');
+    dispPenanganan.innerHTML = '';
+    document.querySelectorAll('.penangananCheck').forEach(cb => {
+      const idx = cb.dataset.idx;
+      const row = document.createElement('div');
+      row.className = 'flex items-start gap-1.5';
+      row.innerHTML = `<span class="font-mono">${cb.checked ? '\u2611' : '\u2610'}</span><span>${penangananItems[idx]}</span>`;
+      dispPenanganan.appendChild(row);
+    });
+  }
+
+  document.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', syncAll);
+    el.addEventListener('change', syncAll);
+  });
+
+  // set default tanggal hari ini
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inTanggal').value = today;
+
+  // ---------- Upload Foto ----------
+  let photos = []; // {id, dataUrl, name}
+  let photoCounter = 0;
+
+  function handlePhotoUpload(event){
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        photoCounter++;
+        photos.push({ id: photoCounter, dataUrl: e.target.result, name: file.name });
+        renderPhotos();
+      };
+      reader.readAsDataURL(file);
+    });
+    event.target.value = '';
+  }
+
+  function removePhoto(id){
+    photos = photos.filter(p => p.id !== id);
+    renderPhotos();
+  }
+
+  function renderPhotos(){
+    // Thumbnails di area editor
+    const thumbWrap = document.getElementById('photoThumbs');
+    thumbWrap.innerHTML = '';
+    photos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'relative group rounded-xl overflow-hidden border border-slate-700 bg-slate-950';
+      div.innerHTML = `
+        <img src="${p.dataUrl}" class="w-full h-24 object-cover">
+        <button onclick="removePhoto(${p.id})" class="absolute top-1 right-1 bg-rose-600 hover:bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none">&times;</button>
+      `;
+      thumbWrap.appendChild(div);
+    });
+
+    // Halaman cetak lampiran
+    const printPage = document.getElementById('photoPrintPage');
+    const printGrid = document.getElementById('photoPrintGrid');
+    printGrid.innerHTML = '';
+    if(photos.length === 0){
+      printPage.classList.add('hidden');
+    } else {
+      printPage.classList.remove('hidden');
+      photos.forEach((p, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'border border-black p-1 text-center text-[10px]';
+        cell.innerHTML = `
+          <img src="${p.dataUrl}" class="w-full h-48 object-contain mb-1">
+          <div class="font-semibold">Foto ${i + 1}</div>
+        `;
+        printGrid.appendChild(cell);
+      });
+    }
+  }
+
+  // ---------- Reset ----------
+  function resetForm(){
+    if(!confirm('Yakin ingin mengosongkan semua isian form?')) return;
+    document.querySelectorAll('#previewSection input, main input').forEach(el => { if(el.type !== 'checkbox') el.value=''; });
+    document.querySelectorAll('main input[type="text"], main input[type="date"]').forEach(el => el.value='');
+    document.querySelectorAll('main textarea').forEach(el => el.value='');
+    document.querySelectorAll('.penangananCheck').forEach(cb => cb.checked=false);
+    document.getElementById('inTanggal').value = today;
+    photos = [];
+    renderPhotos();
+    syncAll();
+  }
+
+  function scrollToPreview(){
+    document.getElementById('previewSection').scrollIntoView({behavior:'smooth'});
+  }
+
+  // Inisialisasi awal
+  syncAll();
+  renderPhotos();
+</script>
+</body>
+</html>
