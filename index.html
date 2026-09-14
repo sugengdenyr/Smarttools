@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daikin UAL Chiller - Troubleshooting Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #020617;
+        color: #f1f5f9;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* ===== HEADER ===== */
+    .header {
+        background: rgba(15, 23, 42, .9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #1e293b;
+        padding: 12px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .header-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+        background: rgba(37, 99, 235, .2);
+        border: 1px solid rgba(59, 130, 246, .3);
+        padding: 10px;
+        border-radius: 12px;
+        color: #60a5fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .logo h1 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.2;
+    }
+    .logo p { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .2s;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary {
+        background: #1e293b;
+        color: #cbd5e1;
+        border: 1px solid #334155;
+    }
+    .btn-secondary:hover { background: #334155; }
+    .btn-emerald { background: #059669; color: #fff; }
+    .btn-emerald:hover { background: #047857; }
+    .btn-ghost {
+        background: transparent;
+        color: #94a3b8;
+        border: 1px solid #334155;
+    }
+    .btn-ghost:hover { background: #1e293b; color: #e2e8f0; }
+
+    /* ===== TABS ===== */
+    .tabs {
+        background: #0f172a;
+        border-bottom: 1px solid #1e293b;
+        padding: 0 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .tabs-inner { max-width: 1400px; margin: 0 auto; display: flex; gap: 4px; }
+    .tab {
+        padding: 14px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: #64748b;
+        border: none;
+        border-bottom: 3px solid transparent;
+        background: none;
+        font-family: inherit;
+        transition: all .2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tab:hover { color: #94a3b8; background: rgba(30, 41, 59, .5); }
+    .tab.active { color: #60a5fa; border-bottom-color: #2563eb; }
+
+    /* ===== MAIN ===== */
+    .main {
+        flex: 1;
+        max-width: 1400px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 24px 20px;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #1e293b;
+    }
+    .card-header h2 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .card-header .badge {
+        margin-left: auto;
+        font-size: 10px;
+        font-family: monospace;
+        background: rgba(37, 99, 235, .15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, .3);
+        padding: 3px 10px;
+        border-radius: 99px;
+    }
+    .card p { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+    /* ===== FORM ===== */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #cbd5e1;
+    }
+    .form-group select,
+    .form-group input {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #f1f5f9;
+        font-family: inherit;
+        transition: border .2s;
+        width: 100%;
+    }
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .1);
+    }
+    .form-group input::placeholder { color: #475569; }
+
+    /* ===== SEARCH ===== */
+    .search-wrapper {
+        position: relative;
+        margin-top: 16px;
+    }
+    .search-wrapper svg {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        pointer-events: none;
+    }
+    .search-wrapper input {
+        width: 100%;
+        background: #020617;
+        border: 2px solid #1e293b;
+        border-radius: 14px;
+        padding: 14px 16px 14px 48px;
+        font-size: 14px;
+        color: #f1f5f9;
+        font-family: inherit;
+        transition: all .2s;
+    }
+    .search-wrapper input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, .1);
+    }
+    .search-wrapper input::placeholder { color: #475569; }
+
+    /* ===== ERROR TABLE ===== */
+    .error-table-wrapper {
+        margin-top: 20px;
+        max-height: 520px;
+        overflow-y: auto;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        background: #020617;
+    }
+    .error-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    .error-table thead {
+        position: sticky;
+        top: 0;
+        background: #0f172a;
+        z-index: 10;
+    }
+    .error-table th {
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #64748b;
+        border-bottom: 2px solid #1e293b;
+        white-space: nowrap;
+    }
+    .error-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #1e293b;
+        color: #cbd5e1;
+        vertical-align: top;
+    }
+    .error-table tbody tr {
+        cursor: pointer;
+        transition: background .15s;
+    }
+    .error-table tbody tr:hover { background: rgba(30, 41, 59, .6); }
+    .error-table tbody tr.highlight { background: rgba(37, 99, 235, .15); }
+    .error-table .code-cell {
+        font-family: monospace;
+        font-weight: 700;
+        color: #60a5fa;
+        font-size: 14px;
+    }
+    .error-count {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 500;
+        font-family: monospace;
+    }
+    .no-result {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+        font-style: italic;
+    }
+
+    /* ===== DETAIL PANEL ===== */
+    .detail-panel {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-left: 4px solid #2563eb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 16px;
+        display: none;
+    }
+    .detail-panel.show { display: block; animation: slideDown .3s ease; }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-panel.error { border-left-color: #dc2626; }
+    .detail-panel h3 {
+        font-size: 16px;
+        color: #fff;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .detail-panel h4 {
+        font-size: 12px;
+        font-weight: 700;
+        color: #60a5fa;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 16px 0 8px;
+    }
+    .detail-panel ul {
+        list-style: none;
+        padding: 0;
+    }
+    .detail-panel ul li {
+        font-size: 13px;
+        color: #cbd5e1;
+        padding: 8px 12px;
+        border-left: 2px solid #334155;
+        margin-bottom: 6px;
+        background: rgba(2, 6, 23, .5);
+        border-radius: 0 8px 8px 0;
+        line-height: 1.5;
+    }
+    .detail-panel ul li::before {
+        content: '▸';
+        color: #3b82f6;
+        margin-right: 8px;
+        font-weight: 700;
+    }
+
+    /* ===== WIRING DIAGRAM ===== */
+    .wiring-slot {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    .wiring-slot h4 {
+        font-size: 13px;
+        color: #e2e8f0;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+    .wiring-image-box {
+        width: 100%;
+        min-height: 300px;
+        background: #0f172a;
+        border: 1px dashed #334155;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        position: relative;
+    }
+    .wiring-image-box img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+    }
+    .wiring-placeholder {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+    }
+    .wiring-placeholder svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+        color: #334155;
+    }
+    .wiring-placeholder p {
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+    .wiring-placeholder small {
+        font-size: 10px;
+        color: #475569;
+    }
+    .base64-editor {
+        margin-top: 12px;
+        display: none;
+    }
+    .base64-editor.show { display: block; }
+    .base64-editor textarea {
+        width: 100%;
+        height: 120px;
+        background: #020617;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 10px;
+        color: #94a3b8;
+        font-size: 10px;
+        font-family: monospace;
+        resize: vertical;
+    }
+    .base64-editor textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+    }
+
+    /* ===== CONTROLLER ===== */
+    .key-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+    }
+    .key-card {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        transition: all .2s;
+    }
+    .key-card:hover {
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, .1);
+    }
+    .key-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+    .key-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #e2e8f0;
+    }
+    .key-desc {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .toast {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-left: 4px solid #3b82f6;
+        padding: 14px 18px;
+        border-radius: 10px;
+        color: #e2e8f0;
+        font-size: 13px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+        max-width: 360px;
+        animation: toastIn .3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .toast.success { border-left-color: #10b981; }
+    .toast.error { border-left-color: #ef4444; }
+    .toast.warning { border-left-color: #f59e0b; }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .7);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 20px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #1e293b;
+    }
+    .modal-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+    }
+    .modal-close {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 28px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0 8px;
+        transition: color .2s;
+    }
+    .modal-close:hover { color: #ef4444; }
+    .modal-body { font-size: 13px; color: #cbd5e1; line-height: 1.7; }
+    .modal-body ol, .modal-body ul {
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+    .modal-body li { margin-bottom: 8px; }
+    .modal-body h4 {
+        font-size: 13px;
+        color: #60a5fa;
+        margin: 16px 0 8px;
+        font-weight: 700;
+    }
+
+    /* ===== GUIDE ===== */
+    .guide-step {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        align-items: flex-start;
+    }
+    .step-num {
+        background: #2563eb;
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .guide-step strong {
+        display: block;
+        font-size: 14px;
+        color: #e2e8f0;
+        margin-bottom: 4px;
+    }
+    .guide-step p {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .header-inner { flex-direction: column; align-items: flex-start; }
+        .main { padding: 16px 12px; }
+        .card { padding: 16px; }
+        .error-table { font-size: 12px; }
+        .error-table th, .error-table td { padding: 10px 8px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <div>
+                <h1>Daikin UAL Chiller Troubleshooting</h1>
+                <p>Interactive Diagnostic Module v2.1</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="showGuideModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Panduan
+            </button>
+            <button class="btn btn-primary" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print / PDF
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs">
+    <div class="tabs-inner">
+        <button class="tab active" data-tab="tab-troubleshoot">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Troubleshooting
+        </button>
+        <button class="tab" data-tab="tab-controller">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+            Wired Controller
+        </button>
+        <button class="tab" data-tab="tab-wiring">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+            Wiring Diagram
+        </button>
+        <button class="tab" data-tab="tab-guide">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Panduan
+        </button>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- TAB: TROUBLESHOOTING -->
+    <div id="tab-troubleshoot" class="panel active">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Pencarian & Diagnosa Error
+                </h2>
+                <span class="badge">Realtime Filter</span>
+            </div>
+            <p>Ketik kode error, deskripsi masalah, atau kata kunci. Tabel di bawah akan tersortir otomatis secara realtime.</p>
+
+            <div class="search-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="searchInput" placeholder="Cari kode error (F6, 20, 25...), deskripsi, atau kata kunci (kompresor, sensor, pressure...)" autocomplete="off">
+            </div>
+
+            <div class="form-grid" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Model Chiller (opsional)</label>
+                    <select id="modelSelect">
+                        <option value="">-- Semua Model --</option>
+                        <option value="UAL040ER5">UAL040ER5</option>
+                        <option value="UAL050ER5">UAL050ER5</option>
+                        <option value="UAL060ER5">UAL060ER5</option>
+                        <option value="UAL070ER5">UAL070ER5</option>
+                        <option value="UAL090ER5">UAL090ER5</option>
+                        <option value="UAL100ER5">UAL100ER5</option>
+                        <option value="UAL120ER5">UAL120ER5</option>
+                        <option value="UAL150ER5">UAL150ER5</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:8px;">
+                <span class="error-count" id="errorCount">Menampilkan 33 kode error</span>
+                <button class="btn btn-ghost" onclick="resetFilters()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Reset
+                </button>
+            </div>
+
+            <div class="error-table-wrapper">
+                <table class="error-table">
+                    <thead>
+                        <tr>
+                            <th style="width:100px;">Kode</th>
+                            <th>Deskripsi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="errorTableBody">
+                        <!-- populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div id="detailPanel" class="detail-panel"></div>
+    </div>
+
+    <!-- TAB: CONTROLLER -->
+    <div id="tab-controller" class="panel">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+                    Handset Wired Controller MC324
+                </h2>
+                <span class="badge">MC324 / MC250</span>
+            </div>
+            <p>Panduan operasional handset wired controller untuk unit UAL ER Series.</p>
+
+            <h3 style="font-size:13px;color:#60a5fa;margin-top:20px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Tombol & Fungsi</h3>
+            <div class="key-grid">
+                <div class="key-card"><div class="key-icon">📋</div><div class="key-name">Menu</div><div class="key-desc">Masuk ke menu pengaturan & parameter</div></div>
+                <div class="key-card"><div class="key-icon">M</div><div class="key-name">Mode</div><div class="key-desc">Ganti mode: Cooling → Heating → Hot Water → Floor Heating → Auto</div></div>
+                <div class="key-card"><div class="key-icon">⏻</div><div class="key-name">ON/OFF</div><div class="key-desc">Nyalakan atau matikan unit chiller</div></div>
+                <div class="key-card"><div class="key-icon">▲</div><div class="key-name">Plus</div><div class="key-desc">Naikkan nilai / suhu setting</div></div>
+                <div class="key-card"><div class="key-icon">▼</div><div class="key-name">Minus</div><div class="key-desc">Turunkan nilai / suhu setting</div></div>
+            </div>
+
+            <h3 style="font-size:13px;color:#60a5fa;margin-top:24px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Alur Setting Suhu</h3>
+            <ol style="margin-left:20px;margin-top:10px;color:#cbd5e1;font-size:13px;line-height:1.8;">
+                <li>Tekan tombol <strong style="color:#60a5fa;">Menu</strong></li>
+                <li>Gunakan <strong style="color:#60a5fa;">Plus/Minus</strong> untuk memilih "SET A/C WATER"</li>
+                <li>Tekan <strong style="color:#60a5fa;">Menu</strong> untuk masuk ke pengaturan suhu</li>
+                <li>Gunakan <strong style="color:#60a5fa;">Plus/Minus</strong> untuk mengatur suhu yang diinginkan</li>
+                <li>Tekan <strong style="color:#60a5fa;">Menu</strong> untuk menyimpan perubahan</li>
+            </ol>
+
+            <h3 style="font-size:13px;color:#60a5fa;margin-top:24px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Parameter Utama MC324</h3>
+            <div style="overflow-x:auto;margin-top:12px;">
+                <table class="error-table" style="font-size:12px;">
+                    <thead>
+                        <tr><th>No</th><th>Parameter</th><th>Min</th><th>Max</th><th>Default</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Entering Water Temp (Cooling)</td><td>10°C</td><td>25°C</td><td>12°C</td></tr>
+                        <tr><td>2</td><td>Leaving Water Temp (Cooling)</td><td>5°C</td><td>20°C</td><td>7°C</td></tr>
+                        <tr><td>3</td><td>Antifreeze Temp Setting</td><td>2°C</td><td>5°C</td><td>-</td></tr>
+                        <tr><td>4</td><td>Cooling Defrost Exit Temp</td><td>5°C</td><td>45°C</td><td>28°C</td></tr>
+                        <tr><td>5</td><td>Defrost Max Time</td><td>5 min</td><td>15 min</td><td>10 min</td></tr>
+                        <tr><td>6</td><td>Energy Saving Mode</td><td>0</td><td>1</td><td>0 (off)</td></tr>
+                        <tr><td>7</td><td>Pump Pre-running Time</td><td>60 s</td><td>180 s</td><td>120 s</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: WIRING -->
+    <div id="tab-wiring" class="panel">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+                    Wiring Diagram (Base64 Image)
+                </h2>
+                <span class="badge">Original Image</span>
+            </div>
+            <p>Diagram wiring asli menggunakan base64 image. Klik <strong style="color:#60a5fa;">"Edit Base64"</strong> untuk paste base64 string dari gambar wiring asli (hasil scan/foto dari PDF service manual).</p>
+            <p style="font-size:11px;color:#64748b;margin-top:6px;">💡 Cara mendapatkan base64: convert gambar JPG/PNG ke base64 via online converter, lalu paste ke textarea.</p>
+
+            <div id="wiringContainer" style="margin-top:20px;">
+                <!-- populated by JS -->
+            </div>
+
+            <div style="text-align:center;margin-top:20px;">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Print / Save as PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: GUIDE -->
+    <div id="tab-guide" class="panel">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Panduan Penggunaan
+                </h2>
+            </div>
+            <p>Modul ini dirancang untuk membantu tim Commissioning dalam troubleshooting chiller Daikin UAL ER Series secara cepat dan akurat.</p>
+
+            <div style="margin-top:24px;">
+                <div class="guide-step">
+                    <div class="step-num">1</div>
+                    <div>
+                        <strong>Gunakan Search Bar</strong>
+                        <p>Ketik kode error (contoh: F6, 20, 25) atau kata kunci masalah (contoh: kompresor mati, tekanan tinggi, sensor rusak). Tabel error akan tersortir otomatis secara realtime.</p>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">2</div>
+                    <div>
+                        <strong>Klik Baris Error</strong>
+                        <p>Klik salah satu baris di tabel untuk melihat detail: penyebab umum dan langkah penanganan yang disarankan.</p>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">3</div>
+                    <div>
+                        <strong>Filter Berdasarkan Model</strong>
+                        <p>Gunakan dropdown model untuk mempersempit hasil pencarian jika diperlukan.</p>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">4</div>
+                    <div>
+                        <strong>Cek Wiring Diagram</strong>
+                        <p>Buka tab Wiring Diagram. Paste base64 string dari gambar wiring asli untuk referensi pengkabelan di lapangan.</p>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">5</div>
+                    <div>
+                        <strong>Wired Controller Reference</strong>
+                        <p>Tab Wired Controller berisi panduan tombol, mode operasi, dan parameter utama MC324/MC250.</p>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">6</div>
+                    <div>
+                        <strong>Print / PDF</strong>
+                        <p>Klik tombol Print untuk menyimpan halaman sebagai PDF atau mencetaknya.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="guideModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">📖 Panduan Cepat</div>
+            <button class="modal-close" onclick="closeGuideModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Selamat datang di Daikin UAL Chiller Troubleshooting Module!</strong></p>
+            <h4>Langkah Cepat:</h4>
+            <ol>
+                <li>Ketik kode error atau kata kunci di search bar</li>
+                <li>Tabel error akan tersortir otomatis realtime</li>
+                <li>Klik baris error untuk melihat detail penanganan</li>
+                <li>Gunakan tab Wiring Diagram untuk referensi pengkabelan</li>
+                <li>Gunakan tab Wired Controller untuk panduan handset</li>
+            </ol>
+            <h4>Tips:</h4>
+            <ul>
+                <li>Pencarian mendukung bahasa Indonesia & Inggris</li>
+                <li>Klik Print untuk simpan sebagai PDF</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   ERROR DATABASE
+   ============================================================ */
+const ERROR_DB = [
+    { code: 'F6', desc: 'Communication failure between wire controller and master unit',
+      causes: ['Kabel komunikasi putus/rusak', 'Wired controller rusak', 'PCB MC250/MC251 rusak', 'Alamat slave tidak sesuai'],
+      actions: ['Periksa kabel komunikasi antara wired controller dan unit outdoor', 'Cek koneksi kabel pada terminal Bpc/Apc', 'Ganti wired controller jika rusak', 'Cek DIP switch master/slave'] },
+    { code: '14', desc: '0~14# slave communication failure',
+      causes: ['Kabel komunikasi antar unit slave putus', 'Alamat slave tidak benar', 'PCB slave rusak'],
+      actions: ['Periksa kabel komunikasi antar unit', 'Cek pengaturan alamat slave (SW3/SW4)', 'Ganti PCB jika rusak'] },
+    { code: '16', desc: 'Overload of compressor',
+      causes: ['Beban berlebih pada kompresor', 'Tekanan tinggi', 'Refrigerant kelebihan', 'Kondensor kotor'],
+      actions: ['Cek tekanan sistem', 'Bersihkan kondensor', 'Cek refrigerant charge', 'Periksa arus kompresor'] },
+    { code: '18', desc: 'Pump overload',
+      causes: ['Pump macet', 'Motor pump rusak', 'Fuse putus', 'Pump terlalu besar'],
+      actions: ['Periksa apakah pump berputar', 'Cek arus pump', 'Periksa fuse', 'Cek spesifikasi pump'] },
+    { code: '19', desc: 'Water flow is too small',
+      causes: ['Filter air kotor', 'Pump tidak bekerja normal', 'Kran air tertutup', 'Air kurang'],
+      actions: ['Periksa filter air dan bersihkan', 'Cek kerja pump', 'Pastikan kran air terbuka', 'Cek tekanan air'] },
+    { code: '20', desc: 'High pressure failure',
+      causes: ['Refrigerant kelebihan', 'Kondensor kotor', 'Fan kondensor tidak bekerja', 'Suhu ambient terlalu tinggi'],
+      actions: ['Cek tekanan refrigerant', 'Bersihkan kondensor', 'Periksa fan kondensor', 'Pastikan sirkulasi udara cukup'] },
+    { code: '21', desc: 'Low pressure failure',
+      causes: ['Refrigerant kurang/bocor', 'EXV tersumbat', 'Filter dryer tersumbat', 'Evaporator kotor'],
+      actions: ['Cek kebocoran refrigerant', 'Periksa EXV', 'Ganti filter dryer', 'Bersihkan evaporator'] },
+    { code: '25', desc: 'Temperature of inlet/outlet water is too low (Antifreeze protection)',
+      causes: ['Flow air terlalu kecil', 'Suhu air terlalu rendah', 'Sensor suhu rusak', 'Pump tidak bekerja'],
+      actions: ['Periksa flow air (min. water volume)', 'Cek suhu air masuk/keluar', 'Periksa sensor suhu TH6/TH7', 'Pastikan pump bekerja'] },
+    { code: '26', desc: 'Overload of electric heater in water system',
+      causes: ['Heater rusak', 'Overload proteksi', 'Kabel heater putus'],
+      actions: ['Periksa heater air', 'Cek arus heater', 'Periksa koneksi kabel'] },
+    { code: '27', desc: 'Ambient temperature is too high/low',
+      causes: ['Suhu lingkungan di luar batas', 'Sensor ambient (TH8) rusak'],
+      actions: ['Cek suhu lingkungan', 'Periksa sensor TH8'] },
+    { code: '29', desc: 'Over-low degree of superheat of suction',
+      causes: ['Refrigerant kelebihan', 'EXV terbuka terlalu lebar', 'Sensor suhu suction rusak'],
+      actions: ['Cek refrigerant charge', 'Periksa kerja EXV', 'Periksa sensor TH11'] },
+    { code: '32', desc: 'Temperature of return air is too high',
+      causes: ['Beban panas terlalu tinggi', 'FCU tidak berfungsi', 'Air flow tidak cukup'],
+      actions: ['Cek beban ruangan', 'Periksa FCU', 'Periksa flow air'] },
+    { code: '33', desc: 'Temperature of discharge air is too high',
+      causes: ['Refrigerant kurang', 'Kompresor rusak', 'Suhu ambient tinggi', 'Sensor TH1 rusak'],
+      actions: ['Cek refrigerant', 'Periksa kompresor', 'Cek suhu ambient', 'Periksa sensor TH1'] },
+    { code: '38', desc: 'Refrigerant leakage',
+      causes: ['Kebocoran refrigerant', 'Pipa refrigerant bocor'],
+      actions: ['Lakukan pengecekan kebocoran', 'Perbaiki kebocoran', 'Isi ulang refrigerant'] },
+    { code: '40', desc: 'TH1 temperature sensor failure (Discharge Temp)',
+      causes: ['Sensor TH1 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH1', 'Ganti sensor jika rusak', 'Cek koneksi kabel sensor'] },
+    { code: '42', desc: 'TH3 temperature sensor failure (Mid Coil Temp)',
+      causes: ['Sensor TH3 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH3', 'Ganti sensor jika rusak'] },
+    { code: '44', desc: 'TH5 temperature sensor failure',
+      causes: ['Sensor TH5 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH5', 'Ganti sensor jika rusak'] },
+    { code: '45', desc: 'TH6 temperature sensor failure (Entering Water Temp)',
+      causes: ['Sensor TH6 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH6', 'Ganti sensor jika rusak'] },
+    { code: '46', desc: 'TH7 temperature sensor failure (Leaving Water Temp)',
+      causes: ['Sensor TH7 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH7', 'Ganti sensor jika rusak'] },
+    { code: '47', desc: 'TH8 temperature sensor failure (Ambient Temp)',
+      causes: ['Sensor TH8 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH8', 'Ganti sensor jika rusak'] },
+    { code: '48', desc: 'TH9 temperature sensor failure (Leaving Coil Temp)',
+      causes: ['Sensor TH9 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH9', 'Ganti sensor jika rusak'] },
+    { code: '50', desc: 'TH11 temperature sensor failure (Suction Temp)',
+      causes: ['Sensor TH11 rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor TH11', 'Ganti sensor jika rusak'] },
+    { code: '53', desc: 'Low pressure sensor failure',
+      causes: ['Sensor low pressure rusak', 'Koneksi sensor putus'],
+      actions: ['Periksa sensor LP', 'Ganti sensor jika rusak'] },
+    { code: '54', desc: 'Memory failure (EEPROM)',
+      causes: ['EEPROM rusak', 'PCB MC250 rusak'],
+      actions: ['Ganti PCB MC250', 'Reset parameter'] },
+    { code: '55', desc: 'Compressor driver failure',
+      causes: ['Inverter module rusak', 'Kompresor bermasalah', 'Koneksi U/V/W putus'],
+      actions: ['Periksa inverter module', 'Cek kompresor', 'Periksa koneksi U/V/W'] },
+    { code: '59', desc: 'Compressor driver matching failure',
+      causes: ['Salah model kompresor', 'Parameter driver tidak cocok'],
+      actions: ['Periksa model kompresor', 'Reset parameter driver'] },
+    { code: '61', desc: 'Compressor driver communication failure',
+      causes: ['Kabel komunikasi driver putus', 'Inverter module rusak'],
+      actions: ['Periksa kabel komunikasi', 'Ganti inverter module'] },
+    { code: '63', desc: 'Fan overload',
+      causes: ['Fan motor macet', 'Fan motor rusak', 'Bearing rusak'],
+      actions: ['Periksa fan motor', 'Ganti fan jika rusak'] },
+    { code: '65', desc: 'Over-high temperature difference between inlet and outlet water',
+      causes: ['Flow air terlalu kecil', 'Evaporator kotor', 'Beban terlalu tinggi'],
+      actions: ['Periksa flow air', 'Bersihkan evaporator', 'Cek beban sistem'] },
+    { code: '66', desc: 'Inlet/outlet water temperature exception',
+      causes: ['Sensor suhu rusak', 'Flow air tidak normal', 'Pump tidak bekerja'],
+      actions: ['Periksa sensor TH6/TH7', 'Cek flow air', 'Periksa pump'] },
+    { code: '78', desc: 'Communication failure of all master and slave units',
+      causes: ['Kabel komunikasi antar unit putus', 'Alamat tidak benar', 'PCB rusak'],
+      actions: ['Periksa kabel komunikasi', 'Cek alamat unit', 'Ganti PCB'] },
+    { code: '80', desc: 'Dial setting error (SW3/SW4)',
+      causes: ['Setting DIP switch tidak benar', 'Alamat sama dengan unit lain'],
+      actions: ['Periksa pengaturan DIP switch', 'Pastikan alamat unik'] }
+];
+
+/* ============================================================
+   WIRING DIAGRAM BASE64 STORAGE
+   ============================================================ */
+const WIRING_DIAGRAMS = {
+    'ual040': {
+        label: 'UAL040ER5 (Single Phase 220V)',
+        base64: ''
+    },
+    'ual050_060': {
+        label: 'UAL050/060ER5 (Single Phase 220V)',
+        base64: ''
+    },
+    'ual070_090': {
+        label: 'UAL070/090ER5 (3 Phase 380-415V)',
+        base64: ''
+    },
+    'ual100_150': {
+        label: 'UAL100ER5 (3 Phase 380-415V)',
+        base64: ''
+    }
+};
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+});
+
+/* ============================================================
+   ERROR TABLE - RENDER & FILTER REALTIME
+   ============================================================ */
+const searchInput = document.getElementById('searchInput');
+const modelSelect = document.getElementById('modelSelect');
+const errorTableBody = document.getElementById('errorTableBody');
+const errorCount = document.getElementById('errorCount');
+const detailPanel = document.getElementById('detailPanel');
+
+function renderErrorTable(filteredList) {
+    if (filteredList.length === 0) {
+        errorTableBody.innerHTML = `<tr><td colspan="2" class="no-result">Tidak ada error yang cocok dengan pencarian. Coba kata kunci lain.</td></tr>`;
+        errorCount.textContent = 'Menampilkan 0 kode error';
+        return;
+    }
+    errorTableBody.innerHTML = filteredList.map(err => `
+        <tr onclick="showDetail('${err.code}')" data-code="${err.code}">
+            <td class="code-cell">${err.code}</td>
+            <td>${err.desc}</td>
+        </tr>
+    `).join('');
+    errorCount.textContent = `Menampilkan ${filteredList.length} kode error`;
+}
+
+function filterErrors() {
+    const q = searchInput.value.trim().toLowerCase();
+    let list = ERROR_DB.slice();
+
+    if (q) {
+        list = list.filter(e => {
+            const haystack = [
+                e.code.toLowerCase(),
+                e.desc.toLowerCase(),
+                ...e.causes.map(c => c.toLowerCase()),
+                ...e.actions.map(a => a.toLowerCase())
+            ].join(' | ');
+            return haystack.includes(q);
+        });
+    }
+
+    renderErrorTable(list);
+}
+
+searchInput.addEventListener('input', filterErrors);
+
+function resetFilters() {
+    searchInput.value = '';
+    modelSelect.value = '';
+    filterErrors();
+    detailPanel.classList.remove('show');
+}
+
+/* ============================================================
+   DETAIL PANEL
+   ============================================================ */
+function showDetail(code) {
+    const err = ERROR_DB.find(e => e.code === code);
+    if (!err) return;
+
+    document.querySelectorAll('#errorTableBody tr').forEach(tr => tr.classList.remove('highlight'));
+    const row = document.querySelector(`#errorTableBody tr[data-code="${code}"]`);
+    if (row) row.classList.add('highlight');
+
+    detailPanel.className = 'detail-panel show error';
+    detailPanel.innerHTML = `
+        <h3>
+            <span style="font-family:monospace;color:#60a5fa;">Error ${err.code}</span>
+        </h3>
+        <p style="color:#e2e8f0;font-size:14px;">${err.desc}</p>
+
+        <h4>🔍 Kemungkinan Penyebab</h4>
+        <ul>${err.causes.map(c => `<li>${c}</li>`).join('')}</ul>
+
+        <h4>🛠️ Langkah Penanganan</h4>
+        <ul>${err.actions.map(a => `<li>${a}</li>`).join('')}</ul>
+    `;
+    detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ============================================================
+   WIRING DIAGRAM RENDER
+   ============================================================ */
+function renderWiringSlots() {
+    const container = document.getElementById('wiringContainer');
+    const entries = Object.entries(WIRING_DIAGRAMS);
+
+    container.innerHTML = entries.map(([key, data]) => {
+        const hasImg = data.base64 && data.base64.startsWith('data:image');
+        return `
+            <div class="wiring-slot" data-key="${key}">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+                    <h4 style="margin:0;">${data.label}</h4>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn-ghost" style="font-size:11px;padding:6px 10px;" onclick="toggleBase64Editor('${key}')">
+                            ${hasImg ? '✏️ Edit Base64' : '📋 Paste Base64'}
+                        </button>
+                    </div>
+                </div>
+                <div class="wiring-image-box" id="imgbox-${key}">
+                    ${hasImg
+                        ? `<img src="${data.base64}" alt="${data.label}" />`
+                        : `<div class="wiring-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <p>Belum ada gambar wiring</p>
+                            <small>Klik "Paste Base64" untuk memasukkan gambar asli</small>
+                           </div>`
+                    }
+                </div>
+                <div class="base64-editor" id="editor-${key}">
+                    <textarea id="ta-${key}" placeholder="Paste base64 string di sini (contoh: data:image/png;base64,iVBORw0KGgo...)">${data.base64 || ''}</textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button class="btn btn-emerald" style="font-size:11px;padding:6px 12px;" onclick="saveBase64('${key}')">💾 Simpan</button>
+                        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="clearBase64('${key}')">🗑️ Hapus</button>
+                        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="toggleBase64Editor('${key}')">✖ Tutup</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleBase64Editor(key) {
+    const editor = document.getElementById('editor-' + key);
+    if (editor) editor.classList.toggle('show');
+}
+
+function saveBase64(key) {
+    const ta = document.getElementById('ta-' + key);
+    const val = ta.value.trim();
+
+    if (!val) {
+        showToast('⚠️ Base64 string kosong', 'warning');
+        return;
+    }
+    if (!val.startsWith('data:image')) {
+        showToast('⚠️ Format salah. Harus diawali "data:image/..."', 'error');
+        return;
+    }
+
+    WIRING_DIAGRAMS[key].base64 = val;
+    try { localStorage.setItem('daikin_wiring_' + key, val); } catch(e) {}
+    renderWiringSlots();
+    showToast('✅ Wiring diagram berhasil disimpan', 'success');
+}
+
+function clearBase64(key) {
+    if (!confirm('Hapus gambar wiring diagram ini?')) return;
+    WIRING_DIAGRAMS[key].base64 = '';
+    try { localStorage.removeItem('daikin_wiring_' + key); } catch(e) {}
+    renderWiringSlots();
+    showToast('🗑️ Wiring diagram dihapus', 'info');
+}
+
+function loadWiringFromStorage() {
+    Object.keys(WIRING_DIAGRAMS).forEach(key => {
+        try {
+            const saved = localStorage.getItem('daikin_wiring_' + key);
+            if (saved && saved.startsWith('data:image')) {
+                WIRING_DIAGRAMS[key].base64 = saved;
+            }
+        } catch(e) {}
+    });
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(() => t.remove(), 300);
+    }, 3000);
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function showGuideModal() { document.getElementById('guideModal').classList.add('active'); }
+function closeGuideModal() { document.getElementById('guideModal').classList.remove('active'); }
+document.getElementById('guideModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('guideModal')) closeGuideModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeGuideModal();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    filterErrors();
+    loadWiringFromStorage();
+    renderWiringSlots();
+
+    if (!localStorage.getItem('daikin_guide_v21')) {
+        setTimeout(showGuideModal, 600);
+        localStorage.setItem('daikin_guide_v21', 'true');
+    }
+});
+</script>
+</body>
+</html>
