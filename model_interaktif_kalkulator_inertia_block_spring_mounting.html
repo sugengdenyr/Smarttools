@@ -4,91 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Model Interaktif Perhitungan & Sizing Inertia Block Pompa</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts & Lucide Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Three.js & OrbitControls for Real-time 3D Render -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Custom scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        /* Keyframes for Toast Animation */
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         @keyframes toastSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(100%) translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) translateY(0);
-            }
+            from { opacity: 0; transform: translateX(100%) translateY(10px); }
+            to { opacity: 1; transform: translateX(0) translateY(0); }
         }
-
         @keyframes toastSlideOut {
-            from {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(120%) scale(0.9);
-            }
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(120%) scale(0.9); }
         }
-
-        .toast-enter {
-            animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .toast-exit {
-            animation: toastSlideOut 0.25s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-        }
-
-        /* Dedicated print styles for clean white output */
+        .toast-enter { animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: toastSlideOut 0.25s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
         @media print {
-            body > *:not(#printContainer) {
-                display: none !important;
-            }
+            body > *:not(#printContainer) { display: none !important; }
             #printContainer {
                 display: block !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: #ffffff !important;
-                color: #000000 !important;
-                padding: 15px;
-                font-family: 'Inter', sans-serif;
+                position: absolute; left: 0; top: 0; width: 100%;
+                background: #ffffff !important; color: #000000 !important;
+                padding: 15px; font-family: 'Inter', sans-serif;
             }
         }
-
-        #printContainer {
-            display: none;
-        }
+        #printContainer { display: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -104,9 +50,10 @@
                     <p class="text-xs text-slate-400">Simulasi 3D Fabrikasi, Analisis Berat & Selection Spring Mounting ALTRAND</p>
                 </div>
             </div>
-
-            <!-- Action Controls: Panduan & Reset -->
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openFormulaModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition border border-emerald-500/30 shadow-sm">
+                    <i data-lucide="sigma" class="w-3.5 h-3.5 text-emerald-400"></i> Dasar Perhitungan
+                </button>
                 <button onclick="openGuideModal()" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-semibold flex items-center gap-1.5 transition border border-blue-500/30 shadow-sm">
                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-blue-400"></i> Panduan Penggunaan
                 </button>
@@ -118,188 +65,116 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- LEFT SIDEBAR: INPUT & PARAMETER CONTROLS -->
         <section class="lg:col-span-5 flex flex-col gap-5">
-
-            <!-- Card 1: Equipment & Inertia Target -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                     <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
                         <i data-lucide="activity" class="w-4 h-4 text-blue-400"></i> 1. Data Equipment & Target Inersia
                     </h2>
-                    <button onclick="clearDataEntry()" title="Hapus Data Entry" class="px-2 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-medium flex items-center gap-1 border border-rose-500/20 transition">
+                    <button onclick="clearDataEntry()" class="px-2 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-medium flex items-center gap-1 border border-rose-500/20 transition">
                         <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus Data
                     </button>
                 </div>
-
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Nama Equipment / Tag</label>
-                    <input type="text" id="inputEqName" value="Pompa Chiller (CHW) VAC 01" 
-                        onfocus="notifyEntry('Klik input Nama Equipment')" 
-                        oninput="calculateInertia()"
-                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                    <input type="text" id="inputEqName" value="Pompa Chiller (CHW) VAC 01" onfocus="notifyEntry('Klik input Nama Equipment')" oninput="calculateInertia()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
-
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Berat Pompa (Kg)</label>
-                        <input type="number" id="inputEqWeight" value="718" min="10" step="1" 
-                            onfocus="notifyEntry('Klik input Berat Pompa')" 
-                            onchange="notifyDataChange('Berat Pompa diperbarui ke ' + this.value + ' Kg')" 
-                            oninput="calculateInertia()"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-blue-500 transition">
+                        <input type="number" id="inputEqWeight" value="718" min="10" step="1" onfocus="notifyEntry('Klik input Berat Pompa')" onchange="notifyDataChange('Berat Pompa diperbarui ke ' + this.value + ' Kg')" oninput="calculateInertia()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-blue-500 transition">
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Rasio Inersia Target</label>
-                        <select id="selectInertiaRatio" 
-                            onfocus="notifyEntry('Pilih Rasio Inersia Target')" 
-                            onchange="notifyDataChange('Rasio Inersia diubah ke 1:' + this.value); calculateInertia();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
-                            <!-- Options generated dynamically from 1:1.00 to 1:2.00 step 0.05 -->
-                        </select>
+                        <select id="selectInertiaRatio" onfocus="notifyEntry('Pilih Rasio Inersia Target')" onchange="notifyDataChange('Rasio Inersia diubah ke 1:' + this.value); calculateInertia();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition"></select>
                     </div>
                 </div>
-
                 <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
                     <span class="text-slate-400">Target Berat Inersia Minimal:</span>
                     <span id="labelTargetInertiaKg" class="font-bold font-mono text-emerald-400">1077.0 Kg</span>
                 </div>
             </div>
 
-            <!-- Card 2: Inertia Block Dimensions & Steel Frame -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center gap-2">
                     <i data-lucide="ruler" class="w-4 h-4 text-emerald-400"></i> 2. Material Frame & Ukuran Inertia
                 </h2>
-
-                <!-- Steel Frame Type Selection -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Tipe Profile Baja</label>
-                        <select id="selectFrameCategory" 
-                            onfocus="notifyEntry('Pilih Tipe Profile Baja')" 
-                            onchange="notifyDataChange('Tipe Frame diubah ke ' + this.options[this.selectedIndex].text); onFrameCategoryChange();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <select id="selectFrameCategory" onchange="notifyDataChange('Tipe Frame diubah'); onFrameCategoryChange();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                             <option value="wf" selected>H-Beam / WF Steel</option>
                             <option value="unp">Besi UNP (Channel Steel)</option>
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran Profil Frame</label>
-                        <select id="selectFrameProfile" 
-                            onfocus="notifyEntry('Pilih Ukuran Profil Frame')" 
-                            onchange="notifyDataChange('Profil Frame diubah'); calculateInertia();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition font-mono">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <select id="selectFrameProfile" onchange="notifyDataChange('Profil Frame diubah'); calculateInertia();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition font-mono"></select>
                     </div>
                 </div>
-
-                <!-- Dimensions Input -->
                 <div class="grid grid-cols-3 gap-2">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Panjang L (mm)</label>
-                        <input type="number" id="inputLengthMm" value="1800" min="500" step="50" 
-                            onfocus="notifyEntry('Klik input Panjang L')" 
-                            onchange="notifyDataChange('Panjang L diubah ke ' + this.value + ' mm')" 
-                            oninput="calculateInertia()"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-cyan-300 font-mono font-bold focus:outline-none focus:border-blue-500">
+                        <input type="number" id="inputLengthMm" value="1800" min="500" step="50" oninput="calculateInertia()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-cyan-300 font-mono font-bold focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Lebar W (mm)</label>
-                        <input type="number" id="inputWidthMm" value="1100" min="400" step="50" 
-                            onfocus="notifyEntry('Klik input Lebar W')" 
-                            onchange="notifyDataChange('Lebar W diubah ke ' + this.value + ' mm')" 
-                            oninput="calculateInertia()"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-cyan-300 font-mono font-bold focus:outline-none focus:border-blue-500">
+                        <input type="number" id="inputWidthMm" value="1100" min="400" step="50" oninput="calculateInertia()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-cyan-300 font-mono font-bold focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Tinggi H (mm)</label>
-                        <input type="number" id="inputHeightMm" value="150" readonly
-                            class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-400 font-mono cursor-not-allowed">
+                        <input type="number" id="inputHeightMm" value="150" readonly class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-400 font-mono cursor-not-allowed">
                         <p class="text-[9px] text-slate-500 mt-0.5">Dikunci profil frame</p>
                     </div>
                 </div>
-
-                <!-- Concrete Density & Wiremesh -->
                 <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Berat Jenis Beton</label>
-                        <input type="number" id="inputConcreteDensity" value="2400" min="2000" max="2600" step="10" 
-                            onfocus="notifyEntry('Klik input Berat Jenis Beton')" 
-                            onchange="notifyDataChange('Berat jenis beton diubah ke ' + this.value + ' kg/m³')" 
-                            oninput="calculateInertia()"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                        <input type="number" id="inputConcreteDensity" value="2400" min="2000" max="2600" step="10" oninput="calculateInertia()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
                         <p class="text-[9px] text-slate-500 mt-0.5">Standar 2400 kg/m³</p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Penulangan Wiremesh</label>
-                        <select id="selectWiremesh" 
-                            onfocus="notifyEntry('Pilih Spesifikasi Wiremesh')" 
-                            onchange="notifyDataChange('Wiremesh diubah'); calculateInertia();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <select id="selectWiremesh" onchange="notifyDataChange('Wiremesh diubah'); calculateInertia();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                             <option value="M8_14.5" selected>Wiremesh M8 (2 Lapis)</option>
                             <option value="M10_22.6">Wiremesh M10 (2 Lapis)</option>
                             <option value="M6_8.2">Wiremesh M6 (2 Lapis)</option>
                         </select>
-                        <p class="text-[9px] text-slate-500 mt-0.5">Konstruksi 2 Lapis (Atas & Bawah)</p>
+                        <p class="text-[9px] text-slate-500 mt-0.5">Konstruksi 2 Lapis</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 3: Spring Mounting Configuration -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
-                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center justify-between">
-                    <span class="flex items-center gap-2"><i data-lucide="disc" class="w-4 h-4 text-purple-400"></i> 3. Konfigurasi Spring Mounting</span>
+                <h2 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                    <i data-lucide="disc" class="w-4 h-4 text-purple-400"></i> 3. Konfigurasi Spring Mounting
                 </h2>
-
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Point Mounting</label>
-                        <select id="selectMountingCount" 
-                            onfocus="notifyEntry('Pilih Jumlah Point Mounting')" 
-                            onchange="notifyDataChange('Jumlah Mounting diubah ke ' + this.value + ' point'); calculateInertia();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                        <select id="selectMountingCount" onchange="notifyDataChange('Jumlah Mounting diubah ke ' + this.value + ' point'); calculateInertia();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                             <option value="4" selected>4 Point (Ujung-ujung)</option>
-                            <option value="6">6 Point (Ujung & Samping Tengah)</option>
+                            <option value="6">6 Point (Ujung & Samping)</option>
                             <option value="8">8 Point (Heavy Load)</option>
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-300 mb-1">Kategori Spring ALTRAND</label>
-                        <select id="selectSpringCategory" 
-                            onfocus="notifyEntry('Pilih Kategori Spring Mounting')" 
-                            onchange="notifyDataChange('Kategori Spring diubah'); onSpringCategoryChange();" 
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
-                            <option value="auto" selected>-- Auto Recommend Best Match --</option>
-                            <option value="XL">Type XL (Open Spring, 25mm Defl.)</option>
-                            <option value="CE">Type CE (Housed Restrained, 30mm Defl.)</option>
+                        <select id="selectSpringCategory" onchange="notifyDataChange('Kategori Spring diubah'); onSpringCategoryChange();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                            <option value="auto" selected>-- Auto Recommend --</option>
+                            <option value="XL">Type XL (Open Spring)</option>
+                            <option value="CE">Type CE (Housed Restrained)</option>
                         </select>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Pilihan Tipe Spring Specific</label>
-                    <select id="selectSpringModel" 
-                        onfocus="notifyEntry('Pilih Tipe Specific Spring')" 
-                        onchange="notifyDataChange('Model Spring diubah'); calculateInertia();" 
-                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-purple-300 font-mono focus:outline-none focus:border-blue-500 transition">
-                        <!-- Dynamically filled -->
-                    </select>
+                    <select id="selectSpringModel" onchange="notifyDataChange('Model Spring diubah'); calculateInertia();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-purple-300 font-mono focus:outline-none focus:border-blue-500 transition"></select>
                 </div>
             </div>
-
         </section>
 
-        <!-- RIGHT PANEL: 3D REALTIME VISUALIZER, ANALYSIS & BPB -->
         <section class="lg:col-span-7 flex flex-col gap-6">
-
-            <!-- Section 1: Realtime 3D Canvas Visualizer -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                     <div>
@@ -308,8 +183,6 @@
                         </h3>
                         <p class="text-[11px] text-slate-400">Mode Fabrikasi menampilkan detail frame baja, bracket kupingan, wiremesh 2 lapis, dan spring mounting.</p>
                     </div>
-
-                    <!-- 3D View Toggles -->
                     <div class="flex items-center gap-2">
                         <button onclick="toggleFabricationMode()" id="btnFabricationMode" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-xs font-bold text-amber-300 border border-amber-500/40 flex items-center gap-1.5 transition">
                             <i data-lucide="hammer" class="w-3.5 h-3.5 text-amber-400"></i> <span id="lblModeText">Mode Fabrikasi</span>
@@ -319,123 +192,131 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- 3D Canvas Render Area -->
                 <div class="relative w-full h-[360px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
                     <div id="threejs-container" class="w-full h-full"></div>
-
-                    <!-- Floating Dimension Legend overlay -->
                     <div class="absolute bottom-3 left-3 bg-slate-900/85 backdrop-blur border border-slate-800 rounded-lg p-2.5 text-[10px] space-y-1 text-slate-300 shadow-lg">
                         <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-slate-400 rounded-sm inline-block"></span> Frame Outer Rim: <span id="legendFrameText" class="font-mono text-white font-semibold">WF 150</span></div>
                         <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-stone-400 rounded-sm inline-block"></span> Concrete Fill: <span id="legendConcreteDim" class="font-mono text-white font-semibold">180x110x15 cm</span></div>
-                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-amber-500 rounded-sm inline-block"></span> Wiremesh 2 Lapis (Atas & Bawah)</div>
-                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-purple-500 rounded-sm inline-block"></span> Spring Mounting: <span id="legendSpringText" class="font-mono text-purple-300">4 Points ALTRAND</span></div>
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-amber-500 rounded-sm inline-block"></span> Wiremesh 2 Lapis</div>
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-purple-500 rounded-sm inline-block"></span> Spring: <span id="legendSpringText" class="font-mono text-purple-300">4 Points ALTRAND</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2: Calculation Summary & Status Analysis -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i> Ringkasan Berat & Analisis Standar
                     </h3>
-                    <div id="badgeStatus" class="px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5">
-                        <!-- Dynamic Status Badge -->
-                    </div>
+                    <div id="badgeStatus" class="px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5"></div>
                 </div>
-
-                <!-- Weight Summary Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                         <p class="text-[10px] text-slate-400 uppercase font-semibold">Berat Beton</p>
-                        <p id="valConcreteWeight" class="text-base font-bold font-mono text-emerald-400 mt-1">712.8 Kg</p>
-                        <p id="valConcreteVol" class="text-[10px] text-slate-500 mt-0.5">Vol: 0.297 m³</p>
+                        <p id="valConcreteWeight" class="text-base font-bold font-mono text-emerald-400 mt-1">-</p>
+                        <p id="valConcreteVol" class="text-[10px] text-slate-500 mt-0.5">-</p>
                     </div>
-
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                         <p class="text-[10px] text-slate-400 uppercase font-semibold">Berat Frame Baja</p>
-                        <p id="valFrameWeight" class="text-base font-bold font-mono text-slate-200 mt-1">81.2 Kg</p>
-                        <p id="valFrameLen" class="text-[10px] text-slate-500 mt-0.5">Keliling: 5.8 m</p>
+                        <p id="valFrameWeight" class="text-base font-bold font-mono text-slate-200 mt-1">-</p>
+                        <p id="valFrameLen" class="text-[10px] text-slate-500 mt-0.5">-</p>
                     </div>
-
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                         <p class="text-[10px] text-slate-400 uppercase font-semibold">Berat Wiremesh (2L)</p>
-                        <p id="valWiremeshWeight" class="text-base font-bold font-mono text-amber-400 mt-1">28.7 Kg</p>
-                        <p id="valMeshArea" class="text-[10px] text-slate-500 mt-0.5">Luas: 3.96 m²</p>
+                        <p id="valWiremeshWeight" class="text-base font-bold font-mono text-amber-400 mt-1">-</p>
+                        <p id="valMeshArea" class="text-[10px] text-slate-500 mt-0.5">-</p>
                     </div>
-
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                         <p class="text-[10px] text-slate-400 uppercase font-semibold">Total Berat Inersia</p>
-                        <p id="valTotalInertiaWeight" class="text-base font-bold font-mono text-cyan-400 mt-1">822.7 Kg</p>
-                        <p id="valDeviationPct" class="text-[10px] font-semibold mt-0.5 text-emerald-400">Deviasi: +5.2%</p>
+                        <p id="valTotalInertiaWeight" class="text-base font-bold font-mono text-cyan-400 mt-1">-</p>
+                        <p id="valDeviationPct" class="text-[10px] font-semibold mt-0.5">-</p>
                     </div>
                 </div>
-
-                <!-- Spring Mounting Analysis Box -->
                 <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
                     <div class="flex justify-between items-center text-xs">
                         <span class="text-slate-300 font-semibold flex items-center gap-1.5">
                             <i data-lucide="shield-check" class="w-4 h-4 text-purple-400"></i> Analisis Beban Spring Mounting
                         </span>
-                        <span id="valTotalOperatingLoad" class="font-mono text-purple-300 font-bold">Total Operating Load: 1540.7 Kg</span>
+                        <span id="valTotalOperatingLoad" class="font-mono text-purple-300 font-bold">-</span>
                     </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1 text-slate-300">
-                        <div>Load per Point: <strong id="valLoadPerPoint" class="font-mono text-white">385.2 Kg</strong></div>
-                        <div>Rekomendasi Spring: <strong id="valRecommendedSpring" class="font-mono text-purple-400">ALTRAND XL-98</strong></div>
-                        <div>Safety Margin: <strong id="valSafetyMargin" class="font-mono text-emerald-400">3.8%</strong></div>
+                        <div>Load per Point: <strong id="valLoadPerPoint" class="font-mono text-white">-</strong></div>
+                        <div>Rekomendasi: <strong id="valRecommendedSpring" class="font-mono text-purple-400">-</strong></div>
+                        <div>Safety Margin: <strong id="valSafetyMargin" class="font-mono text-emerald-400">-</strong></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 3: Rekomendasi Bon Permintaan Barang (BPB) -->
             <div id="bpbSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i data-lucide="clipboard-check" class="w-5 h-5 text-blue-400"></i> Rekomendasi Bon Permintaan Barang (BPB)
-                        </h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Estimasi kebutuhan material pembuatan Inertia Block & Spring Mounting</p>
-                    </div>
+                <div class="border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 text-blue-400"></i> Rekomendasi Bon Permintaan Barang (BPB)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Estimasi kebutuhan material pembuatan Inertia Block & Spring Mounting</p>
                 </div>
-
-                <!-- BPB Recommendation Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
                                 <th class="py-2.5 px-3">Item Material</th>
-                                <th class="py-2.5 px-3">Spesifikasi & Ukuran</th>
-                                <th class="py-2.5 px-3 text-right">Kebutuhan Netto</th>
-                                <th class="py-2.5 px-3 text-right text-blue-400">Rekomendasi Pembelian BPB</th>
+                                <th class="py-2.5 px-3">Spesifikasi</th>
+                                <th class="py-2.5 px-3 text-right">Netto</th>
+                                <th class="py-2.5 px-3 text-right text-blue-400">Rekomendasi BPB</th>
                             </tr>
                         </thead>
-                        <tbody id="bpbTableBody" class="divide-y divide-slate-800 text-slate-200 font-mono">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                        <tbody id="bpbTableBody" class="divide-y divide-slate-800 text-slate-200 font-mono"></tbody>
                     </table>
                 </div>
-
-                <!-- Action Print Buttons -->
                 <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-800">
                     <button onclick="printBPBOnly()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition border border-slate-700">
-                        <i data-lucide="printer" class="w-4 h-4 text-blue-400"></i> Cetak Rekomendasi BPB Saja
+                        <i data-lucide="printer" class="w-4 h-4 text-blue-400"></i> Cetak BPB Saja
                     </button>
                     <button onclick="printFullReport()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition shadow-lg shadow-blue-600/20">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Laporan Keseluruhan
+                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Laporan Lengkap
                     </button>
                 </div>
             </div>
-
         </section>
-
     </main>
 
-    <!-- POP-UP MODAL: PANDUAN PENGGUNAAN -->
+    <!-- MODAL: DASAR PERHITUNGAN -->
+    <div id="formulaModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-600/20 p-2 rounded-xl border border-emerald-500/30 text-emerald-400">
+                        <i data-lucide="sigma" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Dasar Perhitungan & Rumus</h3>
+                        <p class="text-xs text-slate-400">Transparansi formula — verifikasi setiap langkah kalkulasi</p>
+                    </div>
+                </div>
+                <button onclick="closeFormulaModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 bg-amber-500/5 border-b border-amber-500/20">
+                <div class="flex items-start gap-2.5">
+                    <i data-lucide="info" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[11px] text-amber-200/90 leading-relaxed">
+                        Semua nilai di bawah dihitung realtime dari input Anda. <strong class="text-amber-300">Jika ada rumus/konstanta yang tidak sesuai standar perusahaan Anda</strong>, catat bagian yang salah dan hubungi developer untuk penyesuaian.
+                    </p>
+                </div>
+            </div>
+            <div id="formulaContent" class="p-6 overflow-y-auto space-y-3 text-xs text-slate-300 leading-relaxed"></div>
+            <div class="px-6 py-3 border-t border-slate-800 bg-slate-950/80 flex justify-between items-center">
+                <p class="text-[10px] text-slate-500 italic">Referensi: SNI Beton, Katalog ALTRAND, Tabel Profil Baja</p>
+                <button onclick="closeFormulaModal()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/20">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PANDUAN -->
     <div id="guideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <!-- Modal Header -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 sticky top-0 z-10">
                 <div class="flex items-center gap-3">
                     <div class="bg-blue-600/20 p-2 rounded-xl border border-blue-500/30 text-blue-400">
@@ -443,77 +324,66 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-white">Panduan Penggunaan App</h3>
-                        <p class="text-xs text-slate-400">Langkah mudah mengoperasikan simulator & kalkulator Inertia Block</p>
+                        <p class="text-xs text-slate-400">Langkah mudah mengoperasikan simulator</p>
                     </div>
                 </div>
                 <button onclick="closeGuideModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-
-            <!-- Modal Content (Scrollable) -->
-            <div class="p-6 overflow-y-auto space-y-5 text-xs text-slate-300 leading-relaxed">
-
-                <!-- Step 1 -->
+            <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed">
                 <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
                     <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 text-blue-400 font-bold flex items-center justify-center text-xs">1</div>
                     <div>
                         <h4 class="font-bold text-white text-sm mb-1">Input Data Equipment & Target Inersia</h4>
-                        <p class="text-slate-400">Masukkan nama tag equipment dan berat total pompa (Kg). Pilih rasio inersia target (Di Rekomendasikan <strong>1 : 1.50</strong>). System akan menghitung target berat inertia block minimal secara otomatis.</p>
+                        <p class="text-slate-400">Masukkan nama tag equipment dan berat pompa. Pilih rasio inersia target (rekomendasi <strong>1:1.50</strong>).</p>
                     </div>
                 </div>
-
-                <!-- Step 2 -->
                 <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
                     <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-bold flex items-center justify-center text-xs">2</div>
                     <div>
                         <h4 class="font-bold text-white text-sm mb-1">Tentukan Ukuran Frame & Beton</h4>
-                        <p class="text-slate-400">Pilih tipe profil baja (WF H-Beam atau Besi UNP). Masukkan Panjang (L) dan Lebar (W) inertia block. Tinggi block (H) otomatis dikunci sesuai standar tinggi web profil baja yang dipilih.</p>
+                        <p class="text-slate-400">Pilih profil baja (WF/UNP), masukkan Panjang & Lebar. Tinggi otomatis mengikuti profil.</p>
                     </div>
                 </div>
-
-                <!-- Step 3 -->
                 <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
                     <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-purple-600/20 border border-purple-500/40 text-purple-400 font-bold flex items-center justify-center text-xs">3</div>
                     <div>
-                        <h4 class="font-bold text-white text-sm mb-1">Konfigurasi Spring Mounting ALTRAND</h4>
-                        <p class="text-slate-400">Atur jumlah point pendukung (4, 6, atau 8 point). Gunakan fitur <strong>Auto Recommend</strong> untuk pemilihan otomatis tipe spring ALTRAND (Type XL Open Spring atau Type CE Housed Restrained) dengan margin keamanan aman.</p>
+                        <h4 class="font-bold text-white text-sm mb-1">Konfigurasi Spring ALTRAND</h4>
+                        <p class="text-slate-400">Atur 4/6/8 point. Gunakan <strong>Auto Recommend</strong> untuk pemilihan otomatis spring.</p>
                     </div>
                 </div>
-
-                <!-- Step 4 -->
                 <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
                     <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-bold flex items-center justify-center text-xs">4</div>
                     <div>
-                        <h4 class="font-bold text-white text-sm mb-1">Interaksi Simulation 3D & Switch Mode</h4>
-                        <p class="text-slate-400">Gunakan mouse/touch untuk merotasi, zoom, dan pan tampilan 3D. Klik tombol <strong>Mode Fabrikasi / Operasional</strong> untuk melihat penulangan wiremesh 2 lapis & bracket mounting atau unit pompa terpasang.</p>
+                        <h4 class="font-bold text-white text-sm mb-1">Interaksi 3D & Switch Mode</h4>
+                        <p class="text-slate-400">Rotate/zoom dengan mouse. Toggle <strong>Mode Fabrikasi / Operasional</strong>.</p>
                     </div>
                 </div>
-
-                <!-- Step 5 -->
                 <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
-                    <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-400 font-bold flex items-center justify-center text-xs">5</div>
+                    <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-bold flex items-center justify-center text-xs">5</div>
                     <div>
-                        <h4 class="font-bold text-white text-sm mb-1">Rekomendasi BPB & Cetak Laporan</h4>
-                        <p class="text-slate-400">Gunakan tabel BPB untuk estimasi kebutuhan bahan (Batang WF, Lembar Wiremesh, Sak Semen Instan, dan Unit Spring). Klik tombol cetak untuk mengunduh laporan berlatar putih bersih siap cetak/PDF.</p>
+                        <h4 class="font-bold text-white text-sm mb-1">Audit Dasar Perhitungan</h4>
+                        <p class="text-slate-400">Klik tombol <strong>Dasar Perhitungan</strong> di header untuk melihat semua rumus + substitusi nilai aktual.</p>
                     </div>
                 </div>
-
+                <div class="flex gap-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+                    <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-400 font-bold flex items-center justify-center text-xs">6</div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm mb-1">Rekomendasi BPB & Cetak</h4>
+                        <p class="text-slate-400">Gunakan tabel BPB, klik tombol cetak untuk laporan PDF.</p>
+                    </div>
+                </div>
             </div>
-
-            <!-- Modal Footer -->
             <div class="px-6 py-3 border-t border-slate-800 bg-slate-950/80 flex justify-end">
                 <button onclick="closeGuideModal()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-600/20">
-                    Saya Mengerti, Tutup Panduan
+                    Saya Mengerti, Tutup
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER (Posisi Kanan Bawah) -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
-
-    <!-- CONTAINER FOR CLEAN WHITE PRINT OUTPUT -->
     <div id="printContainer"></div>
 
     <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
@@ -521,7 +391,6 @@
     </footer>
 
     <script>
-        // DATABASE WF / H-BEAM PROFILES (Weight per meter in kg/m, height in mm)
         const WF_DATABASE = [
             { id: 'WF100', name: 'WF 100 x 50 x 5 x 7 mm', weightKgM: 9.3, heightMm: 100 },
             { id: 'WF125', name: 'WF 125 x 60 x 6 x 8 mm', weightKgM: 13.2, heightMm: 125 },
@@ -531,8 +400,6 @@
             { id: 'WF250', name: 'WF 250 x 125 x 6 x 9 mm', weightKgM: 29.6, heightMm: 250 },
             { id: 'WF300', name: 'WF 300 x 150 x 6.5 x 9 mm', weightKgM: 36.7, heightMm: 300 }
         ];
-
-        // DATABASE UNP CHANNEL STEEL PROFILES
         const UNP_DATABASE = [
             { id: 'UNP80', name: 'UNP 80 x 45 x 6 mm', weightKgM: 8.64, heightMm: 80 },
             { id: 'UNP100', name: 'UNP 100 x 50 x 5 mm', weightKgM: 9.36, heightMm: 100 },
@@ -541,461 +408,412 @@
             { id: 'UNP180', name: 'UNP 180 x 70 x 8 mm', weightKgM: 22.0, heightMm: 180 },
             { id: 'UNP200', name: 'UNP 200 x 75 x 8.5 mm', weightKgM: 25.3, heightMm: 200 }
         ];
-
-        // ALTRAND SPRING MOUNTINGS DATABASE (Type XL and Type CE)
         const SPRING_DATABASE = [
-            // Open Spring Type XL
-            { model: 'XL-90', cat: 'XL', maxLoad: 20, defl: 38 },
-            { model: 'XL-91', cat: 'XL', maxLoad: 35, defl: 35 },
-            { model: 'XL-92', cat: 'XL', maxLoad: 50, defl: 33 },
-            { model: 'XL-93', cat: 'XL', maxLoad: 100, defl: 33 },
-            { model: 'XL-94', cat: 'XL', maxLoad: 150, defl: 30 },
-            { model: 'XL-95', cat: 'XL', maxLoad: 200, defl: 30 },
-            { model: 'XL-96', cat: 'XL', maxLoad: 250, defl: 28 },
-            { model: 'XL-97', cat: 'XL', maxLoad: 300, defl: 28 },
-            { model: 'XL-98', cat: 'XL', maxLoad: 400, defl: 25 },
-            { model: 'XL-99', cat: 'XL', maxLoad: 550, defl: 23 },
-            // Housed Spring Type CE
-            { model: 'CE-2-25', cat: 'CE', maxLoad: 400, defl: 30 },
-            { model: 'CE-2-26', cat: 'CE', maxLoad: 550, defl: 29 },
-            { model: 'CE-2-27', cat: 'CE', maxLoad: 700, defl: 25 },
-            { model: 'CE-2-28', cat: 'CE', maxLoad: 800, defl: 24 },
-            { model: 'CE-2-31', cat: 'CE', maxLoad: 1000, defl: 20 },
-            { model: 'CE-2-32', cat: 'CE', maxLoad: 1250, defl: 15 },
-            { model: 'CE-4-25', cat: 'CE', maxLoad: 800, defl: 30 },
-            { model: 'CE-4-26', cat: 'CE', maxLoad: 1100, defl: 29 },
-            { model: 'CE-4-27', cat: 'CE', maxLoad: 1400, defl: 25 },
-            { model: 'CE-4-28', cat: 'CE', maxLoad: 1600, defl: 24 },
-            { model: 'CE-4-31', cat: 'CE', maxLoad: 2000, defl: 20 },
-            { model: 'CE-4-32', cat: 'CE', maxLoad: 2500, defl: 15 }
+            { model: 'XL-90', cat: 'XL', maxLoad: 20, defl: 38 }, { model: 'XL-91', cat: 'XL', maxLoad: 35, defl: 35 },
+            { model: 'XL-92', cat: 'XL', maxLoad: 50, defl: 33 }, { model: 'XL-93', cat: 'XL', maxLoad: 100, defl: 33 },
+            { model: 'XL-94', cat: 'XL', maxLoad: 150, defl: 30 }, { model: 'XL-95', cat: 'XL', maxLoad: 200, defl: 30 },
+            { model: 'XL-96', cat: 'XL', maxLoad: 250, defl: 28 }, { model: 'XL-97', cat: 'XL', maxLoad: 300, defl: 28 },
+            { model: 'XL-98', cat: 'XL', maxLoad: 400, defl: 25 }, { model: 'XL-99', cat: 'XL', maxLoad: 550, defl: 23 },
+            { model: 'CE-2-25', cat: 'CE', maxLoad: 400, defl: 30 }, { model: 'CE-2-26', cat: 'CE', maxLoad: 550, defl: 29 },
+            { model: 'CE-2-27', cat: 'CE', maxLoad: 700, defl: 25 }, { model: 'CE-2-28', cat: 'CE', maxLoad: 800, defl: 24 },
+            { model: 'CE-2-31', cat: 'CE', maxLoad: 1000, defl: 20 }, { model: 'CE-2-32', cat: 'CE', maxLoad: 1250, defl: 15 },
+            { model: 'CE-4-25', cat: 'CE', maxLoad: 800, defl: 30 }, { model: 'CE-4-26', cat: 'CE', maxLoad: 1100, defl: 29 },
+            { model: 'CE-4-27', cat: 'CE', maxLoad: 1400, defl: 25 }, { model: 'CE-4-28', cat: 'CE', maxLoad: 1600, defl: 24 },
+            { model: 'CE-4-31', cat: 'CE', maxLoad: 2000, defl: 20 }, { model: 'CE-4-32', cat: 'CE', maxLoad: 2500, defl: 15 }
         ];
 
-        // Three.js 3D Global Variables
         let scene, camera, renderer, controls;
         let concreteMesh, frameMesh, wiremeshGroup, springsGroup, pumpMesh, bracketsGroup;
-        let isFabricationMode = true; // Default to fabrication mode
-
-        // Current Calculation Result State
+        let isFabricationMode = true;
         let currentCalc = {};
 
-        // SYSTEM TOAST NOTIFICATION (AUTOMATICALLY CLOSES IN 2 SECONDS)
-        let lastToastMsg = "";
-        let lastToastTime = 0;
+        let lastToastMsg = "", lastToastTime = 0;
 
         function showToast(message, type = 'info', title = 'Notifikasi') {
             const now = Date.now();
-            // Prevent exact duplicate toasts within 500ms
-            if (message === lastToastMsg && (now - lastToastTime) < 500) {
-                return;
-            }
-            lastToastMsg = message;
-            lastToastTime = now;
-
+            if (message === lastToastMsg && (now - lastToastTime) < 500) return;
+            lastToastMsg = message; lastToastTime = now;
             const container = document.getElementById('toastContainer');
             if (!container) return;
-
             const toast = document.createElement('div');
             toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-2xl backdrop-blur-md text-xs text-white toast-enter`;
-
             let iconName = 'info';
             let bgBorderClass = 'bg-slate-900/95 border-blue-500/50 text-blue-400';
-
-            if (type === 'success') {
-                iconName = 'check-circle';
-                bgBorderClass = 'bg-slate-900/95 border-emerald-500/50 text-emerald-400';
-            } else if (type === 'danger' || type === 'delete') {
-                iconName = 'trash-2';
-                bgBorderClass = 'bg-slate-900/95 border-rose-500/50 text-rose-400';
-            } else if (type === 'warning') {
-                iconName = 'alert-triangle';
-                bgBorderClass = 'bg-slate-900/95 border-amber-500/50 text-amber-400';
-            }
-
+            if (type === 'success') { iconName = 'check-circle'; bgBorderClass = 'bg-slate-900/95 border-emerald-500/50 text-emerald-400'; }
+            else if (type === 'danger' || type === 'delete') { iconName = 'trash-2'; bgBorderClass = 'bg-slate-900/95 border-rose-500/50 text-rose-400'; }
+            else if (type === 'warning') { iconName = 'alert-triangle'; bgBorderClass = 'bg-slate-900/95 border-amber-500/50 text-amber-400'; }
             toast.classList.add(...bgBorderClass.split(' '));
-
-            toast.innerHTML = `
-                <div class="mt-0.5 flex-shrink-0">
-                    <i data-lucide="${iconName}" class="w-4 h-4"></i>
-                </div>
-                <div class="flex-1 pr-2">
-                    <h5 class="font-bold text-white text-[11px] leading-tight mb-0.5">${title}</h5>
-                    <p class="text-slate-300 text-[11px] leading-snug">${message}</p>
-                </div>
-            `;
-
+            toast.innerHTML = `<div class="mt-0.5 flex-shrink-0"><i data-lucide="${iconName}" class="w-4 h-4"></i></div>
+                <div class="flex-1 pr-2"><h5 class="font-bold text-white text-[11px] leading-tight mb-0.5">${title}</h5>
+                <p class="text-slate-300 text-[11px] leading-snug">${message}</p></div>`;
             container.appendChild(toast);
-            lucide.createIcons({ props: {}, name: iconName });
-
-            // Auto Close after precisely 2000 ms (2 detik)
+            lucide.createIcons();
             setTimeout(() => {
                 toast.classList.remove('toast-enter');
                 toast.classList.add('toast-exit');
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 250);
+                setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 250);
             }, 2000);
         }
 
-        // Event helper for Input Entry Focus
-        function notifyEntry(msg) {
-            showToast(msg, 'info', 'Data Entry');
-        }
+        function notifyEntry(msg) { showToast(msg, 'info', 'Data Entry'); }
+        function notifyDataChange(msg) { showToast(msg, 'success', 'Update Parameter'); }
 
-        // Event helper for Parameter Changes
-        function notifyDataChange(msg) {
-            showToast(msg, 'success', 'Update Parameter');
+        function openGuideModal() { document.getElementById('guideModal').classList.remove('hidden'); showToast("Membuka Panduan", "info", "Panduan"); }
+        function closeGuideModal() { document.getElementById('guideModal').classList.add('hidden'); }
+        function openFormulaModal() {
+            const m = document.getElementById('formulaModal');
+            if (!m) return;
+            buildFormulaContent();
+            m.classList.remove('hidden');
+            showToast("Menampilkan dasar perhitungan", "info", "Dasar Perhitungan");
         }
+        function closeFormulaModal() { document.getElementById('formulaModal').classList.add('hidden'); }
 
-        // MODAL PANDUAN HANDLERS
-        function openGuideModal() {
-            const modal = document.getElementById('guideModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                showToast("Membuka Panduan Penggunaan", "info", "Panduan");
+        function fmtNum(n, d = 2) { return isFinite(n) ? Number(n).toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }) : '0'; }
+
+        function buildFormulaContent() {
+            const c = currentCalc;
+            const container = document.getElementById('formulaContent');
+            if (!container || !c || !c.selectedProfile) {
+                container.innerHTML = `<div class="text-center text-slate-500 py-8 text-xs">Belum ada data. Silakan isi parameter terlebih dahulu.</div>`;
+                return;
             }
+            const card = (num, title, cat, formula, subst, result, note, color = 'cyan') => {
+                const cm = { cyan:'text-cyan-300 border-cyan-500/30 bg-cyan-500/10', emerald:'text-emerald-300 border-emerald-500/30 bg-emerald-500/10',
+                    amber:'text-amber-300 border-amber-500/30 bg-amber-500/10', purple:'text-purple-300 border-purple-500/30 bg-purple-500/10',
+                    rose:'text-rose-300 border-rose-500/30 bg-rose-500/10', blue:'text-blue-300 border-blue-500/30 bg-blue-500/10' };
+                return `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+                    <div class="flex items-start justify-between gap-2 flex-wrap">
+                        <h4 class="font-bold text-white text-xs flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-md ${cm[color]} border text-[10px] font-bold flex items-center justify-center flex-shrink-0">${num}</span>
+                            ${title}
+                        </h4>
+                        <span class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold uppercase tracking-wide">${cat}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Rumus</p>
+                            <p class="font-mono text-cyan-300 text-[11px] break-words">${formula}</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Substitusi</p>
+                            <p class="font-mono text-slate-300 text-[11px] break-words">${subst}</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Hasil</p>
+                            <p class="font-mono text-emerald-400 text-[11px] font-bold break-words">${result}</p>
+                        </div>
+                    </div>
+                    ${note ? `<p class="text-[10px] text-slate-400 italic flex items-start gap-1.5 pt-1 border-t border-slate-800/60">
+                        <i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0 text-blue-400"></i><span>${note}</span></p>` : ''}
+                </div>`;
+            };
+
+            const L = c.lengthMm / 1000, W = c.widthMm / 1000, H = c.heightMm / 1000;
+            const sections = [];
+
+            sections.push(card('1', 'Target Berat Inersia Minimal', 'Equipment',
+                'Target = Berat_Pompa × Rasio',
+                `${fmtNum(c.eqWeight,0)} × ${fmtNum(c.targetRatio,2)}`,
+                `${fmtNum(c.targetInertiaKg,2)} Kg`,
+                'Referensi rasio: 1:1.00 (minimum) s/d 1:2.00 (heavy duty). Standar pompa: 1:1.50.', 'blue'));
+
+            sections.push(card('2', 'Volume Beton Cor', 'Geometri',
+                'V = L × W × H',
+                `${fmtNum(L,3)} × ${fmtNum(W,3)} × ${fmtNum(H,3)}`,
+                `${fmtNum(c.concreteVolM3,4)} m³`,
+                'H dikunci mengikuti tinggi profil baja terpilih.', 'cyan'));
+
+            sections.push(card('3', 'Berat Beton Cor', 'Material',
+                'W_beton = V × ρ_beton',
+                `${fmtNum(c.concreteVolM3,4)} × ${fmtNum(c.concreteDensity,0)}`,
+                `${fmtNum(c.concreteWeightKg,2)} Kg`,
+                'Berat jenis beton bertulang standar: 2400 kg/m³.', 'cyan'));
+
+            sections.push(card('4', 'Berat Frame Baja', 'Material',
+                'Keliling = 2(L+W); W = Keliling × kg/m',
+                `2(${fmtNum(L,3)}+${fmtNum(W,3)}) = ${fmtNum(c.framePerimeterM,3)} m × ${fmtNum(c.selectedProfile.weightKgM,2)}`,
+                `${fmtNum(c.frameWeightKg,2)} Kg`,
+                `Profil: <strong>${c.selectedProfile.name}</strong>. Hanya outer rim 4 sisi.`, 'amber'));
+
+            sections.push(card('5', 'Berat Wiremesh (2 Lapis)', 'Material',
+                'W_mesh = Luas × 2 × kg/m²',
+                `${fmtNum(c.blockAreaM2,3)} × 2 × ${fmtNum(c.meshWeightPerM2,2)}`,
+                `${fmtNum(c.wiremeshWeightKg,2)} Kg`,
+                `Spesifikasi: <strong>${c.meshSpecName}</strong>. Sesuaikan bila nilai kg/m² berbeda di SNI Anda.`, 'amber'));
+
+            sections.push(card('6', 'Total Berat Inersia', 'Rekap',
+                'W_total = Beton + Frame + Mesh',
+                `${fmtNum(c.concreteWeightKg,2)} + ${fmtNum(c.frameWeightKg,2)} + ${fmtNum(c.wiremeshWeightKg,2)}`,
+                `${fmtNum(c.totalInertiaWeightKg,2)} Kg`,
+                'Total berat block jadi tanpa pompa.', 'emerald'));
+
+            const isPass = c.devKg >= 0;
+            sections.push(card('7', 'Deviasi Terhadap Target', 'Validasi',
+                'Dev% = ((W_total − Target)/Target) × 100%',
+                `((${fmtNum(c.totalInertiaWeightKg,2)} − ${fmtNum(c.targetInertiaKg,2)}) / ${fmtNum(c.targetInertiaKg,2)}) × 100%`,
+                `${fmtNum(c.devPct,2)} % (${isPass ? 'LULUS' : 'GAGAL'})`,
+                isPass ? 'Block memenuhi target. Optimasi bila deviasi terlalu besar.' : 'Block BELUM memenuhi. Perbesar L/W atau tambah H.',
+                isPass ? 'emerald' : 'rose'));
+
+            sections.push(card('8', 'Total Operating Load', 'Beban',
+                'W_op = W_total + W_pompa + (5% × W_pompa)',
+                `${fmtNum(c.totalInertiaWeightKg,2)} + ${fmtNum(c.eqWeight,0)} + (0.05 × ${fmtNum(c.eqWeight,0)})`,
+                `${fmtNum(c.totalOperatingLoadKg,2)} Kg`,
+                'Allowance 5% untuk pipa, air, dan aksesori.', 'purple'));
+
+            sections.push(card('9', 'Load per Mounting Point', 'Spring',
+                'Load_point = W_op / Jumlah_Point',
+                `${fmtNum(c.totalOperatingLoadKg,2)} / ${c.mountingCount}`,
+                `${fmtNum(c.loadPerPointKg,2)} Kg/point`,
+                `Konfigurasi: <strong>${c.mountingCount} point</strong>.`, 'purple'));
+
+            const targetMin = c.loadPerPointKg * 1.05;
+            sections.push(card('10', 'Pemilihan Spring ALTRAND', 'Spring',
+                'Filter: Spring.maxLoad ≥ Load_point × 1.05',
+                `Load_point × 1.05 = ${fmtNum(targetMin,2)} Kg`,
+                `Terpilih: ${c.chosenSpring.model} (Max ${fmtNum(c.chosenSpring.maxLoad,0)} Kg, Defl ${c.chosenSpring.defl} mm)`,
+                `Tipe: <strong>${c.chosenSpring.cat === 'XL' ? 'XL (Open Spring)' : 'CE (Housed Restrained)'}</strong>. Safety margin: <strong>${fmtNum(c.safetyMarginPct,2)}%</strong>.`,
+                'purple'));
+
+            const steel = Math.ceil(c.framePerimeterM / 6.0);
+            const mesh = Math.ceil((c.blockAreaM2 * 2) / 2.88);
+            const bags = Math.ceil(c.concreteVolM3 * 43);
+            sections.push(card('11', 'Rekomendasi BPB', 'Pengadaan',
+                'Batang=ceil(Kel/6); Lembar=ceil(Luas/2.88); Sak=ceil(V×43)',
+                `Steel: ceil(${fmtNum(c.framePerimeterM,2)}/6) | Mesh: ceil(${fmtNum(c.blockAreaM2*2,2)}/2.88) | Beton: ceil(${fmtNum(c.concreteVolM3,4)}×43)`,
+                `Steel: ${steel} btg @6m | Mesh: ${mesh} lbr (1.2×2.4m) | Beton: ${bags} sak @50kg`,
+                'Asumsi: batang baja 6 m, wiremesh 1.2×2.4 m, 43 sak @50kg/m³ beton K-300. Sesuaikan bila berbeda.',
+                'blue'));
+
+            container.innerHTML = sections.join('');
+            lucide.createIcons();
         }
 
-        function closeGuideModal() {
-            const modal = document.getElementById('guideModal');
-            if (modal) {
-                modal.classList.add('hidden');
-            }
-        }
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeGuideModal(); closeFormulaModal(); } });
+        document.getElementById('guideModal')?.addEventListener('click', (e) => { if (e.target.id === 'guideModal') closeGuideModal(); });
+        document.getElementById('formulaModal')?.addEventListener('click', (e) => { if (e.target.id === 'formulaModal') closeFormulaModal(); });
 
-        // Close guide modal on ESC key or clicking outside backdrop
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeGuideModal();
-        });
-
-        document.getElementById('guideModal')?.addEventListener('click', (e) => {
-            if (e.target.id === 'guideModal') closeGuideModal();
-        });
-
-        // ACTION: CLEAR DATA ENTRY
         function clearDataEntry() {
             document.getElementById('inputEqName').value = '';
             document.getElementById('inputEqWeight').value = '0';
             calculateInertia();
-            showToast("Data entry berhasil dibersihkan", "delete", "Hapus Data Entry");
+            showToast("Data entry dibersihkan", "delete", "Hapus Data Entry");
         }
 
-        // Populate Target Inertia Ratios (1.00 to 2.00 step 0.05)
         function initInertiaRatioOptions() {
             const select = document.getElementById('selectInertiaRatio');
             select.innerHTML = '';
             for (let r = 1.0; r <= 2.001; r += 0.05) {
                 const opt = document.createElement('option');
                 opt.value = r.toFixed(2);
-                const ratioText = `1 : ${r.toFixed(2)}`;
-                if (Math.abs(r - 1.50) < 0.01) {
-                    opt.textContent = `${ratioText} Standard`;
-                    opt.selected = true;
-                } else if (Math.abs(r - 1.00) < 0.01) {
-                    opt.textContent = `${ratioText} Minimum`;
-                } else if (Math.abs(r - 2.00) < 0.01) {
-                    opt.textContent = `${ratioText} Heavy Duty`;
-                } else {
-                    opt.textContent = ratioText;
-                }
+                const txt = `1 : ${r.toFixed(2)}`;
+                if (Math.abs(r - 1.50) < 0.01) { opt.textContent = `${txt} Standard`; opt.selected = true; }
+                else if (Math.abs(r - 1.00) < 0.01) opt.textContent = `${txt} Minimum`;
+                else if (Math.abs(r - 2.00) < 0.01) opt.textContent = `${txt} Heavy Duty`;
+                else opt.textContent = txt;
                 select.appendChild(opt);
             }
         }
 
-        // On Change Steel Category (WF vs UNP)
         function onFrameCategoryChange() {
             const cat = document.getElementById('selectFrameCategory').value;
-            const selectProfile = document.getElementById('selectFrameProfile');
-            selectProfile.innerHTML = '';
-
+            const sp = document.getElementById('selectFrameProfile');
+            sp.innerHTML = '';
             const db = (cat === 'wf') ? WF_DATABASE : UNP_DATABASE;
             db.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item.id;
                 opt.textContent = `${item.name} (${item.weightKgM} kg/m)`;
-                selectProfile.appendChild(opt);
+                sp.appendChild(opt);
             });
-
-            // Set default profile selection
-            if (cat === 'wf') selectProfile.value = 'WF150';
-            else selectProfile.value = 'UNP150';
-
+            sp.value = (cat === 'wf') ? 'WF150' : 'UNP150';
             calculateInertia();
         }
 
-        // On Change Spring Category (XL, CE or Auto)
         function onSpringCategoryChange() {
             const cat = document.getElementById('selectSpringCategory').value;
-            const selectModel = document.getElementById('selectSpringModel');
-            selectModel.innerHTML = '';
-
+            const sm = document.getElementById('selectSpringModel');
+            sm.innerHTML = '';
             if (cat === 'auto') {
                 const opt = document.createElement('option');
-                opt.value = 'auto';
-                opt.textContent = '-- Otomatis Ditentukan System --';
-                selectModel.appendChild(opt);
+                opt.value = 'auto'; opt.textContent = '-- Otomatis Ditentukan System --';
+                sm.appendChild(opt);
             } else {
-                const filtered = SPRING_DATABASE.filter(s => s.cat === cat);
-                filtered.forEach(s => {
+                SPRING_DATABASE.filter(s => s.cat === cat).forEach(s => {
                     const opt = document.createElement('option');
-                    opt.value = s.model;
-                    opt.textContent = `${s.model} (Max Load: ${s.maxLoad} kg)`;
-                    selectModel.appendChild(opt);
+                    opt.value = s.model; opt.textContent = `${s.model} (Max Load: ${s.maxLoad} kg)`;
+                    sm.appendChild(opt);
                 });
             }
-
             calculateInertia();
         }
 
-        // CORE CALCULATION ENGINE
         function calculateInertia() {
             const eqName = document.getElementById('inputEqName').value || "Equipment Pompa";
             const eqWeight = parseFloat(document.getElementById('inputEqWeight').value) || 0;
             const targetRatio = parseFloat(document.getElementById('selectInertiaRatio').value) || 1.5;
-
             const targetInertiaKg = eqWeight * targetRatio;
             document.getElementById('labelTargetInertiaKg').textContent = `${targetInertiaKg.toFixed(1)} Kg`;
 
-            // Frame Category & Profile lookup
             const frameCat = document.getElementById('selectFrameCategory').value;
             const profileId = document.getElementById('selectFrameProfile').value;
             const profileDb = (frameCat === 'wf') ? WF_DATABASE : UNP_DATABASE;
             const selectedProfile = profileDb.find(p => p.id === profileId) || profileDb[0];
-
-            // Set Height based on selected Profile
             const heightMm = selectedProfile.heightMm;
             document.getElementById('inputHeightMm').value = heightMm;
 
             const lengthMm = parseFloat(document.getElementById('inputLengthMm').value) || 1800;
             const widthMm = parseFloat(document.getElementById('inputWidthMm').value) || 1100;
+            const lenM = lengthMm / 1000, widthM = widthMm / 1000, heightM = heightMm / 1000;
 
-            // Dimensions in Meters
-            const lenM = lengthMm / 1000;
-            const widthM = widthMm / 1000;
-            const heightM = heightMm / 1000;
-
-            // Volume Concrete (m3)
             const concreteVolM3 = lenM * widthM * heightM;
             const concreteDensity = parseFloat(document.getElementById('inputConcreteDensity').value) || 2400;
             const concreteWeightKg = concreteVolM3 * concreteDensity;
 
-            // Frame Perimeter (Outer ring)
             const framePerimeterM = (lenM * 2) + (widthM * 2);
             const frameWeightKg = framePerimeterM * selectedProfile.weightKgM;
 
-            // Wiremesh Calculation (2 Layers)
             const wiremeshSel = document.getElementById('selectWiremesh').value;
-            let meshWeightPerM2 = 14.5; // default M8
-            let meshSpecName = "Wiremesh M8";
+            let meshWeightPerM2 = 14.5, meshSpecName = "Wiremesh M8";
             if (wiremeshSel.includes("M10")) { meshWeightPerM2 = 22.6; meshSpecName = "Wiremesh M10"; }
             else if (wiremeshSel.includes("M6")) { meshWeightPerM2 = 8.2; meshSpecName = "Wiremesh M6"; }
 
             const blockAreaM2 = lenM * widthM;
-            const wiremeshWeightKg = blockAreaM2 * 2 * meshWeightPerM2; // 2 layers
-
-            // Total Realized Inertia Weight
+            const wiremeshWeightKg = blockAreaM2 * 2 * meshWeightPerM2;
             const totalInertiaWeightKg = concreteWeightKg + frameWeightKg + wiremeshWeightKg;
-
-            // Weight Deviation
             const devKg = totalInertiaWeightKg - targetInertiaKg;
             const devPct = targetInertiaKg > 0 ? (devKg / targetInertiaKg) * 100 : 0;
-
-            // Operating Load (Inertia Block + Pump + Water/Pipe allowance 5%)
             const totalOperatingLoadKg = totalInertiaWeightKg + eqWeight + (eqWeight * 0.05);
 
-            // Spring Mounting Point Load
             const mountingCount = parseInt(document.getElementById('selectMountingCount').value) || 4;
             const loadPerPointKg = totalOperatingLoadKg / mountingCount;
 
-            // Spring Selection Logic
             const springCat = document.getElementById('selectSpringCategory').value;
             let chosenSpring = null;
-
             if (springCat === 'auto' || document.getElementById('selectSpringModel').value === 'auto') {
-                // Find matching spring with min 5% safety margin
                 chosenSpring = SPRING_DATABASE.find(s => s.maxLoad >= loadPerPointKg * 1.05) || SPRING_DATABASE[SPRING_DATABASE.length - 1];
             } else {
                 const modelId = document.getElementById('selectSpringModel').value;
                 chosenSpring = SPRING_DATABASE.find(s => s.model === modelId) || SPRING_DATABASE[0];
             }
-
             const safetyMarginPct = loadPerPointKg > 0 ? ((chosenSpring.maxLoad - loadPerPointKg) / loadPerPointKg) * 100 : 0;
 
-            // Save to State
-            currentCalc = {
-                eqName, eqWeight, targetRatio, targetInertiaKg,
-                frameCat, selectedProfile, lengthMm, widthMm, heightMm,
-                concreteVolM3, concreteWeightKg, framePerimeterM, frameWeightKg,
-                wiremeshWeightKg, meshSpecName, blockAreaM2,
-                totalInertiaWeightKg, devKg, devPct,
-                totalOperatingLoadKg, mountingCount, loadPerPointKg,
-                chosenSpring, safetyMarginPct
-            };
+            currentCalc = { eqName, eqWeight, targetRatio, targetInertiaKg, frameCat, selectedProfile, lengthMm, widthMm, heightMm,
+                concreteVolM3, concreteWeightKg, concreteDensity, framePerimeterM, frameWeightKg, wiremeshWeightKg, meshSpecName,
+                meshWeightPerM2, blockAreaM2, totalInertiaWeightKg, devKg, devPct, totalOperatingLoadKg, mountingCount,
+                loadPerPointKg, chosenSpring, safetyMarginPct };
 
-            // Update UI Labels
             updateUI();
             update3DModel();
         }
 
-        // UPDATE UI DOM ELEMENTS
         function updateUI() {
             const c = currentCalc;
-
             document.getElementById('valConcreteWeight').textContent = `${c.concreteWeightKg.toFixed(1)} Kg`;
             document.getElementById('valConcreteVol').textContent = `Vol: ${c.concreteVolM3.toFixed(3)} m³`;
-
             document.getElementById('valFrameWeight').textContent = `${c.frameWeightKg.toFixed(1)} Kg`;
             document.getElementById('valFrameLen').textContent = `Keliling: ${c.framePerimeterM.toFixed(2)} m`;
-
             document.getElementById('valWiremeshWeight').textContent = `${c.wiremeshWeightKg.toFixed(1)} Kg`;
             document.getElementById('valMeshArea').textContent = `Luas 2L: ${(c.blockAreaM2 * 2).toFixed(2)} m²`;
-
             document.getElementById('valTotalInertiaWeight').textContent = `${c.totalInertiaWeightKg.toFixed(1)} Kg`;
 
-            // Deviation Badge & Text
             const devElem = document.getElementById('valDeviationPct');
             const badgeElem = document.getElementById('badgeStatus');
-
             if (c.devKg >= 0) {
                 devElem.textContent = `Deviasi: +${c.devPct.toFixed(1)}% (Sesuai Target)`;
                 devElem.className = "text-[10px] font-semibold mt-0.5 text-emerald-400";
-
                 badgeElem.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5";
                 badgeElem.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> PASS: Memenuhi Standar`;
             } else {
                 devElem.textContent = `Deviasi: ${c.devPct.toFixed(1)}% (Kurang Berat)`;
                 devElem.className = "text-[10px] font-semibold mt-0.5 text-rose-400";
-
                 badgeElem.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5";
                 badgeElem.innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> WARN: Perlu Diperbesar`;
             }
-
-            // Spring Analysis
             document.getElementById('valTotalOperatingLoad').textContent = `Total Operating Load: ${c.totalOperatingLoadKg.toFixed(1)} Kg`;
             document.getElementById('valLoadPerPoint').textContent = `${c.loadPerPointKg.toFixed(1)} Kg`;
             document.getElementById('valRecommendedSpring').textContent = `ALTRAND ${c.chosenSpring.model}`;
             document.getElementById('valSafetyMargin').textContent = `${c.safetyMarginPct.toFixed(1)}%`;
-
-            // Legends Overlay
             document.getElementById('legendFrameText').textContent = `${c.frameCat.toUpperCase()} - ${c.selectedProfile.name}`;
             document.getElementById('legendConcreteDim').textContent = `${(c.lengthMm/10).toFixed(0)}x${(c.widthMm/10).toFixed(0)}x${(c.heightMm/10).toFixed(0)} cm`;
             document.getElementById('legendSpringText').textContent = `${c.mountingCount} Points ALTRAND ${c.chosenSpring.model}`;
-
             renderBPBTable();
             lucide.createIcons();
+            const fm = document.getElementById('formulaModal');
+            if (fm && !fm.classList.contains('hidden')) buildFormulaContent();
         }
 
-        // RENDER BPB RECOMMENDATION TABLE (43 Bags @ 50kg per 1 m3 concrete)
         function renderBPBTable() {
             const tbody = document.getElementById('bpbTableBody');
             tbody.innerHTML = '';
-
             const c = currentCalc;
+            const steel = Math.ceil(c.framePerimeterM / 6.0);
+            const mesh = Math.ceil((c.blockAreaM2 * 2) / 2.88);
+            const bags = Math.ceil(c.concreteVolM3 * 43);
 
-            // 1. Profil Steel (6m bars)
-            const steelBarsNeeded = Math.ceil(c.framePerimeterM / 6.0);
-            const trSteel = document.createElement('tr');
-            trSteel.className = "hover:bg-slate-800/40 transition";
-            trSteel.innerHTML = `
-                <td class="py-3 px-3 font-semibold text-blue-400">Profil Baja Frame (${c.frameCat.toUpperCase()})</td>
-                <td class="py-3 px-3">${c.selectedProfile.name}</td>
-                <td class="py-3 px-3 text-right text-slate-300">${c.framePerimeterM.toFixed(2)} Meter</td>
-                <td class="py-3 px-3 text-right font-black text-emerald-400 text-sm">${steelBarsNeeded} Batang @ 6m</td>
-            `;
-            tbody.appendChild(trSteel);
-
-            // 2. Wiremesh (Standard Sheet 1.2m x 2.4m = 2.88 m2)
-            const meshSheetsNeeded = Math.ceil((c.blockAreaM2 * 2) / 2.88);
-            const trMesh = document.createElement('tr');
-            trMesh.className = "hover:bg-slate-800/40 transition";
-            trMesh.innerHTML = `
-                <td class="py-3 px-3 font-semibold text-amber-400">${c.meshSpecName}</td>
-                <td class="py-3 px-3">2 Lapis (Atas & Bawah, Sheet 1.2 x 2.4 m)</td>
-                <td class="py-3 px-3 text-right text-slate-300">${(c.blockAreaM2 * 2).toFixed(2)} m²</td>
-                <td class="py-3 px-3 text-right font-black text-amber-400 text-sm">${meshSheetsNeeded} Lembar</td>
-            `;
-            tbody.appendChild(trMesh);
-
-            // 3. Instant Concrete Bags @ 50kg (Precisely 43 bags @ 50kg per 1 m3 concrete)
-            const totalBags50kg = Math.ceil(c.concreteVolM3 * 43);
-            const trConcrete = document.createElement('tr');
-            trConcrete.className = "hover:bg-slate-800/40 transition";
-            trConcrete.innerHTML = `
-                <td class="py-3 px-3 font-semibold text-cyan-400">Beton Instan / Ready-Mix</td>
-                <td class="py-3 px-3">Semen Instan K-300 (Bag @ 50 Kg) - Rate: 43 Sak/m³</td>
-                <td class="py-3 px-3 text-right text-slate-300">${c.concreteVolM3.toFixed(3)} m³ (${c.concreteWeightKg.toFixed(0)} Kg)</td>
-                <td class="py-3 px-3 text-right font-black text-cyan-400 text-sm">${totalBags50kg} Sak @ 50 Kg</td>
-            `;
-            tbody.appendChild(trConcrete);
-
-            // 4. Spring Mountings ALTRAND
-            const trSpring = document.createElement('tr');
-            trSpring.className = "hover:bg-slate-800/40 transition";
-            trSpring.innerHTML = `
-                <td class="py-3 px-3 font-semibold text-purple-400">Spring Mounting ALTRAND</td>
-                <td class="py-3 px-3">${c.chosenSpring.model} (Max Rating: ${c.chosenSpring.maxLoad} Kg)</td>
-                <td class="py-3 px-3 text-right text-slate-300">${c.mountingCount} Unit (Load: ${c.loadPerPointKg.toFixed(1)} kg/pt)</td>
-                <td class="py-3 px-3 text-right font-black text-purple-400 text-sm">${c.mountingCount} Unit</td>
-            `;
-            tbody.appendChild(trSpring);
+            tbody.innerHTML = `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-3 font-semibold text-blue-400">Profil Baja Frame (${c.frameCat.toUpperCase()})</td>
+                    <td class="py-3 px-3">${c.selectedProfile.name}</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${c.framePerimeterM.toFixed(2)} Meter</td>
+                    <td class="py-3 px-3 text-right font-black text-emerald-400 text-sm">${steel} Batang @ 6m</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-3 font-semibold text-amber-400">${c.meshSpecName}</td>
+                    <td class="py-3 px-3">2 Lapis (Sheet 1.2 x 2.4 m)</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${(c.blockAreaM2 * 2).toFixed(2)} m²</td>
+                    <td class="py-3 px-3 text-right font-black text-amber-400 text-sm">${mesh} Lembar</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-3 font-semibold text-cyan-400">Beton Instan</td>
+                    <td class="py-3 px-3">K-300 (Bag @ 50 Kg) - 43 Sak/m³</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${c.concreteVolM3.toFixed(3)} m³ (${c.concreteWeightKg.toFixed(0)} Kg)</td>
+                    <td class="py-3 px-3 text-right font-black text-cyan-400 text-sm">${bags} Sak @ 50 Kg</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-3 font-semibold text-purple-400">Spring Mounting ALTRAND</td>
+                    <td class="py-3 px-3">${c.chosenSpring.model} (Max Rating: ${c.chosenSpring.maxLoad} Kg)</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${c.mountingCount} Unit (Load: ${c.loadPerPointKg.toFixed(1)} kg/pt)</td>
+                    <td class="py-3 px-3 text-right font-black text-purple-400 text-sm">${c.mountingCount} Unit</td>
+                </tr>`;
         }
 
-        // INITIALIZE THREE.JS 3D SCENE
+        // ====== THREE.JS 3D ======
         function init3DScene() {
             const container = document.getElementById('threejs-container');
             if (!container) return;
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-
+            const width = container.clientWidth, height = container.clientHeight;
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x080c14);
-
             camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
             camera.position.set(3.2, 2.4, 3.8);
-
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(width, height);
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
-
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-
-            // Lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-            scene.add(ambientLight);
-
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
             dirLight.position.set(6, 12, 8);
             dirLight.castShadow = true;
             scene.add(dirLight);
-
             const dirLightBack = new THREE.DirectionalLight(0x38bdf8, 0.4);
             dirLightBack.position.set(-6, -5, -6);
             scene.add(dirLightBack);
-
             const gridHelper = new THREE.GridHelper(10, 20, 0x334155, 0x1e293b);
             gridHelper.position.y = -0.3;
             scene.add(gridHelper);
-
-            // Group containers
             concreteMesh = new THREE.Mesh();
             frameMesh = new THREE.Group();
             bracketsGroup = new THREE.Group();
             wiremeshGroup = new THREE.Group();
             springsGroup = new THREE.Group();
             pumpMesh = new THREE.Group();
-
-            scene.add(concreteMesh);
-            scene.add(frameMesh);
-            scene.add(bracketsGroup);
-            scene.add(wiremeshGroup);
-            scene.add(springsGroup);
-            scene.add(pumpMesh);
-
+            scene.add(concreteMesh, frameMesh, bracketsGroup, wiremeshGroup, springsGroup, pumpMesh);
             window.addEventListener('resize', onWindowResize);
             animate();
         }
@@ -1003,12 +821,10 @@
         function onWindowResize() {
             const container = document.getElementById('threejs-container');
             if (!container) return;
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-
-            camera.aspect = width / height;
+            const w = container.clientWidth, h = container.clientHeight;
+            camera.aspect = w / h;
             camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
+            renderer.setSize(w, h);
         }
 
         function animate() {
@@ -1017,331 +833,198 @@
             if (renderer && scene && camera) renderer.render(scene, camera);
         }
 
-        // HELPER: BUILD ALTRAND TYPE XL (OPEN SPRING) 3D MESH
         function createSpringTypeXL() {
             const group = new THREE.Group();
             const darkSteelMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 });
-            const springCoilMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.3, metalness: 0.7 }); // Yellow/gold spring
+            const springCoilMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.3, metalness: 0.7 });
             const rubberPadMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 });
-
-            // 1. Bottom Rubber Neoprene Pad
-            const padGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.015, 24);
-            const pad = new THREE.Mesh(padGeo, rubberPadMat);
-            pad.position.y = 0.0075;
-            group.add(pad);
-
-            // 2. Base Plate Cup
-            const baseCupGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.02, 24);
-            const baseCup = new THREE.Mesh(baseCupGeo, darkSteelMat);
-            baseCup.position.y = 0.025;
-            group.add(baseCup);
-
-            // 3. Helical Spring Coil Curve
+            const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.015, 24), rubberPadMat);
+            pad.position.y = 0.0075; group.add(pad);
+            const baseCup = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.02, 24), darkSteelMat);
+            baseCup.position.y = 0.025; group.add(baseCup);
             class HelixCurve extends THREE.Curve {
-                constructor(radius, height, turns) {
-                    super();
-                    this.radius = radius;
-                    this.height = height;
-                    this.turns = turns;
-                }
+                constructor(r, h, t) { super(); this.radius = r; this.height = h; this.turns = t; }
                 getPoint(t) {
-                    const angle = t * Math.PI * 2 * this.turns;
-                    const x = this.radius * Math.cos(angle);
-                    const z = this.radius * Math.sin(angle);
-                    const y = t * this.height;
-                    return new THREE.Vector3(x, y, z);
+                    const a = t * Math.PI * 2 * this.turns;
+                    return new THREE.Vector3(this.radius * Math.cos(a), t * this.height, this.radius * Math.sin(a));
                 }
             }
-
             const helixPath = new HelixCurve(0.045, 0.12, 5);
-            const tubeGeo = new THREE.TubeGeometry(helixPath, 64, 0.009, 12, false);
-            const coilMesh = new THREE.Mesh(tubeGeo, springCoilMat);
-            coilMesh.position.y = 0.035;
-            group.add(coilMesh);
-
-            // 4. Top Cast Cup
-            const topCupGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.02, 24);
-            const topCup = new THREE.Mesh(topCupGeo, darkSteelMat);
-            topCup.position.y = 0.16;
-            group.add(topCup);
-
-            // 5. Center Adjusting Bolt
-            const boltGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.07, 12);
-            const bolt = new THREE.Mesh(boltGeo, darkSteelMat);
-            bolt.position.y = 0.19;
-            group.add(bolt);
-
+            const coil = new THREE.Mesh(new THREE.TubeGeometry(helixPath, 64, 0.009, 12, false), springCoilMat);
+            coil.position.y = 0.035; group.add(coil);
+            const topCup = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.02, 24), darkSteelMat);
+            topCup.position.y = 0.16; group.add(topCup);
+            const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.07, 12), darkSteelMat);
+            bolt.position.y = 0.19; group.add(bolt);
             return group;
         }
 
-        // HELPER: BUILD ALTRAND TYPE CE (HOUSED RESTRAINED) 3D MESH
         function createSpringTypeCE() {
             const group = new THREE.Group();
             const housingMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.3, metalness: 0.8 });
             const rubberPadMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-
-            // 1. Bottom Rubber Acoustical Pad
-            const padGeo = new THREE.BoxGeometry(0.18, 0.015, 0.12);
-            const pad = new THREE.Mesh(padGeo, rubberPadMat);
-            pad.position.y = 0.0075;
-            group.add(pad);
-
-            // 2. Lower Housing Box
-            const lowerHousingGeo = new THREE.BoxGeometry(0.16, 0.09, 0.10);
-            const lowerHousing = new THREE.Mesh(lowerHousingGeo, housingMat);
-            lowerHousing.position.y = 0.06;
-            group.add(lowerHousing);
-
-            // 3. Upper Telescoping Housing Box
-            const upperHousingGeo = new THREE.BoxGeometry(0.17, 0.08, 0.11);
-            const upperHousing = new THREE.Mesh(upperHousingGeo, housingMat);
-            upperHousing.position.y = 0.12;
-            group.add(upperHousing);
-
-            // 4. Top Adjusting Bolt & Nut
-            const boltGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.06, 12);
-            const bolt = new THREE.Mesh(boltGeo, housingMat);
-            bolt.position.y = 0.18;
-            group.add(bolt);
-
+            const pad = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.015, 0.12), rubberPadMat);
+            pad.position.y = 0.0075; group.add(pad);
+            const lowerHousing = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.09, 0.10), housingMat);
+            lowerHousing.position.y = 0.06; group.add(lowerHousing);
+            const upperHousing = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.08, 0.11), housingMat);
+            upperHousing.position.y = 0.12; group.add(upperHousing);
+            const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.06, 12), housingMat);
+            bolt.position.y = 0.18; group.add(bolt);
             return group;
         }
 
-        // UPDATE 3D GEOMETRY REALTIME
         function update3DModel() {
             if (!scene || !currentCalc.lengthMm) return;
-
             const l = currentCalc.lengthMm / 1000;
             const w = currentCalc.widthMm / 1000;
             const h = currentCalc.heightMm / 1000;
 
-            // 1. Concrete Block Mesh
             if (concreteMesh) scene.remove(concreteMesh);
-            const concreteGeo = new THREE.BoxGeometry(l - 0.02, h - 0.01, w - 0.02);
             const concreteMat = new THREE.MeshStandardMaterial({
-                color: 0x94a3b8,
-                roughness: 0.85,
-                transparent: isFabricationMode,
-                opacity: isFabricationMode ? 0.25 : 0.95
+                color: 0x94a3b8, roughness: 0.85,
+                transparent: isFabricationMode, opacity: isFabricationMode ? 0.25 : 0.95
             });
-            concreteMesh = new THREE.Mesh(concreteGeo, concreteMat);
+            concreteMesh = new THREE.Mesh(new THREE.BoxGeometry(l - 0.02, h - 0.01, w - 0.02), concreteMat);
             concreteMesh.position.set(0, h / 2, 0);
             scene.add(concreteMesh);
 
-            // 2. Steel Frame Outer Box (WF or UNP Profile Rim)
             if (frameMesh) scene.remove(frameMesh);
             frameMesh = new THREE.Group();
-
             const steelMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 });
-            const flangeThick = 0.012;
-            const webThick = 0.01;
-
-            // Function to generate outer rim beams
-            const buildBeam = (len, isLongitudinal) => {
-                const beamGroup = new THREE.Group();
-
-                // Top & Bottom Flanges
-                const flangeGeo = new THREE.BoxGeometry(isLongitudinal ? len : 0.08, flangeThick, isLongitudinal ? 0.08 : len);
-                const topFlange = new THREE.Mesh(flangeGeo, steelMat);
-                topFlange.position.y = h / 2 - flangeThick / 2;
-
-                const botFlange = new THREE.Mesh(flangeGeo, steelMat);
-                botFlange.position.y = -h / 2 + flangeThick / 2;
-
-                // Center Web
-                const webGeo = new THREE.BoxGeometry(isLongitudinal ? len : webThick, h - flangeThick * 2, isLongitudinal ? webThick : len);
-                const web = new THREE.Mesh(webGeo, steelMat);
-
-                beamGroup.add(topFlange, botFlange, web);
-                return beamGroup;
+            const flangeThick = 0.012, webThick = 0.01;
+            const buildBeam = (len, isLong) => {
+                const g = new THREE.Group();
+                const fGeo = new THREE.BoxGeometry(isLong ? len : 0.08, flangeThick, isLong ? 0.08 : len);
+                const top = new THREE.Mesh(fGeo, steelMat); top.position.y = h / 2 - flangeThick / 2;
+                const bot = new THREE.Mesh(fGeo, steelMat); bot.position.y = -h / 2 + flangeThick / 2;
+                const wGeo = new THREE.BoxGeometry(isLong ? len : webThick, h - flangeThick * 2, isLong ? webThick : len);
+                const web = new THREE.Mesh(wGeo, steelMat);
+                g.add(top, bot, web); return g;
             };
-
-            // Long Side Beams
-            const longBeam1 = buildBeam(l, true);
-            longBeam1.position.set(0, h / 2, w / 2 - 0.04);
-            const longBeam2 = buildBeam(l, true);
-            longBeam2.position.set(0, h / 2, -w / 2 + 0.04);
-
-            // Short Side Beams
-            const shortBeam1 = buildBeam(w - 0.16, false);
-            shortBeam1.position.set(l / 2 - 0.04, h / 2, 0);
-            const shortBeam2 = buildBeam(w - 0.16, false);
-            shortBeam2.position.set(-l / 2 + 0.04, h / 2, 0);
-
-            frameMesh.add(longBeam1, longBeam2, shortBeam1, shortBeam2);
+            const lb1 = buildBeam(l, true); lb1.position.set(0, h / 2, w / 2 - 0.04);
+            const lb2 = buildBeam(l, true); lb2.position.set(0, h / 2, -w / 2 + 0.04);
+            const sb1 = buildBeam(w - 0.16, false); sb1.position.set(l / 2 - 0.04, h / 2, 0);
+            const sb2 = buildBeam(w - 0.16, false); sb2.position.set(-l / 2 + 0.04, h / 2, 0);
+            frameMesh.add(lb1, lb2, sb1, sb2);
             scene.add(frameMesh);
 
-            // 3. Welded Mounting Brackets / Lugs (Kupingan Support)
             if (bracketsGroup) scene.remove(bracketsGroup);
             bracketsGroup = new THREE.Group();
             const bracketMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.4 });
-
             const count = currentCalc.mountingCount;
             const mountPositions = [];
-
+            const off = 0.02;
             if (count === 4) {
-                mountPositions.push(
-                    [-l / 2 + 0.18, -w / 2 - 0.06],
-                    [l / 2 - 0.18, -w / 2 - 0.06],
-                    [-l / 2 + 0.18, w / 2 + 0.06],
-                    [l / 2 - 0.18, w / 2 + 0.06]
-                );
+                mountPositions.push([-l/2+0.22, -w/2-off], [l/2-0.22, -w/2-off], [-l/2+0.22, w/2+off], [l/2-0.22, w/2+off]);
             } else if (count === 6) {
-                mountPositions.push(
-                    [-l / 2 + 0.18, -w / 2 - 0.06],
-                    [0, -w / 2 - 0.06],
-                    [l / 2 - 0.18, -w / 2 - 0.06],
-                    [-l / 2 + 0.18, w / 2 + 0.06],
-                    [0, w / 2 + 0.06],
-                    [l / 2 - 0.18, w / 2 + 0.06]
-                );
-            } else { // 8 points
-                mountPositions.push(
-                    [-l / 2 + 0.18, -w / 2 - 0.06],
-                    [-l / 6, -w / 2 - 0.06],
-                    [l / 6, -w / 2 - 0.06],
-                    [l / 2 - 0.18, -w / 2 - 0.06],
-                    [-l / 2 + 0.18, w / 2 + 0.06],
-                    [-l / 6, w / 2 + 0.06],
-                    [l / 6, w / 2 + 0.06],
-                    [l / 2 - 0.18, w / 2 + 0.06]
-                );
+                mountPositions.push([-l/2+0.22, -w/2-off], [0, -w/2-off], [l/2-0.22, -w/2-off],
+                    [-l/2+0.22, w/2+off], [0, w/2+off], [l/2-0.22, w/2+off]);
+            } else {
+                mountPositions.push([-l/2+0.22, -w/2-off], [-l/6, -w/2-off], [l/6, -w/2-off], [l/2-0.22, -w/2-off],
+                    [-l/2+0.22, w/2+off], [-l/6, w/2+off], [l/6, w/2+off], [l/2-0.22, w/2+off]);
             }
-
             mountPositions.forEach(pos => {
-                const lugGroup = new THREE.Group();
-                const plateGeo = new THREE.BoxGeometry(0.16, 0.015, 0.12);
-                const plate = new THREE.Mesh(plateGeo, bracketMat);
-                plate.position.set(pos[0], 0.01, pos[1]);
-
-                // Gusset stiffeners
-                const gussetGeo = new THREE.BoxGeometry(0.012, h * 0.7, 0.10);
-                const gusset = new THREE.Mesh(gussetGeo, bracketMat);
-                gusset.position.set(pos[0], h * 0.35, pos[1]);
-
-                lugGroup.add(plate, gusset);
-                bracketsGroup.add(lugGroup);
+                const g = new THREE.Group();
+                const onFB = Math.abs(pos[1]) > Math.abs(pos[0]);
+                const plate = new THREE.Mesh(new THREE.BoxGeometry(onFB ? 0.16 : 0.12, 0.015, onFB ? 0.12 : 0.16), bracketMat);
+                plate.position.set(pos[0], 0.008, pos[1]);
+                g.add(plate);
+                const bHW = w / 2 - 0.02, bHL = l / 2 - 0.02;
+                const gx = onFB ? pos[0] : Math.sign(pos[0]) * bHL;
+                const gz = onFB ? Math.sign(pos[1]) * bHW : pos[1];
+                const gusset = new THREE.Mesh(new THREE.BoxGeometry(onFB ? 0.012 : 0.10, h * 0.8, onFB ? 0.10 : 0.012), bracketMat);
+                gusset.position.set(gx, h * 0.4, gz);
+                g.add(gusset);
+                const armLen = Math.abs(gz - pos[1]) + Math.abs(gx - pos[0]);
+                if (armLen > 0.03) {
+                    const armGeo = onFB ? new THREE.BoxGeometry(0.015, 0.015, armLen) : new THREE.BoxGeometry(armLen, 0.015, 0.015);
+                    const arm = new THREE.Mesh(armGeo, bracketMat);
+                    arm.position.set((gx + pos[0]) / 2, h * 0.4, (gz + pos[1]) / 2);
+                    g.add(arm);
+                }
+                bracketsGroup.add(g);
             });
             scene.add(bracketsGroup);
 
-            // 4. Wiremesh 2 Layers (Upper & Lower Grid Rebar)
             if (wiremeshGroup) scene.remove(wiremeshGroup);
             wiremeshGroup = new THREE.Group();
-            const wireMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 }); // Amber rebar
-
-            const yBottom = h * 0.25;
-            const yTop = h * 0.75;
-
-            [yBottom, yTop].forEach(yPos => {
-                // Long rebars
+            const wireMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 });
+            [h * 0.25, h * 0.75].forEach(yPos => {
                 for (let x = -l / 2 + 0.08; x <= l / 2 - 0.08; x += 0.15) {
-                    const rebarGeo = new THREE.CylinderGeometry(0.005, 0.005, w - 0.12, 8);
-                    const rebar = new THREE.Mesh(rebarGeo, wireMat);
-                    rebar.rotation.x = Math.PI / 2;
-                    rebar.position.set(x, yPos, 0);
-                    wiremeshGroup.add(rebar);
+                    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, w - 0.12, 8), wireMat);
+                    r.rotation.x = Math.PI / 2; r.position.set(x, yPos, 0); wiremeshGroup.add(r);
                 }
-                // Transverse rebars
                 for (let z = -w / 2 + 0.08; z <= w / 2 - 0.08; z += 0.15) {
-                    const rebarGeo = new THREE.CylinderGeometry(0.005, 0.005, l - 0.12, 8);
-                    const rebar = new THREE.Mesh(rebarGeo, wireMat);
-                    rebar.rotation.z = Math.PI / 2;
-                    rebar.position.set(0, yPos + 0.006, z);
-                    wiremeshGroup.add(rebar);
+                    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, l - 0.12, 8), wireMat);
+                    r.rotation.z = Math.PI / 2; r.position.set(0, yPos + 0.006, z); wiremeshGroup.add(r);
                 }
             });
             scene.add(wiremeshGroup);
 
-            // 5. Realistic ALTRAND Spring Mountings 3D Objects
             if (springsGroup) scene.remove(springsGroup);
             springsGroup = new THREE.Group();
-
             const isTypeCE = currentCalc.chosenSpring && currentCalc.chosenSpring.cat === 'CE';
-
             mountPositions.forEach(pos => {
-                const springMesh = isTypeCE ? createSpringTypeCE() : createSpringTypeXL();
-                springMesh.position.set(pos[0], -0.19, pos[1]);
-                springsGroup.add(springMesh);
+                const s = isTypeCE ? createSpringTypeCE() : createSpringTypeXL();
+                s.position.set(pos[0], -0.19, pos[1]);
+                springsGroup.add(s);
             });
             scene.add(springsGroup);
 
-            // 6. Pump Equipment set (Only visible in Operational Mode)
             if (pumpMesh) scene.remove(pumpMesh);
             pumpMesh = new THREE.Group();
-
             if (!isFabricationMode) {
-                const pumpBodyMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 }); // Chiller Blue
-                const motorMat = new THREE.MeshStandardMaterial({ color: 0x0d9488, metalness: 0.6, roughness: 0.4 }); // Teal Motor
-                const baseSkidMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
-
-                // Base Channel Skid
-                const skidGeo = new THREE.BoxGeometry(l * 0.75, 0.05, w * 0.55);
-                const skid = new THREE.Mesh(skidGeo, baseSkidMat);
+                const pumpMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 });
+                const motorMat = new THREE.MeshStandardMaterial({ color: 0x0d9488, metalness: 0.6, roughness: 0.4 });
+                const skidMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
+                const skid = new THREE.Mesh(new THREE.BoxGeometry(l * 0.75, 0.05, w * 0.55), skidMat);
                 skid.position.set(0, h + 0.025, 0);
-
-                // Motor Housing
-                const motorGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.50, 24);
-                motorGeo.rotateZ(Math.PI / 2);
+                const motorGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.50, 24); motorGeo.rotateZ(Math.PI / 2);
                 const motor = new THREE.Mesh(motorGeo, motorMat);
                 motor.position.set(-l * 0.18, h + 0.23, 0);
-
-                // Motor Cooling Fins
-                const finGeo = new THREE.CylinderGeometry(0.20, 0.20, 0.02, 16);
-                finGeo.rotateZ(Math.PI / 2);
+                const finGeo = new THREE.CylinderGeometry(0.20, 0.20, 0.02, 16); finGeo.rotateZ(Math.PI / 2);
                 for (let fx = -0.15; fx <= 0.15; fx += 0.06) {
                     const fin = new THREE.Mesh(finGeo, motorMat);
                     fin.position.set(-l * 0.18 + fx, h + 0.23, 0);
                     pumpMesh.add(fin);
                 }
-
-                // Volute Casing (Pump Head)
-                const voluteGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.20, 24);
-                const volute = new THREE.Mesh(voluteGeo, pumpBodyMat);
+                const volute = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.20, 24), pumpMat);
                 volute.position.set(l * 0.18, h + 0.25, 0);
-
-                // Suction Pipe & Flange
-                const suctionGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.25, 16);
-                suctionGeo.rotateZ(Math.PI / 2);
-                const suction = new THREE.Mesh(suctionGeo, pumpBodyMat);
+                const suctionGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.25, 16); suctionGeo.rotateZ(Math.PI / 2);
+                const suction = new THREE.Mesh(suctionGeo, pumpMat);
                 suction.position.set(l * 0.35, h + 0.25, 0);
-
-                const flangeGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.025, 16);
-                flangeGeo.rotateZ(Math.PI / 2);
-                const flange = new THREE.Mesh(flangeGeo, baseSkidMat);
+                const flangeGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.025, 16); flangeGeo.rotateZ(Math.PI / 2);
+                const flange = new THREE.Mesh(flangeGeo, skidMat);
                 flange.position.set(l * 0.45, h + 0.25, 0);
-
                 pumpMesh.add(skid, motor, volute, suction, flange);
             }
             scene.add(pumpMesh);
         }
 
-        // Toggle Fabrication Mode vs Operational Mode
         function toggleFabricationMode() {
             isFabricationMode = !isFabricationMode;
             const btn = document.getElementById('btnFabricationMode');
             const lbl = document.getElementById('lblModeText');
-
             if (isFabricationMode) {
                 lbl.textContent = "Mode Fabrikasi";
                 btn.className = "px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-xs font-bold text-amber-300 border border-amber-500/40 flex items-center gap-1.5 transition";
-                showToast("Diubah ke Mode Fabrikasi (Transparan & Detail Wiremesh)", "info", "Visualisasi 3D");
+                showToast("Mode Fabrikasi (Transparan & Wiremesh)", "info", "Visualisasi 3D");
             } else {
                 lbl.textContent = "Mode Operasional";
                 btn.className = "px-3 py-1.5 rounded-lg bg-blue-600/30 hover:bg-blue-600/40 text-xs font-bold text-cyan-300 border border-blue-500/50 flex items-center gap-1.5 transition";
-                showToast("Diubah ke Mode Operasional (Visualisasi Unit Pompa)", "info", "Visualisasi 3D");
+                showToast("Mode Operasional (Unit Pompa)", "info", "Visualisasi 3D");
             }
             update3DModel();
         }
 
-        // Reset 3D Camera View
         function resetCamera3D() {
             camera.position.set(3.2, 2.4, 3.8);
             controls.target.set(0, 0, 0);
             controls.update();
-            showToast("Posisi kamera 3D dikembalikan ke sudut default", "info", "Reset Kamera");
+            showToast("Kamera 3D direset", "info", "Reset Kamera");
         }
 
-        // Reset Application State
         function resetToDefault() {
             document.getElementById('inputEqName').value = "Pompa Chiller (CHW) VAC 01";
             document.getElementById('inputEqWeight').value = "718";
@@ -1351,25 +1034,22 @@
             document.getElementById('selectFrameProfile').value = "WF150";
             document.getElementById('inputLengthMm').value = "1800";
             document.getElementById('inputWidthMm').value = "1100";
+            document.getElementById('inputConcreteDensity').value = "2400";
+            document.getElementById('selectWiremesh').value = "M8_14.5";
             document.getElementById('selectMountingCount').value = "4";
             document.getElementById('selectSpringCategory').value = "auto";
             onSpringCategoryChange();
-
-            showToast("Semua parameter telah dikembalikan ke kondisi awal", "warning", "Reset Parameter");
+            showToast("Semua parameter dikembalikan ke awal", "warning", "Reset Parameter");
         }
 
-        // BUILD CLEAN PRINTABLE HTML (WHITE BACKGROUND)
         function buildPrintableHTML(isBPBOnly) {
             const dateStr = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
             const c = currentCalc;
-
-            const steelBarsNeeded = Math.ceil(c.framePerimeterM / 6.0);
-            const meshSheetsNeeded = Math.ceil((c.blockAreaM2 * 2) / 2.88);
-            const totalBags50kg = Math.ceil(c.concreteVolM3 * 43);
-
+            const steel = Math.ceil(c.framePerimeterM / 6.0);
+            const mesh = Math.ceil((c.blockAreaM2 * 2) / 2.88);
+            const bags = Math.ceil(c.concreteVolM3 * 43);
             return `
                 <div style="font-family: Arial, sans-serif; color: #0f172a; line-height: 1.4;">
-                    <!-- Header -->
                     <div style="border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <h1 style="font-size: 18px; font-weight: 800; margin: 0; color: #0f172a;">${isBPBOnly ? 'REKOMENDASI BON PERMINTAAN BARANG (BPB)' : 'LAPORAN KALKULASI & SIZING INERTIA BLOCK'}</h1>
@@ -1380,16 +1060,12 @@
                             <div>Nama Proyek: <strong>_______________</strong></div>
                         </div>
                     </div>
-
-                    <!-- Meta Summary Box -->
                     <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 11px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div>Nama Equipment: <strong>${c.eqName}</strong></div>
                         <div>Berat Equipment: <strong>${c.eqWeight} Kg</strong></div>
                         <div>Dimensi Inertia: <strong>${c.lengthMm} x ${c.widthMm} x ${c.heightMm} mm</strong></div>
                         <div>Total Operating Load: <strong>${c.totalOperatingLoadKg.toFixed(1)} Kg</strong></div>
                     </div>
-
-                    <!-- Section: BPB Table -->
                     <div style="margin-bottom: 20px;">
                         <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #0284c7; margin-bottom: 8px;">1. Rekomendasi Permintaan Barang (BPB)</h3>
                         <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
@@ -1397,126 +1073,85 @@
                                 <tr style="background-color: #f1f5f9; text-align: left;">
                                     <th style="padding: 8px; border: 1px solid #cbd5e1;">Item Material</th>
                                     <th style="padding: 8px; border: 1px solid #cbd5e1;">Spesifikasi</th>
-                                    <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">Kebutuhan Netto</th>
+                                    <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">Netto</th>
                                     <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; color: #0284c7;">Rekomendasi BPB</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Profil Baja Frame (${c.frameCat.toUpperCase()})</td>
+                                <tr><td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Profil Baja Frame (${c.frameCat.toUpperCase()})</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1;">${c.selectedProfile.name}</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${c.framePerimeterM.toFixed(2)} Meter</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${steelBarsNeeded} Batang @ 6m</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">${c.meshSpecName}</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1;">2 Lapis (Atas & Bawah, Sheet 1.2 x 2.4 m)</td>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${steel} Batang @ 6m</td></tr>
+                                <tr><td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">${c.meshSpecName}</td>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1;">2 Lapis (Sheet 1.2 x 2.4 m)</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${(c.blockAreaM2 * 2).toFixed(2)} m²</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${meshSheetsNeeded} Lembar</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Beton Instan / Ready-Mix</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Semen Instan K-300 (Bag @ 50 Kg) - Rate 43 Sak/m³</td>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${mesh} Lembar</td></tr>
+                                <tr><td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Beton Instan</td>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1;">K-300 (Bag @ 50 Kg) - 43 Sak/m³</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${c.concreteVolM3.toFixed(3)} m³</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${totalBags50kg} Sak @ 50 Kg</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Spring Mounting ALTRAND</td>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${bags} Sak @ 50 Kg</td></tr>
+                                <tr><td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 600;">Spring ALTRAND</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1;">${c.chosenSpring.model} (Max Load: ${c.chosenSpring.maxLoad} Kg)</td>
                                     <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${c.mountingCount} Unit</td>
-                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${c.mountingCount} Unit</td>
-                                </tr>
+                                    <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: 700;">${c.mountingCount} Unit</td></tr>
                             </tbody>
                         </table>
                     </div>
-
                     ${!isBPBOnly ? `
-                    <!-- Section: Detailed Calculation Breakdown -->
                     <div style="margin-bottom: 20px;">
                         <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-bottom: 8px;">2. Rincian Analisis Inersia & Spring Mounting</h3>
                         <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                             <tbody>
-                                <tr>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Target Berat Inersia (${c.targetRatio}x)</td>
+                                <tr><td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Target Berat Inersia (${c.targetRatio}x)</td>
                                     <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.targetInertiaKg.toFixed(1)} Kg</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Beton Cor</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.concreteWeightKg.toFixed(1)} Kg</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Frame Baja (${c.selectedProfile.name})</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Beton</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.concreteWeightKg.toFixed(1)} Kg</td></tr>
+                                <tr><td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Frame (${c.selectedProfile.name})</td>
                                     <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.frameWeightKg.toFixed(1)} Kg</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Wiremesh (2 Lapis)</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.wiremeshWeightKg.toFixed(1)} Kg</td>
-                                </tr>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Berat Wiremesh 2 Lapis</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.wiremeshWeightKg.toFixed(1)} Kg</td></tr>
                                 <tr style="background-color: #f8fafc;">
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">Total Berat Inersia Terhitung</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">Total Berat Inersia</td>
                                     <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 800; color: #0284c7;">${c.totalInertiaWeightKg.toFixed(1)} Kg</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">Deviasi Inersia</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 800; color: ${c.devKg >= 0 ? '#059669' : '#dc2626'};">${c.devPct.toFixed(1)}% (${c.devKg >= 0 ? 'LULUS / PASS' : 'KURANG BERAT'})</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Load per Mounting Point (${c.mountingCount} Pts)</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">Deviasi</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 800; color: ${c.devKg >= 0 ? '#059669' : '#dc2626'};">${c.devPct.toFixed(1)}% (${c.devKg >= 0 ? 'LULUS' : 'KURANG BERAT'})</td></tr>
+                                <tr><td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Load per Point (${c.mountingCount} Pts)</td>
                                     <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700;">${c.loadPerPointKg.toFixed(1)} Kg/Point</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Spring Safety Margin</td>
-                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #059669;">${c.safetyMarginPct.toFixed(1)}%</td>
-                                </tr>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">Safety Margin</td>
+                                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #059669;">${c.safetyMarginPct.toFixed(1)}%</td></tr>
                             </tbody>
                         </table>
                     </div>
                     ` : ''}
-
-                    <!-- Signatures -->
                     <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 11px; text-align: center;">
                         <div style="width: 200px;">
-                            <div>Dibuat Oleh,</div>
-                            <div style="height: 50px;"></div>
+                            <div>Dibuat Oleh,</div><div style="height: 50px;"></div>
                             <div style="font-weight: 700; text-decoration: underline;">( ..................................... )</div>
-                            <div style="color: #64748b; font-size: 10px;">SPV / SM / SE </div>
+                            <div style="color: #64748b; font-size: 10px;">SPV / SM / SE</div>
                         </div>
                         <div style="width: 200px;">
-                            <div>Diperiksa Oleh,</div>
-                            <div style="height: 50px;"></div>
+                            <div>Diperiksa Oleh,</div><div style="height: 50px;"></div>
                             <div style="font-weight: 700; text-decoration: underline;">( ..................................... )</div>
                             <div style="color: #64748b; font-size: 10px;">Project Manager</div>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
-        // Print Handlers
-        function printBPBOnly() {
-            showToast("Menyiapkan dokumen cetak BPB...", "success", "Cetak Dokumen");
-            triggerPrintProcess(true);
-        }
-
-        function printFullReport() {
-            showToast("Menyiapkan Laporan Keseluruhan...", "success", "Cetak Dokumen");
-            triggerPrintProcess(false);
-        }
-
+        function printBPBOnly() { showToast("Menyiapkan BPB...", "success", "Cetak"); triggerPrintProcess(true); }
+        function printFullReport() { showToast("Menyiapkan Laporan...", "success", "Cetak"); triggerPrintProcess(false); }
         function triggerPrintProcess(isBPBOnly) {
-            const printHTML = buildPrintableHTML(isBPBOnly);
-            const printContainer = document.getElementById('printContainer');
-            printContainer.innerHTML = printHTML;
-
-            setTimeout(() => {
-                window.print();
-            }, 300);
+            document.getElementById('printContainer').innerHTML = buildPrintableHTML(isBPBOnly);
+            setTimeout(() => window.print(), 300);
         }
 
-        // INITIALIZATION ON DOM READY
         window.addEventListener('DOMContentLoaded', () => {
             initInertiaRatioOptions();
             init3DScene();
             onFrameCategoryChange();
             onSpringCategoryChange();
             calculateInertia();
-
-            // Welcome toast
-            setTimeout(() => {
-                showToast("Aplikasi siap digunakan. Klik 'Panduan Penggunaan' di kanan atas untuk bantuan.", "info", "Sistem Siap");
-            }, 600);
+            setTimeout(() => showToast("Aplikasi siap. Klik 'Dasar Perhitungan' atau 'Panduan' untuk bantuan.", "info", "Sistem Siap"), 600);
         });
     </script>
 </body>
