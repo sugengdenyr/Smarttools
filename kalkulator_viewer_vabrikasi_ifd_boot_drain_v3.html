@@ -25,7 +25,7 @@
 </head>
 <body class="min-h-screen flex flex-col relative">
 
-  <!-- Toast Notification Container (Kanan Bawah) -->
+  <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Header -->
@@ -36,7 +36,7 @@
           <i class="fa-solid fa-calculator text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-white tracking-wide">Perhitungan Material Fabrikasi IFD dan Footbath <span class="text-cyan-400 text-xs align-top">V 1.0</span></h1>
+          <h1 class="text-lg font-bold text-white tracking-wide">Perhitungan Material Fabrikasi IFD dan Footbath <span class="text-cyan-400 text-xs align-top">V 1.1</span></h1>
           <p class="text-xs text-slate-400">Nesting, Optimasi, Consumables Las Argon, Layout Potongan Plat Lembaran</p>
         </div>
       </div>
@@ -57,26 +57,38 @@
     </div>
   </header>
 
-  <!-- Explanation Modal (Panduan Teknikal) -->
+  <!-- ====================== Explanation Modal (Panduan Teknikal) ====================== -->
   <div id="modalExplanation" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-microscope text-blue-400"></i> Penjelasan Detail Struktur, Material & Fabrikasi
+          <i class="fa-solid fa-microscope text-blue-400"></i> Penjelasan Detail Struktur, Material &amp; Fabrikasi
         </h2>
         <button id="btnCloseModal" class="text-slate-400 hover:text-white p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
+
+        <!-- Banner verifikasi -->
+        <div class="bg-blue-950/40 border border-blue-700/50 p-3 rounded-xl text-xs flex items-start gap-2">
+          <i class="fa-solid fa-circle-info text-blue-400 mt-0.5"></i>
+          <div>
+            <strong class="text-blue-200">Catatan Verifikasi:</strong> Di setiap section ditambahkan blok <em>"Dasar Perhitungan"</em>
+            dengan rumus persis seperti yang dipakai kode. Silakan bandingkan output kalkulator dengan rumus — jika tidak cocok, berarti ada <em>bug</em>.
+          </div>
+        </div>
+
+        <!-- ============ SECTION 1 : IFD ============ -->
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
           <h3 class="text-md font-bold text-blue-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> 1. IFD (Industrial Floor Drain)</h3>
-          <p class="mb-3"><strong>Fungsi:</strong> Saluran pembuangan air lantai area higienis, tahan korosi & beban, mencegah bau balik dari saluran drainase.</p>
+          <p class="mb-3"><strong>Fungsi:</strong> Saluran pembuangan air lantai area higienis, tahan korosi &amp; beban, mencegah bau balik dari saluran drainase.</p>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mb-3">
             <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
               <strong class="text-amber-400 block mb-1">Struktur Utama:</strong>
               <ul class="list-disc list-inside space-y-1 text-slate-300">
                 <li><strong>Body Box</strong> — bak plat SS304 3mm.</li>
                 <li><strong>Kupingan Waterstop</strong> — bibir keliling yang posisinya turun sedikit (step) dari permukaan atas bak.</li>
-                <li><strong>Support Cover</strong> — dudukan dalam penopang cover.</li>
+                <li><strong>Support Cover</strong> — dudukan dalam penopang cover (rebate/lip tempat cover bersandar).</li>
                 <li><strong>Cover Grille + Perforated</strong> — bilah strip SS di atas, plat perforated Ø6mm di bawahnya.</li>
                 <li><strong>Water Seal Trap</strong> — pipa SS utuh, diameter = outlet + 2", ditutup dop plat di satu sisi.</li>
               </ul>
@@ -86,15 +98,93 @@
               <ul class="list-disc list-inside space-y-1 text-slate-300">
                 <li>Plat Stainless SS304 3mm (1,2 x 2,4 m) — body, dop trap.</li>
                 <li>Plat Perforated SS304 3mm Ø6mm (1,2 x 2,4 m) — alas cover.</li>
-                <li>Plat Strip SS304 30x3mm (@6 m) — bilah grille & rangka support & kupingan.</li>
+                <li>Plat Strip SS304 30x3mm (@6 m) — bilah grille &amp; rangka support &amp; kupingan.</li>
                 <li>Pipa Stainless SS304 (2"–6") — water seal trap.</li>
               </ul>
             </div>
           </div>
+
+          <!-- Clearance info -->
+          <div class="bg-cyan-950/40 border border-cyan-700/50 p-3 rounded-xl text-xs mb-3">
+            <strong class="text-cyan-300"><i class="fa-solid fa-ruler-combined mr-1"></i>Clearance Cover (SS304 3mm):</strong>
+            <p class="mt-1 text-slate-300">Plat perforated &amp; grille dibuat <code class="bg-slate-950 px-1.5 py-0.5 rounded text-cyan-300">P − 5mm</code> × <code class="bg-slate-950 px-1.5 py-0.5 rounded text-cyan-300">L − 5mm</code> dari ukuran luar box (2,5mm play per sisi).
+            Cover diletakkan <strong>bersandar pada support frame / rebate</strong> di bibir box — bukan dijejalkan ke dalam rongga dalam. Konstanta bisa diubah di <code class="code-font text-cyan-300">COVER_CLEARANCE_IFD</code>.</p>
+          </div>
+
+          <!-- ===== DASAR PERHITUNGAN IFD ===== -->
+          <div class="mt-4 border-t border-slate-700/60 pt-3">
+            <h4 class="text-xs font-bold text-cyan-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-square-root-variable"></i> Dasar Perhitungan — IFD</h4>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800" open>
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">A. Potongan Plat Solid (per unit)</summary>
+              <div class="overflow-x-auto mt-2">
+                <table class="w-full text-[11px] border-collapse">
+                  <thead><tr class="bg-slate-950 text-slate-400 text-left">
+                    <th class="p-2 border border-slate-800">Komponen</th>
+                    <th class="p-2 border border-slate-800">Rumus Dimensi</th>
+                    <th class="p-2 border border-slate-800">Qty</th>
+                  </tr></thead>
+                  <tbody class="text-slate-300 code-font">
+                    <tr><td class="p-2 border border-slate-800">Dasar Bak</td><td class="p-2 border border-slate-800">P × L</td><td class="p-2 border border-slate-800">1</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Dinding Panjang</td><td class="p-2 border border-slate-800">P × T</td><td class="p-2 border border-slate-800">2</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Dinding Lebar</td><td class="p-2 border border-slate-800">L × T</td><td class="p-2 border border-slate-800">2</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Dop Tutup Trap</td><td class="p-2 border border-slate-800">Ø ( OD_trap + 20 mm )</td><td class="p-2 border border-slate-800">1</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Alas Perforated (lembar terpisah)</td><td class="p-2 border border-slate-800">(P − 5) × (L − 5)</td><td class="p-2 border border-slate-800">1</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-2">
+                <strong>OD_trap</strong> = OD pipa ukuran (outlet + 2"). Contoh: outlet 4" → trap 6" → OD 168.3 mm → dop Ø 188.3 mm.
+                <br><strong>Nesting:</strong> shelf packing — urut dari luas terbesar, coba muat ke shelf yang ada (boleh dirotasi 90°); kalau tidak muat buka shelf baru; kalau lembar penuh buka lembar baru.
+                <br><strong>Efisiensi per lembar (%)</strong> = (Σ luas potongan terpakai ÷ 2.880.000 mm²) × 100.
+              </p>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">B. Plat Strip 30×3 mm (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-amber-300 overflow-x-auto leading-relaxed">coverW  = max(60, P − 5)
+coverL  = max(60, L − 5)
+numBars = max(3, floor(coverW / 30))   // pitch bilah 30 mm
+
+Bilah     = numBars × coverL
+Rangka    = 2 × (coverW + coverL)
+Kupingan  = 2 × ((P + 60) + (L + 60))   // keliling luar waterstop
+────────────────────────────────────────
+Total / unit = Bilah + Rangka + Kupingan (mm)
+
+Total Batang = ceil( Σ total semua unit ÷ 6000 mm )</pre>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">C. Pipa Water Seal Trap (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-cyan-300 overflow-x-auto leading-relaxed">Trap Ø (inch)   = outlet + 2"
+Trap OD (mm)    = pipeOD(trap_inch)          // tabel: 2"=60.3, 3"=88.9, 4"=114.3, 6"=168.3
+Tinggi Trap     = max( 80, round(T × 0.55) ) // minimal 80 mm
+
+Total Panjang   = Σ ( Tinggi Trap × qty )
+Total Batang    = ceil( Total Panjang ÷ 6000 mm )</pre>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">D. Panjang Jalur Las Argon (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-rose-300 overflow-x-auto leading-relaxed">r_trap = OD(outlet + 2") / 2
+
+Las Dasar        = 2 × (P + L)                 // keliling dasar bak
+Las Sudut        = 4 × T                       // 4 sudut vertikal
+Las Kupingan     = 2 × ((P + 60) + (L + 60))   // keliling luar waterstop
+Las Trap (lingkar)= 2 × π × r_trap
+────────────────────────────────────────────────
+Total (mm) = jumlah di atas
+Total (m)  = Total (mm) ÷ 1000</pre>
+            </details>
+          </div>
         </div>
+
+        <!-- ============ SECTION 2 : BOOT DRAIN ============ -->
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
           <h3 class="text-md font-bold text-emerald-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-shoe-prints"></i> 2. Boot Drain / Footbath</h3>
-          <p class="mb-3"><strong>Fungsi & cara kerja:</strong> Memiliki dua sisi grating dengan ketinggian berbeda. Bak diisi air, sisi basah lebih rendah untuk merontokkan kotoran, sisi kering lebih tinggi untuk pijakan akhir.</p>
+          <p class="mb-3"><strong>Fungsi &amp; cara kerja:</strong> Memiliki dua sisi grating dengan ketinggian berbeda. Bak diisi air, sisi basah lebih rendah untuk merontokkan kotoran, sisi kering lebih tinggi untuk pijakan akhir.</p>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mb-3">
             <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
               <strong class="text-amber-400 block mb-1">Struktur:</strong>
@@ -109,13 +199,133 @@
               <strong class="text-amber-400 block mb-1">Metode Fabrikasi:</strong>
               <ul class="list-disc list-inside space-y-1 text-slate-300">
                 <li>Nesting efisien lembaran SS304.</li>
-                <li>Bending brake untuk bak & slope 5%.</li>
+                <li>Bending brake untuk bak &amp; slope 5%.</li>
                 <li>Las TIG/Argon penuh (leak-proof).</li>
-                <li>Pasivasi & finishing hairline/polish.</li>
+                <li>Pasivasi &amp; finishing hairline/polish.</li>
               </ul>
             </div>
           </div>
+
+          <!-- ===== DASAR PERHITUNGAN BOOT DRAIN ===== -->
+          <div class="mt-4 border-t border-slate-700/60 pt-3">
+            <h4 class="text-xs font-bold text-cyan-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-square-root-variable"></i> Dasar Perhitungan — Boot Drain</h4>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800" open>
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">A. Potongan Plat Solid (per unit)</summary>
+              <div class="overflow-x-auto mt-2">
+                <table class="w-full text-[11px] border-collapse">
+                  <thead><tr class="bg-slate-950 text-slate-400 text-left">
+                    <th class="p-2 border border-slate-800">Komponen</th>
+                    <th class="p-2 border border-slate-800">Rumus Dimensi</th>
+                    <th class="p-2 border border-slate-800">Qty</th>
+                  </tr></thead>
+                  <tbody class="text-slate-300 code-font">
+                    <tr><td class="p-2 border border-slate-800">Dasar Bak (slope 5%)</td><td class="p-2 border border-slate-800">P × L</td><td class="p-2 border border-slate-800">1</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Dinding Panjang</td><td class="p-2 border border-slate-800">P × T</td><td class="p-2 border border-slate-800">2</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Dinding Lebar</td><td class="p-2 border border-slate-800">L × T</td><td class="p-2 border border-slate-800">2</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Sekat Tengah</td><td class="p-2 border border-slate-800">L × max(60, T − immersionDepth)</td><td class="p-2 border border-slate-800">1</td></tr>
+                    <tr><td class="p-2 border border-slate-800">Plat Perforated</td><td class="p-2 border border-slate-800">— tidak dipakai —</td><td class="p-2 border border-slate-800">0</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-2"><strong>immersionDepth</strong> = selisih tinggi grating basah vs kering (input user, default 80 mm).</p>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">B. Plat Strip 30×3 mm (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-amber-300 overflow-x-auto leading-relaxed">halfP   = max(60, floor(P / 2) − 5)    // lebar 1 sisi grille (clearance 10mm total)
+coverL  = max(60, L − 10)
+numBars = max(3, floor(coverL / 30))   // pitch 30 mm
+
+Bilah 2 sisi  = numBars × halfP × 2
+Rib Support   = 6 × halfP
+Kupingan      = 2 × ((P + 60) + (L + 60))
+────────────────────────────────────────
+Total / unit  = Bilah + Rib + Kupingan (mm)
+
+Total Batang  = ceil( Σ total semua unit ÷ 6000 mm )</pre>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">C. Floor Drain Injak 4" (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-emerald-300 overflow-x-auto leading-relaxed">Floor Drain Qty = Σ qty Boot Drain
+// Produk jadi — TIDAK dihitung sebagai pipa terpisah
+// (pipeLenTotal untuk BD = 0)</pre>
+            </details>
+
+            <details class="mb-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+              <summary class="cursor-pointer text-[12px] font-bold text-amber-300">D. Panjang Jalur Las Argon (per unit)</summary>
+              <pre class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-rose-300 overflow-x-auto leading-relaxed">r_trap = 114.3 / 2   // Floor Drain 4" (produk jadi)
+
+Las Dasar     = 2 × (P + L)
+Las Sudut     = 4 × T
+Las Kupingan  = 2 × ((P + 60) + (L + 60))
+Las Sekat     = 2 × L                       // sekat tengah (sisi datar)
+Las Trap      = 2 × π × r_trap
+────────────────────────────────────────────
+Total (m) = Σ di atas ÷ 1000</pre>
+              <p class="text-[11px] text-slate-400 mt-2">
+                ⚠️ <strong>Catatan audit:</strong> <span class="code-font">lasSekat</span> saat ini = 2 × L (hanya sisi atas &amp; bawah sekat).
+                Jika sekat dipotong lebih pendek dari T, sisi vertikal (2 × tinggi sekat) belum dihitung. Cek apakah ini disengaja.
+              </p>
+            </details>
+          </div>
         </div>
+
+        <!-- ============ SECTION 3 : KONSTANTA & CONSUMABLES ============ -->
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+          <h3 class="text-md font-bold text-orange-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench"></i> 3. Konstanta &amp; Dasar Perhitungan Consumables</h3>
+
+          <h4 class="text-xs font-bold text-cyan-300 mb-1 mt-2">A. Konstanta &amp; Tabel OD Pipa</h4>
+          <div class="overflow-x-auto mb-3">
+            <table class="w-full text-[11px] border-collapse">
+              <thead><tr class="bg-slate-950 text-slate-400 text-left">
+                <th class="p-2 border border-slate-800">Konstanta</th>
+                <th class="p-2 border border-slate-800">Nilai</th>
+              </tr></thead>
+              <tbody class="text-slate-300">
+                <tr><td class="p-2 border border-slate-800">Ukuran Lembar Plat</td><td class="p-2 border border-slate-800 code-font">1200 × 2400 mm = 2.880.000 mm²</td></tr>
+                <tr><td class="p-2 border border-slate-800">Panjang Batang Strip / Pipa</td><td class="p-2 border border-slate-800 code-font">6000 mm</td></tr>
+                <tr><td class="p-2 border border-slate-800">Tebal Plat SS304</td><td class="p-2 border border-slate-800 code-font">3 mm</td></tr>
+                <tr><td class="p-2 border border-slate-800">Plat Strip Grille</td><td class="p-2 border border-slate-800 code-font">30 × 3 mm</td></tr>
+                <tr><td class="p-2 border border-slate-800">Pitch Bilah Grille</td><td class="p-2 border border-slate-800 code-font">30 mm</td></tr>
+                <tr><td class="p-2 border border-slate-800"><span class="text-cyan-300 font-bold">COVER_CLEARANCE_IFD</span></td><td class="p-2 border border-slate-800 code-font text-cyan-300">5 mm (2,5 mm per sisi)</td></tr>
+                <tr><td class="p-2 border border-slate-800"><span class="text-cyan-300 font-bold">COVER_CLEARANCE_BD</span></td><td class="p-2 border border-slate-800 code-font text-cyan-300">10 mm (5 mm per sisi)</td></tr>
+                <tr><td class="p-2 border border-slate-800">Kawat Las Argon</td><td class="p-2 border border-slate-800 code-font">28.2 m / kg</td></tr>
+                <tr><td class="p-2 border border-slate-800">Pack Kawat Las</td><td class="p-2 border border-slate-800 code-font">5 kg</td></tr>
+                <tr><td class="p-2 border border-slate-800">IFD Referensi Standar</td><td class="p-2 border border-slate-800 code-font">300 × 300 × 200 mm, outlet 4"</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="overflow-x-auto mb-3">
+            <table class="w-full text-[11px] border-collapse">
+              <thead><tr class="bg-slate-950 text-slate-400 text-left">
+                <th class="p-2 border border-slate-800">Pipa Nominal</th>
+                <th class="p-2 border border-slate-800">OD (mm)</th>
+              </tr></thead>
+              <tbody class="code-font text-slate-300">
+                <tr><td class="p-2 border border-slate-800">2"</td><td class="p-2 border border-slate-800">60.3</td></tr>
+                <tr><td class="p-2 border border-slate-800">3"</td><td class="p-2 border border-slate-800">88.9</td></tr>
+                <tr><td class="p-2 border border-slate-800">4"</td><td class="p-2 border border-slate-800">114.3</td></tr>
+                <tr><td class="p-2 border border-slate-800">6"</td><td class="p-2 border border-slate-800">168.3</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 class="text-xs font-bold text-orange-300 mb-1 mt-3">B. Consumables (dari IFD Ekuivalen)</h4>
+          <pre class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-orange-300 overflow-x-auto leading-relaxed">stdWeld_IFD = PanjangLas_IFD(300, 300, 200, outlet=4")
+totalWeld   = Σ ( panjang las tiap item × qty )
+equivIFD    = totalWeld ÷ stdWeld_IFD          // "IFD Ekuivalen"
+
+Mata Gerinda Potong 4" = ceil( equivIFD × 1  )
+Mata Gerinda Poles      = ceil( equivIFD ÷ 7  )
+Mata Kain Poles         = ceil( equivIFD ÷ 2  )
+Flap Disc A120          = ceil( equivIFD ÷ 4  )
+Batu Hijau / Langsol    = ceil( equivIFD ÷ 25 )
+Kawat Las Argon (kg)    = totalWeld ÷ 28.2
+Kawat Las (pack 5 kg)   = ceil( Kawat Las (kg) ÷ 5 )</pre>
+        </div>
+
       </div>
     </div>
   </div>
@@ -146,14 +356,14 @@
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
             <h3 class="text-md font-bold text-blue-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-square-root-variable"></i> B. Dasar Perhitungan Potongan Plat (Nesting)</h3>
             <p class="mb-2 text-xs">Setiap 1 unit IFD dipecah menjadi potongan: 1 dasar bak (P×L), 2 dinding panjang (P×T), 2 dinding lebar (L×T), dan 1 dop tutup trap (bentuk lingkaran, diameter = pipa trap + 20mm). Boot Drain sama, ditambah 1 sekat tengah pemisah sisi basah/kering.</p>
-            <p class="mb-2 text-xs">Semua potongan tersebut lalu disusun ke lembar plat standar <strong>1200 x 2400 mm</strong> memakai metode <strong>shelf packing</strong>: potongan diurutkan dari yang paling besar luasnya, lalu dicoba dimuat ke "baris" (shelf) yang sudah ada di lembar aktif; jika muat (dengan atau tanpa dirotasi), ditaruh di situ. Jika tidak ada baris yang cukup, sistem membuka baris baru; jika lembar sudah penuh, sistem otomatis membuka lembar baru. Efisiensi (%) yang ditampilkan = luas potongan terpakai ÷ luas lembar (1.200.000 mm²).</p>
-            <p class="text-xs">Plat perforated Ø6mm dihitung terpisah — hanya dipakai untuk alas cover IFD (Boot Drain tidak pakai perforated).</p>
+            <p class="mb-2 text-xs">Semua potongan tersebut lalu disusun ke lembar plat standar <strong>1200 x 2400 mm</strong> memakai metode <strong>shelf packing</strong>: potongan diurutkan dari yang paling besar luasnya, lalu dicoba dimuat ke "baris" (shelf) yang sudah ada di lembar aktif; jika muat (dengan atau tanpa dirotasi), ditaruh di situ. Jika tidak ada baris yang cukup, sistem membuka baris baru; jika lembar sudah penuh, sistem otomatis membuka lembar baru. Efisiensi (%) yang ditampilkan = luas potongan terpakai ÷ luas lembar (2.880.000 mm²).</p>
+            <p class="text-xs">Plat perforated Ø6mm dihitung terpisah — hanya dipakai untuk alas cover IFD (Boot Drain tidak pakai perforated). Ukuran perforated = <strong>(P − 5mm) × (L − 5mm)</strong>.</p>
         </div>
 
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
-            <h3 class="text-md font-bold text-amber-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-ruler"></i> C. Dasar Perhitungan Strip, Pipa & Floor Drain</h3>
+            <h3 class="text-md font-bold text-amber-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-ruler"></i> C. Dasar Perhitungan Strip, Pipa &amp; Floor Drain</h3>
             <ul class="list-disc list-inside space-y-1 text-xs text-slate-300">
-            <li><strong>Plat Strip 30×3mm:</strong> total kebutuhan (mm) = panjang bilah grille + rangka cover + keliling kupingan waterstop (P+60 & L+60), lalu dibagi 6000mm per batang (dibulatkan ke atas).</li>
+            <li><strong>Plat Strip 30×3mm:</strong> total kebutuhan (mm) = panjang bilah grille + rangka cover + keliling kupingan waterstop (P+60 &amp; L+60), lalu dibagi 6000mm per batang (dibulatkan ke atas).</li>
             <li><strong>Pipa Water Seal Trap (khusus IFD):</strong> tinggi pipa = maksimal(80mm, 55% dari Tinggi unit), diameter pipa = ukuran outlet + 2". Total panjang dibagi 6000mm per batang.</li>
             <li><strong>Floor Drain Injak 4" (khusus Boot Drain):</strong> dihitung per pcs sesuai jumlah unit Boot Drain — bukan dari pipa, karena memakai produk jadi.</li>
             </ul>
@@ -224,7 +434,6 @@
           </div>
         </div>
 
-        <!-- IFD-specific fields -->
         <div id="ifdExtraFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
           <div>
             <label class="block text-[11px] text-slate-400 mb-1">Ukuran Pipa Outlet</label>
@@ -241,7 +450,6 @@
           </div>
         </div>
 
-        <!-- FOOTBATH-specific fields -->
         <div id="footbathExtraFields" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
           <div>
             <label class="block text-[11px] text-slate-400 mb-1">Selisih Tinggi Grating Basah vs Kering (mm)</label>
@@ -501,6 +709,13 @@ let projectEntries = [];
 let isExploded = false;
 let isWireframe = false;
 
+// ============================= KONSTANTA CLEARANCE COVER =============================
+// Clearance = total pengurangan dari ukuran luar box (P, L).
+// Default IFD   = 5 mm  → 2,5 mm play per sisi (perforated 295x295 utk box 300x300)
+// Default BD    = 10 mm → 5 mm play per sisi (grille per sisi basah/kering)
+const COVER_CLEARANCE_IFD = 5;    // mm
+const COVER_CLEARANCE_BD  = 10;   // mm
+
 // ============================= DOM REFS =============================
 const projectNameInput = document.getElementById('projectName');
 const itemTypeSelect = document.getElementById('itemType');
@@ -552,7 +767,6 @@ btnCloseModal.addEventListener('click', () => modalExplanation.classList.add('hi
 btnUsageGuide.addEventListener('click', () => modalUsageGuide.classList.remove('hidden'));
 btnCloseUsageModal.addEventListener('click', () => modalUsageGuide.classList.add('hidden'));
 
-// Tutup modal ketika klik area luar modal (backdrop)
 window.addEventListener('click', (e) => {
   if (e.target === modalExplanation) modalExplanation.classList.add('hidden');
   if (e.target === modalUsageGuide) modalUsageGuide.classList.add('hidden');
@@ -584,13 +798,11 @@ function showToast(message, type = 'success') {
 
   container.appendChild(toast);
 
-  // Animasi Masuk (Slide up & Fade in)
   requestAnimationFrame(() => {
     toast.classList.remove('translate-y-4', 'opacity-0');
     toast.classList.add('translate-y-0', 'opacity-100');
   });
 
-  // Otomatis Tutup setelah 2 Detik (2000ms)
   setTimeout(() => {
     toast.classList.remove('translate-y-0', 'opacity-100');
     toast.classList.add('translate-y-2', 'opacity-0');
@@ -648,7 +860,6 @@ btnAddEntry.addEventListener('click', () => {
   updateAllCalculations();
   update3DModel(entry);
 
-  // Notifikasi toast saat klik Data Entry
   const itemLabel = type === 'IFD' ? 'IFD' : 'Boot Drain';
   showToast(`Item ${itemLabel} (${P}x${L}x${T}mm) x${qty} ditambahkan!`, 'success');
 });
@@ -667,7 +878,6 @@ function removeProjectItem(id){
   renderTable();
   if (projectEntries.length > 0) update3DModel(projectEntries[projectEntries.length - 1]);
 
-  // Notifikasi toast saat hapus data
   const itemLabel = deletedItem ? (deletedItem.type === 'IFD' ? 'IFD' : 'Boot Drain') : 'Item';
   showToast(`Data ${itemLabel} berhasil dihapus`, 'danger');
 }
@@ -740,7 +950,8 @@ function computeIFDCuts(P, L, T, qty, outletInch){
     pipeLenTotal += trapHeight;
 
     // Alas perforated (hanya IFD)
-    const coverW = Math.max(60, P - 15), coverL = Math.max(60, L - 15);
+    const coverW = Math.max(60, P - COVER_CLEARANCE_IFD);
+    const coverL = Math.max(60, L - COVER_CLEARANCE_IFD);
     perfCuts.push(rectCut(coverW, coverL, `Alas Perforated Ø6mm ${coverW}x${coverL}mm (Cover IFD)`));
 
     // Kebutuhan Plat Strip
@@ -769,8 +980,8 @@ function computeFootbathCuts(P, L, T, qty, immersionDepth){
 
     floorDrainQty += 1;
 
-    const halfP = Math.max(60, Math.floor(P / 2) - 10);
-    const coverL = Math.max(60, L - 10);
+    const halfP = Math.max(60, Math.floor(P / 2) - (COVER_CLEARANCE_BD / 2));
+    const coverL = Math.max(60, L - COVER_CLEARANCE_BD);
     const pitch = 30;
     const numBars = Math.max(3, Math.floor(coverL / pitch));
     stripLen += numBars * halfP * 2; // dua sisi grille
@@ -1317,7 +1528,10 @@ function update3DModel(entry){
     trapDopMesh.position.y = -(T/2) - 5 - (isExploded ? explodeOffset*0.4 : 0);
     currentGroup.add(trapDopMesh);
 
-    const coverGroup = buildGrilleCover(P-20, L-20, perforatedMat, barMat, true);
+    // Cover menggunakan konstanta yang sama dengan nesting
+    const coverW_3D = Math.max(60, P - COVER_CLEARANCE_IFD);
+    const coverL_3D = Math.max(60, L - COVER_CLEARANCE_IFD);
+    const coverGroup = buildGrilleCover(coverW_3D, coverL_3D, perforatedMat, barMat, true);
     coverGroup.position.y = (T/2) + 8 + (isExploded ? explodeOffset*1.5 : 0);
     currentGroup.add(coverGroup);
 
@@ -1366,11 +1580,15 @@ function update3DModel(entry){
     slopeMesh.position.set((halfP/2), -(T/2)+22, 0);
     currentGroup.add(slopeMesh);
 
-    const grilleWet = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat, false);
+    // Sinkron dengan konstanta BD
+    const grilleL_3D = Math.max(60, L - COVER_CLEARANCE_BD);
+    const grilleHalfW_3D = Math.max(60, halfP - (COVER_CLEARANCE_BD / 2));
+
+    const grilleWet = buildGrilleCover(grilleHalfW_3D, grilleL_3D, perforatedMat, barMat, false);
     grilleWet.position.set(-(halfP/2), (T/2) - immersionDepth + 6 + (isExploded ? explodeOffset*1.5 : 0), 0);
     currentGroup.add(grilleWet);
 
-    const grilleDry = buildGrilleCover(halfP-20, L-20, perforatedMat, barMat, false);
+    const grilleDry = buildGrilleCover(grilleHalfW_3D, grilleL_3D, perforatedMat, barMat, false);
     grilleDry.position.set((halfP/2), (T/2) + 8 + (isExploded ? explodeOffset*1.7 : 0), 0);
     currentGroup.add(grilleDry);
 
